@@ -1,6 +1,7 @@
 import Discord from 'discord.js';
 import * as dotenv from 'dotenv';
 import intents from './intents';
+import { commandsHandler } from './modules/commandsHandler';
 
 // This will load our BOT_TOKEN from the .env file so we can access at process.env
 dotenv.config();
@@ -9,5 +10,16 @@ dotenv.config();
  which is everything. You can change this behavior at ./intents.ts */
 const client = new Discord.Client({ intents });
 
+// This will set our prefix as !
+const prefix = '!';
+
+// This is our listener that captures all messages sent
+client.on('messageCreate', (message) => commandsHandler(client, prefix, message));
+
 // Well, this creates a connection to our bot
-client.login(process.env.BOT_TOKEN);
+client
+  .login(process.env.BOT_TOKEN)
+  .then(() => console.log('Bot is online'))
+  .catch(() => {
+    console.log('Bot failed to start');
+  });
