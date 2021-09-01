@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, User } from 'discord.js';
+import { GuildMember, Message, User } from 'discord.js';
 import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
 
 // This is the function that will ban an member
