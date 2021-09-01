@@ -1,9 +1,11 @@
 import { Message } from 'discord.js';
 
-// This function will catch our user and member from the first mention of the message
-export const verifyUserAndMember = async (message: Message) => {
+// This function will catch our user from the first mention of the message and the author of the message
+export const retrieveUserAndAuthor = async (message: Message) => {
   const user = message.mentions.users.first();
+
   let member = null;
+
   if (user) {
     member = message.guild?.members.resolve(user);
   }

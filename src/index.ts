@@ -20,6 +20,6 @@ client.on('messageCreate', (message) => commandsHandler(client, prefix, message)
 client
   .login(process.env.BOT_TOKEN)
   .then(() => console.log('Bot is online'))
-  .catch(() => {
-    console.log('Bot failed to start');
+  .catch((err) => {
+    console.log(`Bot failed to start ${err}`);
   });

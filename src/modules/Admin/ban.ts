@@ -1,17 +1,17 @@
 import { Client, GuildMember, Message, User } from 'discord.js';
-import { verifyUserAndMember } from '../helpers/verifyUserAndMember';
+import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
 
 // This is the function that will ban an member
 export const handleBan = async (
   client: Client,
   message: Message,
-  args: string[]
+  args: string[] // args should be only an user
 ) => {
   // No arguments? what I am going to ban?
   if (!args[0]) return await message.reply('?');
 
   // We need the user and the member to add some checks
-  const { user, member, author, authorMember } = (await verifyUserAndMember(
+  const { user, member, author, authorMember } = (await retrieveUserAndAuthor(
     message
   )) as {
     user: User;
@@ -30,7 +30,7 @@ export const handleBan = async (
     !authorMember.permissions.has('ADMINISTRATOR') &&
     !authorMember.permissions.has('BAN_MEMBERS')
   )
-    return await message.reply('Você não pode fazer isso amiguinho!');
+    return await message.reply('Você não pode fazer isso!');
 
   // NEW FEATURE: you can ban everyone!
   if (message.mentions.everyone && authorMember.permissions.has('ADMINISTRATOR')) {
@@ -52,6 +52,8 @@ export const handleBan = async (
     await member.ban();
     return await message.channel.send(`Auf Wiedersehen, <@${user.id}>`);
   } catch (err) {
-    return await message.reply(`Eu acho que... eu não consigo banir <@${user.id}>!`);
+    return user
+      ? await message.reply(`Eu acho que... eu não consigo banir <@${user.id}>!`)
+      : await message.reply(`Esse usuário não existe!`);
   }
 };

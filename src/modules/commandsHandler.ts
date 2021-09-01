@@ -17,5 +17,9 @@ export const commandsHandler = async (
   const command = args.shift()?.toLowerCase() as string;
 
   // Here we will use the command as a key to return the correct response for each command
-  return commands[command](client, message, args);
+  try {
+    return commands[command](client, message, args);
+  } catch {
+    return null;
+  }
 };
