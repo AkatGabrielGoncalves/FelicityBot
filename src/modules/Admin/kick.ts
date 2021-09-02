@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, User } from 'discord.js';
+import { Client, Message } from 'discord.js';
 import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
 
 export const handleKick = async (
@@ -8,13 +8,9 @@ export const handleKick = async (
 ) => {
   if (!args[0]) return await message.reply('?');
 
-  const { mentionUser, mentionMember, authorUser, authorMember } =
-    (await retrieveUserAndAuthor(message)) as {
-      mentionUser: User | null;
-      mentionMember: GuildMember | null;
-      authorUser: User;
-      authorMember: GuildMember;
-    };
+  const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(
+    message
+  );
 
   if (!mentionUser || !mentionMember)
     return await message.reply('Por favor, um usuário válido, sim?');
@@ -25,7 +21,7 @@ export const handleKick = async (
   )
     return await message.reply('Haha boa tentativa.');
 
-  if (message.mentions.everyone && authorMember.permissions.has('ADMINISTRATOR')) {
+  if (message.mentions.everyone) {
     // @ts-ignore
     return (await message.guild?.members.fetch()).forEach(async (m) => {
       try {

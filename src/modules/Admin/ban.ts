@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, User } from 'discord.js';
+import { Client, Message } from 'discord.js';
 import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
 
 export const handleBan = async (
@@ -8,14 +8,9 @@ export const handleBan = async (
 ) => {
   if (!args[0]) return await message.reply('?');
 
-  const { mentionUser, mentionMember, authorUser } = (await retrieveUserAndAuthor(
+  const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(
     message
-  )) as {
-    mentionUser: User | null;
-    mentionMember: GuildMember | null;
-    authorUser: User;
-    authorMember: GuildMember;
-  };
+  );
 
   if (!mentionUser || !mentionMember)
     return await message.reply('Por favor, um usuário válido, sim?');

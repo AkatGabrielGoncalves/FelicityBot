@@ -1,5 +1,4 @@
-import { GuildMember, Message, User } from 'discord.js';
-import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
+import { Message } from 'discord.js';
 
 // This is the function that will ban an member
 export const handleUnban = async (
@@ -8,18 +7,11 @@ export const handleUnban = async (
 ) => {
   if (!args[0]) return await message.reply('?');
 
-  const { authorMember } = (await retrieveUserAndAuthor(message)) as {
-    mentionUser: User | null;
-    mentionMember: GuildMember | null;
-    authorUser: User;
-    authorMember: GuildMember;
-  };
-
   const bans = await message.guild?.bans.fetch();
 
   if (!bans) return await message.reply('Não tem ninguém banido aqui!!');
 
-  if (message.mentions.everyone && authorMember.permissions.has('ADMINISTRATOR')) {
+  if (message.mentions.everyone) {
     return bans.forEach(async (ban) => {
       try {
         await message.guild?.members.unban(ban.user);
