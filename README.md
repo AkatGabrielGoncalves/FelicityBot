@@ -1,4 +1,29 @@
-# FelicityBot
+# Felicity Bot
 
-Para iniciar o Bot é necessário colocar o seu bot token no .env como o exemplo e usar o script "yarn local"
-ATENÇÃO, NODE VERSÃO 16.6 OU MAIOR NECESSÁRIA
+This bot is being made as a generalist bot, so expect some cool features in the future.
+
+## Languages?
+
+Mainly TypeScript
+
+## How do I run it?
+
+First you need Node.js version 16.6 or higher.
+If you use NVM to manage your versions you need to type these commands:
+`nvm install 16`
+`nvm use 16`
+then type:
+`yarn`
+At this stage you already have your dependecies and the correct Node version, but you need to set your Bot Token at `.env.example` and remove the `.example`
+
+Now everything is set. Just type `yarn local` and your bot will be Online and working.
+
+## Which commands can it run?
+
+Currently it can
+`/ban <@user> || @everyone`
+`/kick <@user> || @everyone`
+`/unban <user id> || @everyone`
+`/prefix <prefix>`
+
+Soon I will be adding a music player
