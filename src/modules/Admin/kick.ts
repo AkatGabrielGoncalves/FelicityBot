@@ -1,38 +1,30 @@
 import { Client, GuildMember, Message, User } from 'discord.js';
 import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
 
-// This is the function that will kick an member
 export const handleKick = async (
   client: Client,
   message: Message,
   args: string[] // args should be only an user
 ) => {
-  // No arguments? what I am going to kick?
   if (!args[0]) return await message.reply('?');
 
-  // We need the user and the member to add some checks
-  const { user, member, author, authorMember } = (await retrieveUserAndAuthor(
-    message
-  )) as {
-    user: User;
-    member: GuildMember;
-    author: User;
-    authorMember: GuildMember;
-  };
+  const { mentionUser, mentionMember, authorUser, authorMember } =
+    (await retrieveUserAndAuthor(message)) as {
+      mentionUser: User | null;
+      mentionMember: GuildMember | null;
+      authorUser: User;
+      authorMember: GuildMember;
+    };
 
-  // So funny, our bot can't be kicked by himself!! And the author cant kick himself... is he ok?
+  if (!mentionUser || !mentionMember)
+    return await message.reply('Por favor, um usuário válido, sim?');
 
-  if (user && (user.id === client.user?.id || user.id === author.id))
+  if (
+    mentionUser &&
+    (mentionUser.id === client.user?.id || mentionUser.id === authorUser.id)
+  )
     return await message.reply('Haha boa tentativa.');
 
-  // Well, our author can't kick if he doesnt have permission
-  if (
-    !authorMember.permissions.has('ADMINISTRATOR') &&
-    !authorMember.permissions.has('KICK_MEMBERS')
-  )
-    return await message.reply('Você não pode fazer isso!');
-
-  // NEW FEATURE: you can kick everyone!
   if (message.mentions.everyone && authorMember.permissions.has('ADMINISTRATOR')) {
     // @ts-ignore
     return (await message.guild?.members.fetch()).forEach(async (m) => {
@@ -47,13 +39,14 @@ export const handleKick = async (
     });
   }
 
-  // This executes our death sentence
   try {
-    await member.kick();
-    return await message.channel.send(`Auf Wiedersehen, <@${user.id}>`);
+    await mentionMember.kick();
+    return await message.channel.send(`Auf Wiedersehen, <@${mentionUser.id}>`);
   } catch (err) {
-    return user
-      ? await message.reply(`Eu acho que... eu não consigo expulsar <@${user.id}>!`)
+    return mentionUser
+      ? await message.reply(
+          `Eu acho que... eu não consigo expulsar <@${mentionUser.id}>!`
+        )
       : await message.reply(`Esse usuário não existe!`);
   }
 };

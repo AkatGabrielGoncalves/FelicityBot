@@ -9,17 +9,11 @@ export const handleUnban = async (
   if (!args[0]) return await message.reply('?');
 
   const { authorMember } = (await retrieveUserAndAuthor(message)) as {
-    user: User;
-    member: GuildMember;
-    author: User;
+    mentionUser: User | null;
+    mentionMember: GuildMember | null;
+    authorUser: User;
     authorMember: GuildMember;
   };
-
-  if (
-    !authorMember.permissions.has('ADMINISTRATOR') &&
-    !authorMember.permissions.has('BAN_MEMBERS')
-  )
-    return await message.reply('Você não pode fazer isso!');
 
   const bans = await message.guild?.bans.fetch();
 

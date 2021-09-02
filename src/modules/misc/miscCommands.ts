@@ -1,5 +1,6 @@
+import { verifyPermissions } from '../helpers/verifyPermissions';
 import { handlePrefix } from './prefix';
 
 export const miscCommands: { [key: string]: Function } = {
-  prefix: handlePrefix,
+  prefix: verifyPermissions(handlePrefix, ['ADMINISTRATOR']),
 };

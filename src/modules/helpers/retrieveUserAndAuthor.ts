@@ -2,22 +2,18 @@ import { Message } from 'discord.js';
 
 // This function will catch our user from the first mention of the message and the author of the message
 export const retrieveUserAndAuthor = async (message: Message) => {
-  const user = message.mentions.users.first();
+  const mentionUser = message.mentions.users.first() || null;
 
-  let member = null;
+  const mentionMember = message.mentions.members?.first() || null;
 
-  if (user) {
-    member = message.guild?.members.resolve(user);
-  }
+  const authorUser = message.author;
 
-  const { author } = message;
-
-  const authorMember = message.guild?.members.resolve(author);
+  const authorMember = message.member;
 
   return {
-    user,
-    member,
-    author,
+    mentionUser,
+    mentionMember,
+    authorUser,
     authorMember,
   };
 };
