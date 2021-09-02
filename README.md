@@ -1,6 +1,6 @@
 # Felicity Bot
 
-This bot is being made as a generalist bot, so expect some cool features in the future.
+This bot is being made as a generalist bot for Discord, so expect some cool features in the future.
 
 ## Languages?
 Mainly TypeScript
