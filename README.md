@@ -3,6 +3,7 @@
 This bot is being made as a generalist bot for Discord, so expect some cool features in the future.
 
 ## Languages?
+
 Mainly TypeScript
 
 ## How do I run it?
@@ -17,12 +18,21 @@ At this stage you already have your dependecies and the correct Node version, bu
 
 Now everything is set. Just type `yarn local` and your bot will be Online and working.
 
+## Music
+
+**If you want to play music you will need a google API key, place it in .env.example**
+
 ## Which commands can it run?
 
 Currently it can \
 `!ban <@user> || @everyone` \
 `!kick <@user> || @everyone` \
 `!unban <user id> || @everyone` \
-`!prefix <prefix>`
+`!prefix <prefix>`\
+Music related commands:\
+`!play <search>`\
+`!next`\
+`!stop`\
+`!pause`
 
-Soon I will be adding a music player
+**EXPECT BUGS WITH THE MUSIC PLAYER**
