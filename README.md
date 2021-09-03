@@ -13,7 +13,7 @@ If you use NVM to manage your versions you need to type these commands:\
 `nvm use 16`\
 then type:\
 `yarn`\
-At this stage you already have your dependecies and the correct Node version, but you need to set your Bot Token at `.env.example` and remove the `.example`\
+At this stage you already have your dependecies and the correct Node version, but you need to set your Bot Token at `.env.example` and remove the `.example`
 
 Now everything is set. Just type `yarn local` and your bot will be Online and working.
 
@@ -23,6 +23,7 @@ Currently it can \
 `/ban <@user> || @everyone` \
 `/kick <@user> || @everyone` \
 `/unban <user id> || @everyone` \
-`/prefix <prefix>`\
+`/prefix <prefix>`
+
 
 Soon I will be adding a music player
