@@ -20,10 +20,9 @@ Now everything is set. Just type `yarn local` and your bot will be Online and wo
 ## Which commands can it run?
 
 Currently it can \
-`/ban <@user> || @everyone` \
-`/kick <@user> || @everyone` \
-`/unban <user id> || @everyone` \
-`/prefix <prefix>`
-
+`!ban <@user> || @everyone` \
+`!kick <@user> || @everyone` \
+`!unban <user id> || @everyone` \
+`!prefix <prefix>`
 
 Soon I will be adding a music player
