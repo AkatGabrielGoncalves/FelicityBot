@@ -17,7 +17,8 @@ export const commandsHandler = async (client: Client, message: Message) => {
   }
 
   // This will separate the message command and his arguments
-  const commandBody = message.content.slice(prefix.length);
+  const noExtraSpaces = message.content.replace(/\s+/g, ' ').trim();
+  const commandBody = noExtraSpaces.slice(prefix.length);
   const args = commandBody.split(' ');
   const command = args.shift()?.toLowerCase() as string;
 

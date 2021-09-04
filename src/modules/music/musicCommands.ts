@@ -1,3 +1,4 @@
+import { handleQueue } from './queue';
 import { handleNext } from './next';
 import { handlePause } from './pause';
 import { handlePlay } from './play';
@@ -8,4 +9,5 @@ export const musicCommands: { [key: string]: Function } = {
   stop: handleStop,
   pause: handlePause,
   next: handleNext,
+  queue: handleQueue,
 };
