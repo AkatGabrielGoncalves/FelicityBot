@@ -30,9 +30,11 @@ Currently it can \
 `!unban <user id> || @everyone` \
 `!prefix <prefix>`\
 Music related commands:\
-`!play <search>`\
+`!play <search> || <youtube url>`\
 `!next`\
 `!stop`\
-`!pause`
+`!pause`\
+`!queue`
+
 
 **EXPECT BUGS WITH THE MUSIC PLAYER**
