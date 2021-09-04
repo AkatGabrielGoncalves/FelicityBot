@@ -20,7 +20,7 @@ Now everything is set. Just type `yarn local` and your bot will be Online and wo
 
 ## Music
 
-**If you want to play music you will need a google API key, place it in .env.example**
+**To play age restricted videos is necessary to get youtube authentication cookies**
 
 ## Which commands can it run?
 
