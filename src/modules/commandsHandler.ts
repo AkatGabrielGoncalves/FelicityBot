@@ -1,14 +1,12 @@
 import { Client, Message } from 'discord.js';
-import fs from 'fs';
-import path from 'path';
 import { commands } from './commands';
+import serverInfo from './serverInfo.json';
 
 export const commandsHandler = async (client: Client, message: Message) => {
   const guildId = message.guildId as string;
 
-  // This will read our serverInfo.json that stores all prefixes for your servers
-  const json = fs.readFileSync(path.resolve(__dirname, 'serverInfo.json'), 'utf8');
-  let prefix = JSON.parse(json)[guildId];
+  const serverPrefixes = serverInfo as { [key: string]: string };
+  let prefix = serverPrefixes[guildId];
   if (!prefix) prefix = '!';
 
   // This is to prevent the bot from interacting with other bots and other prefixes or no prefixes

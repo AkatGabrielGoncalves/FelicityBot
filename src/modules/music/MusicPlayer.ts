@@ -58,12 +58,13 @@ export class MusicPlayer {
     const song = this.queue.pop() as YouTubeResultItem;
     const stream = ytdl(song.url, {
       filter: 'audioonly',
-      quality: 'highestaudio',
+      quality: 'lowestaudio',
       requestOptions: {
         headers: {
           cookie: process.env.YOUTUBE_LOGIN_COOKIE,
         },
       },
+      highWaterMark: 32000,
     });
     const audioResource = createAudioResource(stream);
     this.player.play(audioResource);
