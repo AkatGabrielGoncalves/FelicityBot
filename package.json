@@ -18,8 +18,8 @@
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
-    "youtube-search": "^1.1.6",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.9.1",
+    "ytsr": "^3.5.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.0",

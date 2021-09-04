@@ -25,7 +25,7 @@ export const handlePlay = async (
   }
 
   if (!connections[`${message.guildId}`]) {
-    connections[`${message.guildId}`] = new MusicPlayer(message);
+    connections[`${message.guildId}`] = new MusicPlayer(client, message);
   }
 
   const conn = connections[`${message.guildId}`];

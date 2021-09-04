@@ -9,15 +9,16 @@ import {
   VoiceConnection,
 } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
-import search, { YouTubeSearchResults } from 'youtube-search';
+import ytsr from 'ytsr';
 import { connectToChannel } from '../helpers/connectToChannel';
+import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
+import { handleStop } from './stop';
 
 export const connections: { [key: string]: MusicPlayer } = {};
-
 export class MusicPlayer {
   conn: VoiceConnection | null;
 
-  queue: YouTubeSearchResults[];
+  queue: YouTubeResultItem[];
 
   player: AudioPlayer;
 
@@ -27,7 +28,10 @@ export class MusicPlayer {
 
   message: Message;
 
-  constructor(message: Message) {
+  client: Client<boolean>;
+
+  constructor(client: Client, message: Message) {
+    this.client = client;
     this.message = message;
     this.channel = message.member?.voice.channel as VoiceChannel | StageChannel;
     this.conn = connectToChannel(this.channel);
@@ -38,8 +42,15 @@ export class MusicPlayer {
       },
     });
     this.subscription = this.conn.subscribe(this.player);
+
     this.player.on(AudioPlayerStatus.Idle, () => {
       if (this.queue[0]) this.continueQueue();
+      if (
+        !this.queue[0] &&
+        this.player.state.status !== AudioPlayerStatus.Playing &&
+        this.player.state.status !== AudioPlayerStatus.Buffering
+      )
+        handleStop(this.client, this.message);
     });
   }
 
@@ -55,26 +66,37 @@ export class MusicPlayer {
       this.player.unpause();
     }
 
-    if (args[0]) {
-      search(args.join(' '), {
-        maxResults: 1,
-        key: process.env.GOOGLE_API_KEY,
+    if (args.join('')) {
+      ytsr(args.join(' '), {
+        limit: 5,
+        pages: 1,
       })
-        .then((response) => {
-          this.queue.unshift(response.results[0]);
+        .then(async (response: any) => {
+          const responseItem = response.items.find(
+            (item: YouTubeResultItem) => item.type === 'video'
+          );
+          this.queue.unshift(responseItem);
           if (
             this.player.state.status !== AudioPlayerStatus.Playing &&
             this.player.state.status !== AudioPlayerStatus.Buffering
           ) {
-            const song = this.queue.pop() as YouTubeSearchResults;
-            const stream = ytdl(song.link, {
-              quality: 'lowestaudio',
+            const song = this.queue.pop() as YouTubeResultItem;
+
+            const stream = await ytdl(song.url, {
+              filter: 'audioonly',
+              quality: 'highestaudio',
+              requestOptions: {
+                headers: {
+                  cookie: process.env.YOUTUBE_LOGIN_COOKIE,
+                },
+              },
             });
+
             const audioResource = createAudioResource(stream);
             this.player.play(audioResource);
             message.channel.send(`Tocando: ${song.title}`);
           }
-          message.channel.send(`Adicionado a fila: ${response.results[0].title}`);
+          message.channel.send(`Adicionado a fila: ${responseItem.title}`);
         })
         .catch((err) => {
           console.log(err);
@@ -83,13 +105,19 @@ export class MusicPlayer {
   };
 
   continueQueue = () => {
-    const song = this.queue.pop() as YouTubeSearchResults;
-    const stream = ytdl(song.link, {
-      quality: 'lowestaudio',
+    const song = this.queue.pop() as YouTubeResultItem;
+    const stream = ytdl(song.url, {
+      filter: 'audioonly',
+      quality: 'highestaudio',
+      requestOptions: {
+        headers: {
+          cookie: process.env.YOUTUBE_LOGIN_COOKIE,
+        },
+      },
     });
     const audioResource = createAudioResource(stream);
     this.player.play(audioResource);
-    this.message.channel.send(`Tocando: ${song.title}`);
+    return this.message.channel.send(`Tocando: ${song.title}`);
   };
 
   next = async (message: Message) => {
