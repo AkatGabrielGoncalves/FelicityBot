@@ -8,12 +8,11 @@ Mainly TypeScript
 
 ## How do I run it?
 
-First you need Node.js version 16.6 or higher.\
-If you use NVM to manage your versions you need to type these commands:\
-`nvm install 16`\
-`nvm use 16`\
-then type:\
-`yarn`\
+**Use node 14.x LTS**\
+Even though discord.js v13 is not supposed to be compatible with node 14.x I made some changes to be compatible. This fixes the problem with ytdl-core which breaks the connection while streaming audio.
+
+type `yarn --ignore-engines` this is necessary to bypass discord.js engine restriction.
+
 At this stage you already have your dependecies and the correct Node version, but you need to set your Bot Token at `.env.example` and remove the `.example`
 
 Now everything is set. Just type `yarn local` and your bot will be Online and working.
@@ -30,7 +29,7 @@ Currently it can \
 `!unban <user id> || @everyone` \
 `!prefix <prefix>`\
 Music related commands:\
-`!play <search> || <youtube url>`\
+`!play <search> || <youtube url>` or `!p <search> || <youtube url>`\
 `!next`\
 `!stop`\
 `!pause`\
