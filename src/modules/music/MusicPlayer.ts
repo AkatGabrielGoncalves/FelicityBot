@@ -57,20 +57,25 @@ export class MusicPlayer {
   }
 
   private playAudio = async () => {
-    const song = this.queue.shift() as YouTubeResultItem;
-    const stream = ytdl(song.url, {
-      filter: 'audioonly',
-      quality: 'highestaudio',
-      requestOptions: {
-        headers: {
-          cookie: process.env.YOUTUBE_LOGIN_COOKIE,
+    try {
+      const song = this.queue.shift() as YouTubeResultItem;
+      const stream = ytdl(song.url, {
+        filter: 'audioonly',
+        quality: 'highestaudio',
+        requestOptions: {
+          headers: {
+            cookie: process.env.YOUTUBE_LOGIN_COOKIE,
+          },
         },
-      },
-    });
-    const audioResource = createAudioResource(stream);
-    this.player.play(audioResource);
-    this.currentlyPlaying = song;
-    return await this.message.channel.send(`Tocando: ${song.title}`);
+      });
+      const audioResource = createAudioResource(stream);
+      this.player.play(audioResource);
+      this.currentlyPlaying = song;
+      return await this.message.channel.send(`Tocando: ${song.title}`);
+    } catch (err) {
+      console.log(err);
+      return this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
+    }
   };
 
   private continueQueue = () => this.playAudio();
@@ -130,9 +135,13 @@ export class MusicPlayer {
   play = async (client: Client, message: Message, args: string[]) => {
     this.message = message;
     if (message.member?.voice.channel !== this.channel) {
-      if (message.member?.voice.channel) {
+      const someoneIsListening = this.channel.members.size > 1;
+      if (message.member?.voice.channel && !someoneIsListening) {
         this.conn = connectToChannel(message.member?.voice.channel);
       }
+      return message.reply(
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      );
     }
 
     if (this.player.state.status === AudioPlayerStatus.Paused) {
