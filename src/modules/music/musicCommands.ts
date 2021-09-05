@@ -6,6 +6,7 @@ import { handleStop } from './stop';
 
 export const musicCommands: { [key: string]: Function } = {
   play: handlePlay,
+  p: handlePlay, // play alias
   stop: handleStop,
   pause: handlePause,
   next: handleNext,
