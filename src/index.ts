@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
 
+global.AbortController = require('abort-controller');
+
 // This will load our BOT_TOKEN from the .env file so we can access at process.env
 dotenv.config();
 

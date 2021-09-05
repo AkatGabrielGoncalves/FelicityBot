@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "engines": {"node": "^16.6.x"},
   "scripts": {
     "local": "ts-node-dev --ignore-watch src/modules/serverInfo.json -T src/index.ts ",
     "build": "tsc",
@@ -13,18 +12,20 @@
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",
+    "abort-controller": "^3.0.0",
     "axios": "^0.21.1",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
-    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
     "ytdl-core": "^4.9.1",
+    "ytpl": "^2.2.3",
     "ytsr": "^3.5.3"
   },
   "devDependencies": {
-    "discord-api-types": "^0.22.0",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
+    "discord-api-types": "^0.22.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-config-prettier": "^8.3.0",
