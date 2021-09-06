@@ -4,7 +4,8 @@ import { YouTubeResultItem } from '../interfaces/YoutubeResultItem';
 
 export const addToQueueEmbed = (
   message: Message,
-  songToPlaylist: YouTubeResultItem,
+  currentlyPlaying: YouTubeResultItem,
+  songAddedToPlaylist: YouTubeResultItem,
   queue: (YouTubeResultItem | YouTubePlaylistResultItem)[]
 ) => {
   const { guild } = message;
@@ -13,7 +14,7 @@ export const addToQueueEmbed = (
   let second = 0;
 
   // duration currently playing
-  const durationCP = songToPlaylist.duration.split(':');
+  const durationCP = currentlyPlaying.duration.split(':');
   minute += Number(durationCP[durationCP.length - 2]);
   second += Number(durationCP[durationCP.length - 1]);
   if (durationCP.length === 3) {
@@ -30,7 +31,7 @@ export const addToQueueEmbed = (
       }
     }
   });
-  console.log(`${hour}:${minute}:${second}`);
+
   if (second > 60) {
     minute += Math.floor(second / 60);
     second %= 60;
@@ -41,15 +42,15 @@ export const addToQueueEmbed = (
   }
 
   return new MessageEmbed()
-    .setTitle(songToPlaylist.title)
-    .setURL(songToPlaylist.url)
+    .setTitle(songAddedToPlaylist.title)
+    .setURL(songAddedToPlaylist.url)
     .setAuthor(
       `Adicionado a fila em: ${guild?.name}` || '',
       guild?.iconURL() || undefined
     )
-    .setThumbnail(songToPlaylist.bestThumbnail.url)
+    .setThumbnail(songAddedToPlaylist.bestThumbnail.url)
     .addFields(
-      { name: 'Duração', value: songToPlaylist.duration, inline: true },
+      { name: 'Duração', value: songAddedToPlaylist.duration, inline: true },
       {
         name: 'Tempo até tocar',
         value: `${hour < 10 ? `0${hour}` : hour}:${

@@ -124,7 +124,12 @@ export class MusicPlayer {
       ) as YouTubeResultItem;
       this.queue.push(song);
       if (this.currentlyPlaying) {
-        const embed = addToQueueEmbed(message, this.currentlyPlaying, this.queue);
+        const embed = addToQueueEmbed(
+          message,
+          this.currentlyPlaying,
+          song,
+          this.queue
+        );
         return await message.reply({ embeds: [embed] });
       }
       return null;
