@@ -1,5 +1,11 @@
 /* eslint-disable import/no-cycle */
-import { StageChannel, VoiceChannel, Client, Message } from 'discord.js';
+import {
+  StageChannel,
+  VoiceChannel,
+  Client,
+  Message,
+  MessageReaction,
+} from 'discord.js';
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -37,7 +43,11 @@ export class MusicPlayer {
 
   private client: Client<boolean>;
 
-  public currentlyPlaying: YouTubeResultItem | string;
+  public currentlyPlaying: YouTubeResultItem | null;
+
+  queuePage: number;
+
+  queueMessage: Message | null | undefined;
 
   constructor(client: Client, message: Message) {
     this.client = client;
@@ -45,7 +55,9 @@ export class MusicPlayer {
     this.channel = message.member?.voice.channel as VoiceChannel | StageChannel;
     this.conn = connectToChannel(this.channel);
     this.queue = [];
-    this.currentlyPlaying = '';
+    this.queuePage = 0;
+    this.queueMessage = null;
+    this.currentlyPlaying = null;
     this.player = createAudioPlayer({
       behaviors: {
         noSubscriber: NoSubscriberBehavior.Stop,
@@ -58,14 +70,14 @@ export class MusicPlayer {
       handleStop(this.client, this.message);
     });
 
-    this.player.on(AudioPlayerStatus.Idle, () => {
+    this.player.on(AudioPlayerStatus.Idle, async () => {
       if (this.queue[0] && this.conn?.state.status !== 'disconnected') {
         if (this.channel.members.size === 1)
-          return handleStop(this.client, this.message);
-        return this.continueQueue();
+          await handleStop(this.client, this.message);
+        await this.continueQueue();
       }
       if (!this.queue[0] && this.isPlayerNotBusy()) {
-        return handleStop(this.client, this.message);
+        await handleStop(this.client, this.message);
       }
     });
   }
@@ -113,20 +125,24 @@ export class MusicPlayer {
         return await message.reply(`A playlist: ${playlist.title} foi adicionada!`);
       } catch (err) {
         console.log(err);
+        return await message.reply(
+          `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
+        );
       }
     }
 
     const isAValidVideo = ytdl.validateURL(ytSearchStringOrUrl);
+
     const searchAndAdd = async (search: string) => {
       const { items: songs } = await ytsr(search, searchOptions);
       const song = songs.find(
         (song2) => song2.type === 'video'
       ) as YouTubeResultItem;
       this.queue.push(song);
-      if (this.currentlyPlaying) {
+      if (this.currentlyPlaying !== null) {
         const embed = addToQueueEmbed(
           message,
-          this.currentlyPlaying,
+          this.currentlyPlaying as YouTubeResultItem,
           song,
           this.queue
         );
@@ -142,6 +158,9 @@ export class MusicPlayer {
         return searchAndAdd(ytUrl);
       } catch (err) {
         console.log(err);
+        return await message.reply(
+          `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
+        );
       }
     }
 
@@ -149,7 +168,7 @@ export class MusicPlayer {
       return searchAndAdd(ytSearchStringOrUrl);
     } catch (err) {
       console.log(err);
-      return message.reply(
+      return await message.reply(
         `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
       );
     }
@@ -190,6 +209,7 @@ export class MusicPlayer {
 
   stop = async (message: Message) => {
     this.queue = [];
+    this.conn?.removeAllListeners();
     this.conn?.destroy();
     this.player.removeAllListeners();
     message.channel.send(`Player foi parado!`);
@@ -209,15 +229,70 @@ export class MusicPlayer {
   // };
 
   showQueue = async (message: Message) => {
-    if (!this.queue[0] && typeof this.currentlyPlaying !== 'string') {
-      return await message.reply(
-        `A música atual é ${this.currentlyPlaying.title}\nNão há músicas na fila!`
-      );
-    }
-    if (typeof this.currentlyPlaying !== 'string') {
-      const embed = createQueueEmbed(message, this.currentlyPlaying, this.queue);
-      return await message.reply({ embeds: [embed] });
+    // if (!this.queue[0] && this.currentlyPlaying !== null) {
+    //   return await message.reply(
+    //     `A música atual é ${this.currentlyPlaying?.title}\nNão há músicas na fila!`
+    //   );
+    // }
+
+    if (this.currentlyPlaying !== null) {
+      if (this.queueMessage) {
+        await this.queueMessage.delete();
+        this.queueMessage = null;
+        this.queuePage = 0;
+      }
+      const embed = await this.createQueueEmbed();
+
+      const filter = (reaction: MessageReaction, user: any) =>
+        ['⬅️', '➡️'].includes(reaction.emoji.name as string) &&
+        user.id !== this.client.user?.id;
+
+      this.queueMessage = await await message.reply({ embeds: [embed] });
+      await this.queueMessage.react('⬅️');
+      await this.queueMessage.react('➡️');
+
+      const awaitReactions = async () => {
+        await this.queueMessage
+          ?.awaitReactions({ filter, max: 1, time: 30000, errors: ['time'] })
+          .then(async (collected) => {
+            const reaction = collected.first();
+            if (reaction?.emoji.name === '➡️') {
+              if (this.queue.length < this.queuePage + 10) await awaitReactions();
+              this.queuePage += 10;
+              const nextEmbed = await this.createQueueEmbed();
+
+              await this.queueMessage?.edit({
+                embeds: [nextEmbed],
+              });
+              await awaitReactions();
+            }
+            if (reaction?.emoji.name === '⬅️') {
+              if (this.queuePage === 0) await awaitReactions();
+              this.queuePage -= 10;
+              const backEmbed = await this.createQueueEmbed();
+
+              await this.queueMessage?.edit({
+                embeds: [backEmbed],
+              });
+              await awaitReactions();
+            }
+          })
+          .catch(async () => {
+            await this.queueMessage?.delete();
+            this.queueMessage = null;
+            this.queuePage = 0;
+          });
+      };
+      await awaitReactions();
     }
     return null;
   };
+
+  createQueueEmbed = async () =>
+    createQueueEmbed(
+      this.message,
+      this.currentlyPlaying as YouTubeResultItem,
+      this.queue,
+      this.queuePage
+    );
 }

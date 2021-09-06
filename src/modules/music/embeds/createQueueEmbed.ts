@@ -5,9 +5,14 @@ import { YouTubeResultItem } from '../interfaces/YoutubeResultItem';
 export const createQueueEmbed = (
   message: Message,
   currentlyPlaying: YouTubeResultItem,
-  queue: (YouTubeResultItem | YouTubePlaylistResultItem)[]
+  queue: (YouTubeResultItem | YouTubePlaylistResultItem)[],
+  page: number
 ) => {
   const { guild } = message;
+  const subArray = queue.slice(page, page + 10);
+  const parsedSubArray = subArray
+    .map((song, index) => `${index + 1 + page}: ${song.title} [${song.duration}]\n`)
+    .join('');
 
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
@@ -16,11 +21,7 @@ export const createQueueEmbed = (
       `Tocando agora em: ${guild?.name}` || '',
       guild?.iconURL() || undefined
     )
-    .setDescription(
-      `${queue
-        .map((song, index) => `${index + 1}: ${song.title} [${song.duration}]\n`)
-        .join('')}`
-    )
+    .setDescription(`${parsedSubArray}`)
     .setTimestamp()
     .setFooter(guild?.name || '', guild?.iconURL() || undefined);
 };
