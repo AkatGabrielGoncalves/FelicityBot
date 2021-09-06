@@ -8,20 +8,24 @@ import {
   NoSubscriberBehavior,
   PlayerSubscription,
   VoiceConnection,
+  VoiceConnectionStatus,
 } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
 import ytsr from 'ytsr';
 import ytpl, { Item as YouTubePlaylistResultItem } from 'ytpl';
+import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { connectToChannel } from '../helpers/connectToChannel';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { handleStop } from './stop';
+import { playingEmbed } from './embeds/playingEmbed';
+import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 
 export const connections: { [key: string]: MusicPlayer } = {};
 
 export class MusicPlayer {
   private conn: VoiceConnection | null;
 
-  private queue: (YouTubeResultItem | YouTubePlaylistResultItem)[];
+  public queue: (YouTubeResultItem | YouTubePlaylistResultItem)[];
 
   private player: AudioPlayer;
 
@@ -33,7 +37,7 @@ export class MusicPlayer {
 
   private client: Client<boolean>;
 
-  private currentlyPlaying: YouTubeResultItem | string;
+  public currentlyPlaying: YouTubeResultItem | string;
 
   constructor(client: Client, message: Message) {
     this.client = client;
@@ -49,8 +53,14 @@ export class MusicPlayer {
     });
     this.subscription = this.conn.subscribe(this.player);
 
+    this.conn.on(VoiceConnectionStatus.Disconnected, () => {
+      this.queue = [];
+      handleStop(this.client, this.message);
+    });
+
     this.player.on(AudioPlayerStatus.Idle, () => {
-      if (this.queue[0]) this.continueQueue();
+      if (this.queue[0] && this.conn?.state.status !== 'disconnected')
+        this.continueQueue();
       if (!this.queue[0] && this.isPlayerNotBusy())
         handleStop(this.client, this.message);
     });
@@ -71,7 +81,8 @@ export class MusicPlayer {
       const audioResource = createAudioResource(stream);
       this.player.play(audioResource);
       this.currentlyPlaying = song;
-      return await this.message.channel.send(`Tocando: ${song.title}`);
+      const embed = playingEmbed(this.message, this.currentlyPlaying);
+      return await this.message.channel.send({ embeds: [embed] });
     } catch (err) {
       console.log(err);
       return this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
@@ -108,7 +119,11 @@ export class MusicPlayer {
         (song2) => song2.type === 'video'
       ) as YouTubeResultItem;
       this.queue.push(song);
-      return await message.reply(`Adicionado a fila: ${song.title}`);
+      if (this.currentlyPlaying) {
+        const embed = addToQueueEmbed(message, song, this.queue);
+        return await message.reply({ embeds: [embed] });
+      }
+      return null;
     };
 
     if (isAValidVideo) {
@@ -181,11 +196,8 @@ export class MusicPlayer {
       );
     }
     if (typeof this.currentlyPlaying !== 'string') {
-      return await message.reply(
-        `A música atual é: ${
-          this.currentlyPlaying.title
-        }\nA fila atual é:\n${this.queue.map((song) => `${song.title}\n`).join('')}`
-      );
+      const embed = createQueueEmbed(message, this.currentlyPlaying, this.queue);
+      return await message.reply({ embeds: [embed] });
     }
     return null;
   };
