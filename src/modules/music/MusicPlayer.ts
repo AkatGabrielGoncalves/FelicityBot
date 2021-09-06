@@ -27,7 +27,7 @@ export class MusicPlayer {
 
   public queue: (YouTubeResultItem | YouTubePlaylistResultItem)[];
 
-  private player: AudioPlayer;
+  player: AudioPlayer;
 
   private subscription: PlayerSubscription | undefined;
 
@@ -59,10 +59,14 @@ export class MusicPlayer {
     });
 
     this.player.on(AudioPlayerStatus.Idle, () => {
-      if (this.queue[0] && this.conn?.state.status !== 'disconnected')
-        this.continueQueue();
-      if (!this.queue[0] && this.isPlayerNotBusy())
-        handleStop(this.client, this.message);
+      if (this.queue[0] && this.conn?.state.status !== 'disconnected') {
+        if (this.channel.members.size === 1)
+          return handleStop(this.client, this.message);
+        return this.continueQueue();
+      }
+      if (!this.queue[0] && this.isPlayerNotBusy()) {
+        return handleStop(this.client, this.message);
+      }
     });
   }
 
@@ -120,7 +124,7 @@ export class MusicPlayer {
       ) as YouTubeResultItem;
       this.queue.push(song);
       if (this.currentlyPlaying) {
-        const embed = addToQueueEmbed(message, song, this.queue);
+        const embed = addToQueueEmbed(message, this.currentlyPlaying, this.queue);
         return await message.reply({ embeds: [embed] });
       }
       return null;
@@ -180,7 +184,9 @@ export class MusicPlayer {
   };
 
   stop = async (message: Message) => {
+    this.queue = [];
     this.conn?.destroy();
+    this.player.removeAllListeners();
     message.channel.send(`Player foi parado!`);
   };
 
@@ -188,6 +194,14 @@ export class MusicPlayer {
     this.player.pause();
     message.channel.send(`Player foi pausado!`);
   };
+
+  // remove = async (message: Message, args: string[]) => {
+  //   const index = Number(args[0]);
+  //   if (index - 1 > this.queue.length)
+  //     return await message.reply(`Não existe há musica na posição ${index}`);
+  //   const removedSong = this.queue.splice(index - 1, 1);
+  //   return await message.reply(`Removida a música na posição: ${index}`);
+  // };
 
   showQueue = async (message: Message) => {
     if (!this.queue[0] && typeof this.currentlyPlaying !== 'string') {

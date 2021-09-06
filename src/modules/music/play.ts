@@ -1,4 +1,5 @@
 import { Client, Message } from 'discord.js';
+import { AudioPlayerStatus } from '@discordjs/voice';
 import { connections, MusicPlayer } from './MusicPlayer';
 import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
 
@@ -24,11 +25,23 @@ export const handlePlay = async (
     return await message.reply(`Você precisa estar em um canal de voz!`);
   }
 
+  if (!connections[`${message.guildId}`] && !args.join('')) {
+    return await message.reply(
+      'Ta com vergonha? Tudo bem, pode guardar pra você a sua música.'
+    );
+  }
+
   if (!connections[`${message.guildId}`]) {
     connections[`${message.guildId}`] = new MusicPlayer(client, message);
   }
 
   const conn = connections[`${message.guildId}`];
+
+  if (conn.player.state.status !== AudioPlayerStatus.Paused && !args.join('')) {
+    return await message.reply(
+      'Ta com vergonha? Tudo bem, pode guardar pra você a sua música.'
+    );
+  }
 
   return conn.play(client, message, args);
 };
