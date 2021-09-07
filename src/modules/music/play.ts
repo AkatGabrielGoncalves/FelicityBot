@@ -46,5 +46,5 @@ export const handlePlay = async (
     );
   }
 
-  return conn.play(client, message, args);
+  return conn.play(message, args);
 };

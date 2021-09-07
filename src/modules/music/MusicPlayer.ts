@@ -119,6 +119,9 @@ export class MusicPlayer {
 
       const { url } = song;
       console.log(url);
+      if (this.conn && this.conn.state.status !== 'ready') {
+        await entersState(this.conn, VoiceConnectionStatus.Ready, 5_000);
+      }
       const stream = await ytdl(url, {
         requestOptions: {
           headers: {
@@ -219,7 +222,7 @@ export class MusicPlayer {
   };
 
   // eslint-disable-next-line consistent-return
-  play = async (client: Client, message: Message, args: string[]) => {
+  play = async (message: Message, args: string[]) => {
     this.message = message;
     if (message.member?.voice.channel !== this.channel) {
       const someoneIsListening = this.channel.members.size > 1;
@@ -287,7 +290,7 @@ export class MusicPlayer {
         ['⬅️', '➡️'].includes(reaction.emoji.name as string) &&
         user.id !== this.client.user?.id;
 
-      this.queueMessage = await await message.reply({ embeds: [embed] });
+      this.queueMessage = await message.reply({ embeds: [embed] });
       await this.queueMessage.react('⬅️');
       await this.queueMessage.react('➡️');
 
@@ -316,6 +319,7 @@ export class MusicPlayer {
               });
               await awaitReactions();
             }
+            await awaitReactions();
           })
           .catch(async () => {
             await this.queueMessage?.delete();
