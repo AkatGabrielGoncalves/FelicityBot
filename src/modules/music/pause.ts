@@ -1,5 +1,5 @@
 import { Client, Message } from 'discord.js';
-import { connections } from './MusicPlayer';
+import { connections } from './play';
 
 export const handlePause = async (client: Client, message: Message) => {
   if (!connections[`${message.guildId}`]) {

@@ -1,6 +1,6 @@
 import { Client, Message } from 'discord.js';
 // eslint-disable-next-line import/no-cycle
-import { connections } from './MusicPlayer';
+import { connections } from './play';
 
 export const handleStop = async (client: Client, message: Message) => {
   if (!connections[`${message.guildId}`]) {

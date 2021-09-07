@@ -1,3 +1,4 @@
+import ytpl, { Item as YouTubePlaylistResultItem } from 'ytpl';
 /* eslint-disable import/no-cycle */
 import {
   StageChannel,
@@ -11,22 +12,21 @@ import {
   AudioPlayerStatus,
   createAudioPlayer,
   createAudioResource,
+  entersState,
   NoSubscriberBehavior,
   PlayerSubscription,
+  StreamType,
   VoiceConnection,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
-import ytdl from 'ytdl-core';
+import ytdl from 'ytdl-core-discord';
 import ytsr from 'ytsr';
-import ytpl, { Item as YouTubePlaylistResultItem } from 'ytpl';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { connectToChannel } from '../helpers/connectToChannel';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { handleStop } from './stop';
 import { playingEmbed } from './embeds/playingEmbed';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
-
-export const connections: { [key: string]: MusicPlayer } = {};
 
 export class MusicPlayer {
   private conn: VoiceConnection | null;
@@ -65,41 +65,76 @@ export class MusicPlayer {
     });
     this.subscription = this.conn.subscribe(this.player);
 
-    this.conn.on(VoiceConnectionStatus.Disconnected, () => {
-      this.queue = [];
-      handleStop(this.client, this.message);
+    this.conn.on(VoiceConnectionStatus.Disconnected, async () => {
+      try {
+        if (this.conn !== null) {
+          await Promise.race([
+            entersState(this.conn, VoiceConnectionStatus.Signalling, 5_000),
+            entersState(this.conn, VoiceConnectionStatus.Connecting, 5_000),
+          ]);
+        }
+      } catch (error) {
+        this.queue = [];
+        handleStop(this.client, this.message);
+      }
+    });
+
+    this.conn.on(VoiceConnectionStatus.Ready, async () => {
+      if (this.currentlyPlaying !== null) {
+        this.queue.unshift(this.currentlyPlaying);
+        await this.playAudio();
+      }
     });
 
     this.player.on(AudioPlayerStatus.Idle, async () => {
-      if (this.queue[0] && this.conn?.state.status !== 'disconnected') {
-        if (this.channel.members.size === 1)
+      try {
+        if (
+          this.queue[0] &&
+          this.isPlayerNotBusy() &&
+          this.conn?.state.status === 'ready'
+        ) {
+          if (this.channel.members.size === 1)
+            await handleStop(this.client, this.message);
+
+          await this.continueQueue();
+        }
+        if (
+          !this.queue[0] &&
+          this.isPlayerNotBusy() &&
+          this.conn?.state.status === 'ready'
+        ) {
           await handleStop(this.client, this.message);
-        await this.continueQueue();
-      }
-      if (!this.queue[0] && this.isPlayerNotBusy()) {
-        await handleStop(this.client, this.message);
+        }
+      } catch (err) {
+        console.log('erro no listener');
+        console.log(err);
       }
     });
   }
 
   private playAudio = async () => {
     try {
-      const song = this.queue.shift() as YouTubeResultItem;
-      const stream = ytdl(song.url, {
-        filter: 'audioonly',
-        quality: 'highestaudio',
+      const song = this.queue.shift() as YouTubeResultItem &
+        YouTubePlaylistResultItem;
+
+      const { url } = song;
+      console.log(url);
+      const stream = await ytdl(url, {
         requestOptions: {
           headers: {
             cookie: process.env.YOUTUBE_LOGIN_COOKIE,
           },
         },
       });
-      const audioResource = createAudioResource(stream);
+      const audioResource = createAudioResource(stream, {
+        inputType: StreamType.Opus,
+      });
       this.player.play(audioResource);
       this.currentlyPlaying = song;
       const embed = playingEmbed(this.message, this.currentlyPlaying);
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err) {
+      console.log('Erro 1');
       console.log(err);
       return this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
     }
@@ -124,6 +159,7 @@ export class MusicPlayer {
         songs.forEach((song) => this.queue.push(song));
         return await message.reply(`A playlist: ${playlist.title} foi adicionada!`);
       } catch (err) {
+        console.log('Erro 2');
         console.log(err);
         return await message.reply(
           `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
@@ -131,7 +167,13 @@ export class MusicPlayer {
       }
     }
 
-    const isAValidVideo = ytdl.validateURL(ytSearchStringOrUrl);
+    let isAValidVideo;
+    try {
+      isAValidVideo = ytdl.validateURL(ytSearchStringOrUrl);
+    } catch (err) {
+      console.log('Erro 3');
+      console.log(err);
+    }
 
     const searchAndAdd = async (search: string) => {
       const { items: songs } = await ytsr(search, searchOptions);
@@ -157,6 +199,7 @@ export class MusicPlayer {
         const ytUrl = youtubeDefaultUrl + videoId;
         return searchAndAdd(ytUrl);
       } catch (err) {
+        console.log('Erro 4');
         console.log(err);
         return await message.reply(
           `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
@@ -167,6 +210,7 @@ export class MusicPlayer {
     try {
       return searchAndAdd(ytSearchStringOrUrl);
     } catch (err) {
+      console.log('Erro 5');
       console.log(err);
       return await message.reply(
         `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
@@ -220,21 +264,17 @@ export class MusicPlayer {
     message.channel.send(`Player foi pausado!`);
   };
 
-  // remove = async (message: Message, args: string[]) => {
-  //   const index = Number(args[0]);
-  //   if (index - 1 > this.queue.length)
-  //     return await message.reply(`Não existe há musica na posição ${index}`);
-  //   const removedSong = this.queue.splice(index - 1, 1);
-  //   return await message.reply(`Removida a música na posição: ${index}`);
-  // };
+  remove = async (message: Message, args: string[]) => {
+    const index = Number(args[0]);
+    if (index > this.queue.length)
+      return await message.reply(`Não existe música na posição ${index}`);
+    const removedSong = this.queue.splice(index - 1, 1);
+    return await message.reply(
+      `Removida a música na posição: ${index}: ${removedSong[0].title}`
+    );
+  };
 
   showQueue = async (message: Message) => {
-    // if (!this.queue[0] && this.currentlyPlaying !== null) {
-    //   return await message.reply(
-    //     `A música atual é ${this.currentlyPlaying?.title}\nNão há músicas na fila!`
-    //   );
-    // }
-
     if (this.currentlyPlaying !== null) {
       if (this.queueMessage) {
         await this.queueMessage.delete();

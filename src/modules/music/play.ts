@@ -1,7 +1,10 @@
 import { Client, Message } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { connections, MusicPlayer } from './MusicPlayer';
+// eslint-disable-next-line import/no-cycle
+import { MusicPlayer } from './MusicPlayer';
 import { retrieveUserAndAuthor } from '../helpers/retrieveUserAndAuthor';
+
+export const connections: { [key: string]: MusicPlayer } = {};
 
 export const handlePlay = async (
   client: Client,
