@@ -15,12 +15,12 @@ import {
   entersState,
   NoSubscriberBehavior,
   PlayerSubscription,
-  StreamType,
   VoiceConnection,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
-import ytdl from 'ytdl-core-discord';
+import ytdl from 'ytdl-core';
 import ytsr from 'ytsr';
+import axios from 'axios';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { connectToChannel } from '../helpers/connectToChannel';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
@@ -49,6 +49,8 @@ export class MusicPlayer {
 
   queueMessage: Message | null | undefined;
 
+  turnOffEmbed: boolean;
+
   constructor(client: Client, message: Message) {
     this.client = client;
     this.message = message;
@@ -58,6 +60,7 @@ export class MusicPlayer {
     this.queuePage = 0;
     this.queueMessage = null;
     this.currentlyPlaying = null;
+    this.turnOffEmbed = false;
     this.player = createAudioPlayer({
       behaviors: {
         noSubscriber: NoSubscriberBehavior.Stop,
@@ -122,19 +125,55 @@ export class MusicPlayer {
       if (this.conn && this.conn.state.status !== 'ready') {
         await entersState(this.conn, VoiceConnectionStatus.Ready, 5_000);
       }
-      const stream = await ytdl(url, {
+
+      const metadata = await ytdl.getInfo(url, {
         requestOptions: {
           headers: {
             cookie: process.env.YOUTUBE_LOGIN_COOKIE,
           },
         },
       });
-      const audioResource = createAudioResource(stream, {
-        inputType: StreamType.Opus,
+      try {
+        const head = await axios.head(metadata.formats[0].url);
+        console.log(head.status);
+      } catch (err: any) {
+        console.log(
+          err.response.status,
+          `Erro ${err.response.status}, tentando novamente.`
+        );
+        this.queue.unshift(song);
+        return this.playAudio();
+      }
+
+      const stream = await ytdl.downloadFromInfo(metadata, {
+        filter: 'audioonly',
+        quality: 'highestaudio',
+        requestOptions: {
+          headers: {
+            cookie: process.env.YOUTUBE_LOGIN_COOKIE,
+          },
+        },
       });
+
+      const audioResource = createAudioResource(stream);
+
       this.player.play(audioResource);
       this.currentlyPlaying = song;
       const embed = playingEmbed(this.message, this.currentlyPlaying);
+
+      // const funcao = stream.listeners('error')[2];
+      // stream.removeListener('error', funcao);
+
+      // stream.on('error', (err) => {
+      //   try {
+      //     throw new Error();
+      //   } catch {
+      //     stream.destroy();
+      //     this.queue.unshift(song);
+      //     console.log(err);
+      //   }
+      // });
+
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err) {
       console.log('Erro 1');
@@ -150,7 +189,6 @@ export class MusicPlayer {
     this.player.state.status !== AudioPlayerStatus.Buffering;
 
   private addToQueue = async (message: Message, args: string[]) => {
-    const youtubeDefaultUrl = 'https://www.youtube.com/watch?v=';
     const ytSearchStringOrUrl = args.join(' ');
     const isAPlaylist = ytpl.validateID(ytSearchStringOrUrl);
     const searchOptions = { limit: 5, pages: 1 };
@@ -180,6 +218,7 @@ export class MusicPlayer {
 
     const searchAndAdd = async (search: string) => {
       const { items: songs } = await ytsr(search, searchOptions);
+
       const song = songs.find(
         (song2) => song2.type === 'video'
       ) as YouTubeResultItem;
@@ -199,8 +238,7 @@ export class MusicPlayer {
     if (isAValidVideo) {
       try {
         const videoId = ytdl.getURLVideoID(ytSearchStringOrUrl);
-        const ytUrl = youtubeDefaultUrl + videoId;
-        return searchAndAdd(ytUrl);
+        return searchAndAdd(videoId);
       } catch (err) {
         console.log('Erro 4');
         console.log(err);
