@@ -33,7 +33,8 @@ Music related commands:\
 `!next`\
 `!stop`\
 `!pause`\
-`!queue`
+`!queue`\
+`!remove <number in queue>`
 
 
 **EXPECT BUGS WITH THE MUSIC PLAYER**
