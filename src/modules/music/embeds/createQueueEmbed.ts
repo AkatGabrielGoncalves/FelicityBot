@@ -1,11 +1,10 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { Item as YouTubePlaylistResultItem } from 'ytpl';
-import { YouTubeResultItem } from '../interfaces/YoutubeResultItem';
+import { queueItem } from '../interfaces/queueItem';
 
 export const createQueueEmbed = (
   message: Message,
-  currentlyPlaying: YouTubeResultItem,
-  queue: (YouTubeResultItem | YouTubePlaylistResultItem)[],
+  currentlyPlaying: queueItem,
+  queue: queueItem[],
   page: number
 ) => {
   const { guild } = message;

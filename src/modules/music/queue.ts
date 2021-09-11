@@ -1,5 +1,5 @@
 import { Client, Message } from 'discord.js';
-import { connections } from './play';
+import { connections } from './MusicPlayer';
 
 export const handleQueue = async (client: Client, message: Message) => {
   if (!connections[`${message.guildId}`]) {
@@ -8,5 +8,5 @@ export const handleQueue = async (client: Client, message: Message) => {
 
   const conn = connections[`${message.guildId}`];
 
-  return conn.showQueue(message);
+  return conn.showQueue(client, message);
 };

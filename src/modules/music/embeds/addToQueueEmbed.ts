@@ -1,14 +1,14 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { Item as YouTubePlaylistResultItem } from 'ytpl';
-import { YouTubeResultItem } from '../interfaces/YoutubeResultItem';
+import { queueItem } from '../interfaces/queueItem';
 
 export const addToQueueEmbed = (
   message: Message,
-  currentlyPlaying: YouTubeResultItem,
-  songAddedToPlaylist: YouTubeResultItem,
-  queue: (YouTubeResultItem | YouTubePlaylistResultItem)[]
+  currentlyPlaying: queueItem,
+  songAddedToPlaylist: queueItem,
+  queue: queueItem[]
 ) => {
   const { guild } = message;
+
   let hour = 0;
   let minute = 0;
   let second = 0;
@@ -48,7 +48,7 @@ export const addToQueueEmbed = (
       `Adicionado a fila em: ${guild?.name}` || '',
       guild?.iconURL() || undefined
     )
-    .setThumbnail(songAddedToPlaylist.bestThumbnail.url)
+    .setThumbnail(songAddedToPlaylist.thumbnail)
     .addFields(
       { name: 'Duração', value: songAddedToPlaylist.duration, inline: true },
       {

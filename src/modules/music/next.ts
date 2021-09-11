@@ -1,5 +1,5 @@
 import { Client, Message } from 'discord.js';
-import { connections } from './play';
+import { connections } from './MusicPlayer';
 
 export const handleNext = async (client: Client, message: Message) => {
   if (!connections[`${message.guildId}`]) {
