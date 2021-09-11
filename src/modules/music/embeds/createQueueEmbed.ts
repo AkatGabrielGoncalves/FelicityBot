@@ -1,10 +1,10 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { queueItem } from '../interfaces/queueItem';
+import { QueueItem } from '../interfaces/QueueItem';
 
 export const createQueueEmbed = (
   message: Message,
-  currentlyPlaying: queueItem,
-  queue: queueItem[],
+  currentlyPlaying: QueueItem,
+  queue: QueueItem[],
   page: number
 ) => {
   const { guild } = message;

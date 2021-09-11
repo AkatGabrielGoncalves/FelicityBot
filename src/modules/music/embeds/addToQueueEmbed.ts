@@ -1,44 +1,37 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { queueItem } from '../interfaces/queueItem';
+import { QueueItem } from '../interfaces/QueueItem';
+import { addTime } from './helpers/addTime';
 
 export const addToQueueEmbed = (
   message: Message,
-  currentlyPlaying: queueItem,
-  songAddedToPlaylist: queueItem,
-  queue: queueItem[]
+  currentlyPlaying: QueueItem,
+  songAddedToPlaylist: QueueItem,
+  queue: QueueItem[]
 ) => {
   const { guild } = message;
 
-  let hour = 0;
-  let minute = 0;
-  let second = 0;
+  let time = {
+    hour: 0,
+    minute: 0,
+    second: 0,
+  };
 
   // duration currently playing
-  const durationCP = currentlyPlaying.duration.split(':');
-  minute += Number(durationCP[durationCP.length - 2]);
-  second += Number(durationCP[durationCP.length - 1]);
-  if (durationCP.length === 3) {
-    hour += Number(durationCP[durationCP.length - 3]);
+  if (currentlyPlaying) {
+    time = addTime(currentlyPlaying, time);
   }
 
   queue.forEach((song) => {
-    const duration = song.duration?.split(':');
-    if (duration) {
-      minute += Number(duration[duration.length - 2]);
-      second += Number(duration[duration.length - 1]);
-      if (duration.length === 3) {
-        hour += Number(duration[duration.length - 3]);
-      }
-    }
+    time = addTime(song, time);
   });
 
-  if (second > 60) {
-    minute += Math.floor(second / 60);
-    second %= 60;
+  if (time.second > 60) {
+    time.minute += Math.floor(time.second / 60);
+    time.second %= 60;
   }
-  if (minute > 60) {
-    hour += Math.floor(minute / 60);
-    minute %= 60;
+  if (time.minute > 60) {
+    time.hour += Math.floor(time.minute / 60);
+    time.minute %= 60;
   }
 
   return new MessageEmbed()
@@ -53,9 +46,9 @@ export const addToQueueEmbed = (
       { name: 'Duração', value: songAddedToPlaylist.duration, inline: true },
       {
         name: 'Tempo até tocar',
-        value: `${hour < 10 ? `0${hour}` : hour}:${
-          minute < 10 ? `0${minute}` : minute
-        }:${second < 10 ? `0${second}` : second}`,
+        value: `${time.hour < 10 ? `0${time.hour}` : time.hour}:${
+          time.minute < 10 ? `0${time.minute}` : time.minute
+        }:${time.second < 10 ? `0${time.second}` : time.second}`,
         inline: true,
       }
     )

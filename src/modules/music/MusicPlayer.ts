@@ -15,7 +15,7 @@ import axios from 'axios';
 import { connectToChannel } from '../helpers/connectToChannel';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
-import { queueItem } from './interfaces/queueItem';
+import { QueueItem } from './interfaces/QueueItem';
 
 export const connections: { [key: string]: MusicPlayer } = {};
 
@@ -92,7 +92,7 @@ export class MusicPlayer extends PlayerQueue {
 
   private playAudio: () => Promise<null> = async () => {
     try {
-      const song = this.queue.shift() as queueItem;
+      const song = this.queue.shift() as QueueItem;
 
       const { url } = song;
       console.log(url);

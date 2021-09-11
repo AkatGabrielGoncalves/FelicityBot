@@ -1,4 +1,4 @@
-export interface queueItem {
+export interface QueueItem {
   url: string;
   title: string;
   duration: string;

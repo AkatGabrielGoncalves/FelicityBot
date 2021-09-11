@@ -6,16 +6,16 @@ import ytsr from 'ytsr';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
-import { queueItem } from './interfaces/queueItem';
+import { QueueItem } from './interfaces/QueueItem';
 
 export class PlayerQueue {
-  queue: queueItem[];
+  queue: QueueItem[];
 
   queuePage: number;
 
   queueMessage: Message | null | undefined;
 
-  currentlyPlaying: queueItem | null;
+  currentlyPlaying: QueueItem | null;
 
   // spotifyApi: SpotifyWebApi;
 
@@ -202,7 +202,7 @@ export class PlayerQueue {
   createQueueEmbed = async (message: Message) =>
     createQueueEmbed(
       message,
-      this.currentlyPlaying as queueItem,
+      this.currentlyPlaying as QueueItem,
       this.queue,
       this.queuePage
     );
