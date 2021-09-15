@@ -7,6 +7,15 @@ export const playingEmbed = (message: Message, currentlyPlaying: QueueItem) => {
 
   const time = addTime(currentlyPlaying, { hour: 0, minute: 0, second: 0 });
 
+  if (time.second >= 60) {
+    time.minute += Math.floor(time.second / 60);
+    time.second %= 60;
+  }
+  if (time.minute >= 60) {
+    time.hour += Math.floor(time.minute / 60);
+    time.minute %= 60;
+  }
+
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
     .setURL(currentlyPlaying.url)
