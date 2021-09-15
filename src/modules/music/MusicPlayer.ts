@@ -22,7 +22,7 @@ export const connections: { [key: string]: MusicPlayer } = {};
 export class MusicPlayer extends PlayerQueue {
   private conn: VoiceConnection | null;
 
-  player: AudioPlayer;
+  private player: AudioPlayer;
 
   private subscription: PlayerSubscription | undefined;
 
@@ -159,9 +159,11 @@ export class MusicPlayer extends PlayerQueue {
     }
   };
 
+  GetPlayerStatus = () => this.player.state.status;
+
   private isPlayerNotBusy = () =>
-    this.player.state.status !== AudioPlayerStatus.Playing &&
-    this.player.state.status !== AudioPlayerStatus.Buffering;
+    this.GetPlayerStatus() !== AudioPlayerStatus.Playing &&
+    this.GetPlayerStatus() !== AudioPlayerStatus.Buffering;
 
   play = async (message: Message, args: string[]) => {
     this.message = message;
@@ -176,7 +178,7 @@ export class MusicPlayer extends PlayerQueue {
       return null;
     }
 
-    if (this.player.state.status === AudioPlayerStatus.Paused) {
+    if (this.GetPlayerStatus() === AudioPlayerStatus.Paused) {
       this.player.unpause();
     }
 

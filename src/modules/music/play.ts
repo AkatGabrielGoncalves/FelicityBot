@@ -37,7 +37,7 @@ export const handlePlay = async (
 
   const conn = connections[`${message.guildId}`];
 
-  if (conn.player.state.status !== AudioPlayerStatus.Paused && !args.join('')) {
+  if (conn.GetPlayerStatus() !== AudioPlayerStatus.Paused && !args.join('')) {
     return await message.reply(
       'Ta com vergonha? Tudo bem, pode guardar pra você a sua música.'
     );
