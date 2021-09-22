@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { QueueItem } from '../interfaces/QueueItem';
 import { addTime } from './helpers/addTime';
+import { formatTime } from './helpers/formatTime';
 
 export const addToQueueEmbed = (
   message: Message,
@@ -21,18 +22,11 @@ export const addToQueueEmbed = (
     time = addTime(currentlyPlaying, time);
   }
 
+  const currentlyPlayingTime = formatTime(time);
+
   queue.forEach((song) => {
     time = addTime(song, time);
   });
-
-  if (time.second >= 60) {
-    time.minute += Math.floor(time.second / 60);
-    time.second %= 60;
-  }
-  if (time.minute >= 60) {
-    time.hour += Math.floor(time.minute / 60);
-    time.minute %= 60;
-  }
 
   return new MessageEmbed()
     .setTitle(songAddedToPlaylist.title)
@@ -43,12 +37,10 @@ export const addToQueueEmbed = (
     )
     .setThumbnail(songAddedToPlaylist.thumbnail)
     .addFields(
-      { name: 'Duração', value: songAddedToPlaylist.duration, inline: true },
+      { name: 'Duração', value: currentlyPlayingTime, inline: true },
       {
         name: 'Tempo até tocar',
-        value: `${time.hour < 10 ? `0${time.hour}` : time.hour}:${
-          time.minute < 10 ? `0${time.minute}` : time.minute
-        }:${time.second < 10 ? `0${time.second}` : time.second}`,
+        value: formatTime(time),
         inline: true,
       }
     )

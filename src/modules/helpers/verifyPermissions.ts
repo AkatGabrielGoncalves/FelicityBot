@@ -1,9 +1,15 @@
 import { Client, Message, PermissionResolvable } from 'discord.js';
+import { Database } from '../../database';
 import { retrieveUserAndAuthor } from './retrieveUserAndAuthor';
 
 export const verifyPermissions =
   (commandFunction: Function, permissions: PermissionResolvable[]) =>
-  async (client: Client, message: Message, args: { [key: string]: string }) => {
+  async (
+    client: Client,
+    message: Message,
+    args: { [key: string]: string },
+    db: Database
+  ) => {
     const { authorMember } = await retrieveUserAndAuthor(message);
 
     try {
@@ -18,5 +24,5 @@ export const verifyPermissions =
       return await message.reply('Você não pode fazer isso!');
     }
 
-    return commandFunction(client, message, args);
+    return commandFunction(client, message, args, db);
   };

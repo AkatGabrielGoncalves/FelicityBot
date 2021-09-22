@@ -1,18 +1,24 @@
 import { Client, Message } from 'discord.js';
-import fs from 'fs';
-import path from 'path';
+import { Database } from '../database';
 import { commands } from './commands';
+import { retrieveConfig } from './helpers/retrieveConfig';
 
-export const commandsHandler = async (client: Client, message: Message) => {
+export const commandsHandler = async (
+  client: Client,
+  message: Message,
+  db: Database | null
+) => {
+  if (message.author.bot) return null;
+
   const guildId = message.guildId as string;
 
-  // This will read our serverInfo.json that stores all prefixes for your servers
-  const json = fs.readFileSync(path.resolve(__dirname, 'serverInfo.json'), 'utf8');
-  let prefix = JSON.parse(json)[guildId];
-  if (!prefix) prefix = '!';
+  const { prefix, preferredChannel } = (await retrieveConfig(db, guildId)) as {
+    prefix: string;
+    preferredChannel: string;
+  };
 
   // This is to prevent the bot from interacting with other bots and other prefixes or no prefixes
-  if (message.author.bot || !message.content.startsWith(prefix)) {
+  if (!message.content.startsWith(prefix)) {
     return null;
   }
 
@@ -22,9 +28,17 @@ export const commandsHandler = async (client: Client, message: Message) => {
   const args = commandBody.split(' ');
   const command = args.shift()?.toLowerCase() as string;
 
+  if (
+    command !== 'channel' &&
+    preferredChannel &&
+    message.channelId !== preferredChannel
+  ) {
+    return null;
+  }
+
   // Here we will use the command as a key to return the correct response for each command
   try {
-    return commands[command](client, message, args);
+    return commands[command](client, message, args, db);
   } catch {
     return null;
   }

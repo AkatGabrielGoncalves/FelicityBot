@@ -3,23 +3,28 @@ import fs from 'fs';
 import path from 'path';
 import { Database } from '../../database';
 
-export const handlePrefix = async (
+export const handleChannel = async (
   client: Client,
   message: Message,
   args: string[], // args[0] should be only the prefix
   db: Database
 ) => {
   const arg = args.join('');
-  if (!arg || arg.length < 0 || arg.length > 2)
-    return await message.reply(
-      'Alguma coisa tem que ser meu prefixo! São só um ou dois caracteres!'
-    );
+
+  let preferredChannel = null;
+  if (!arg) {
+    preferredChannel = message.channelId;
+  }
+
+  if (arg === 'default') {
+    preferredChannel = null;
+  }
 
   try {
     if (db && process.env.USESQLDB === 'TRUE') {
       await db.models.BotConfigModel.update(
         {
-          prefix: arg,
+          preferredChannel,
         },
         {
           where: {
@@ -35,16 +40,21 @@ export const handlePrefix = async (
       const serverInfoJson = fs.readFileSync(location, 'utf8');
 
       const serverInfoObj = JSON.parse(serverInfoJson) as {
-        [key: string]: { prefix: string };
+        [key: string]: { preferredChannel: string | null };
       };
       // eslint-disable-next-line prefer-destructuring
-      serverInfoObj[`${message.guildId}`].prefix = arg;
+      serverInfoObj[`${message.guildId}`].preferredChannel = preferredChannel;
 
       fs.writeFileSync(location, JSON.stringify(serverInfoObj), 'utf8');
     }
 
-    return await message.reply(`Prefixo trocado para: ${arg}`);
+    if (arg !== 'default') {
+      return await message.reply(
+        `Agora eu só irei responder nesse canal! Use o comando '!channel default' para remover este comportamento!`
+      );
+    }
+    return await message.reply(`Agora eu tô prestando atenção em todos os chats!`);
   } catch (err) {
-    return await message.reply('Não foi possivel mudar o prefixo :(');
+    return await message.reply('Não foi possivel me prender neste canal. :(');
   }
 };

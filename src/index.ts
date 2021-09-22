@@ -1,19 +1,34 @@
-import Discord from 'discord.js';
+/* eslint-disable import/first */
 import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+import Discord from 'discord.js';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
+import { Database } from './database';
+import { connection } from './database/connection';
 
 global.AbortController = require('abort-controller');
 
-// This will load our BOT_TOKEN from the .env file so we can access at process.env
-dotenv.config();
+const { database, password, username, host, port, dialect } = connection;
+
+let db: Database | null = null;
+
+if (process.env.USESQLDB === 'TRUE') {
+  db = new Database();
+
+  db?.connectToDatabase({ database, password, username, host, port, dialect });
+}
 
 /* intents are all the events that this bot will listen,
  which is everything. You can change this behavior at ./intents.ts */
 const client = new Discord.Client({ intents });
 
 // This is our listener that captures all messages sent
-client.on('messageCreate', (message) => commandsHandler(client, message));
+client.on('messageCreate', (message) => {
+  commandsHandler(client, message, db);
+});
 
 // Well, this creates a connection to our bot
 client
