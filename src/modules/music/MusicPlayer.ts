@@ -114,7 +114,7 @@ export class MusicPlayer extends PlayerQueue {
       });
 
       try {
-        if (this.retryAttempts < 20) {
+        if (this.retryAttempts < 40) {
           const head = await axios.head(metadata.formats[0].url);
           console.log(head.status);
         } else {
