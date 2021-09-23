@@ -17,6 +17,12 @@ At this stage you already have your dependecies and the correct Node version, bu
 
 Now everything is set. Just type `yarn local` and your bot will be Online and working.
 
+## SQL database
+
+To use a SQL database you need to set your connection details inside the .env file and change USESQLDB to TRUE, the app will try to create the database, but you can create beforehand.
+
+**Information inside the db.json will NOT be transferred to the Database**
+
 ## Music
 
 **To play age restricted videos is necessary to get youtube authentication cookies**
@@ -28,6 +34,8 @@ Currently it can \
 `!kick <@user> || @everyone` \
 `!unban <user id> || @everyone` \
 `!prefix <prefix>`\
+`!channel` to lock itself into a channel, `!channel default` to listen to all channels, this command works regardless of the channel.
+
 Music related commands:\
 `!play <search> || <youtube url>` or `!p <search> || <youtube url>`\
 `!next`\
@@ -35,6 +43,5 @@ Music related commands:\
 `!pause`\
 `!queue`\
 `!remove <number in queue>`
-
 
 **EXPECT BUGS WITH THE MUSIC PLAYER**
