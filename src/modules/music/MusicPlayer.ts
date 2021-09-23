@@ -32,6 +32,8 @@ export class MusicPlayer extends PlayerQueue {
 
   private client: Client<boolean>;
 
+  private retryAttempts: number;
+
   constructor(client: Client, message: Message) {
     super();
     this.client = client;
@@ -44,8 +46,10 @@ export class MusicPlayer extends PlayerQueue {
       },
     });
     this.subscription = this.conn.subscribe(this.player);
+    this.retryAttempts = 0;
 
     this.conn.on(VoiceConnectionStatus.Disconnected, async () => {
+      // This is to check if the bot was really disconnected or changed channels / changed region
       try {
         if (this.conn !== null) {
           await Promise.race([
@@ -60,6 +64,7 @@ export class MusicPlayer extends PlayerQueue {
     });
 
     this.conn.on(VoiceConnectionStatus.Ready, async () => {
+      // This will start the player again if it loses connection
       if (this.currentlyPlaying !== null) {
         this.queue.unshift(this.currentlyPlaying);
         await this.playAudio();
@@ -90,7 +95,7 @@ export class MusicPlayer extends PlayerQueue {
     });
   }
 
-  private playAudio: () => Promise<null> = async () => {
+  private playAudio = async (): Promise<null> => {
     try {
       const song = this.queue.shift() as QueueItem;
 
@@ -109,14 +114,23 @@ export class MusicPlayer extends PlayerQueue {
       });
 
       try {
-        const head = await axios.head(metadata.formats[0].url);
-        console.log(head.status);
+        if (this.retryAttempts < 20) {
+          const head = await axios.head(metadata.formats[0].url);
+          console.log(head.status);
+        } else {
+          this.message.channel.send(
+            'Não consegui tocar essa música, vou ter que pular ela!'
+          );
+          this.retryAttempts = 0;
+          this.playAudio();
+        }
       } catch (err: any) {
         console.log(
           err.response.status,
           `Erro ${err.response.status}, tentando novamente.`
         );
         this.queue.unshift(song);
+        this.retryAttempts += 1;
         return this.playAudio();
       }
 
