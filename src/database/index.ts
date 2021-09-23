@@ -54,6 +54,15 @@ export class Database {
     port,
     dialect,
   }: Options) => {
+    await this.createDatabase({
+      database,
+      password,
+      username,
+      host,
+      port,
+      dialect,
+    });
+
     this.conn = new Sequelize({ database, password, username, host, port, dialect });
 
     try {
@@ -63,15 +72,6 @@ export class Database {
       console.log(`[Sequelize] Unable to authenticate to Database`, err.original);
       return null;
     }
-
-    await this.createDatabase({
-      database,
-      password,
-      username,
-      host,
-      port,
-      dialect,
-    });
 
     try {
       this.modelsInit();

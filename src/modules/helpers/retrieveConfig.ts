@@ -7,11 +7,12 @@ export const retrieveConfig = async (db: Database | null, guildId: string) => {
   let data = null;
 
   if (db && process.env.USESQLDB === 'TRUE') {
-    const { dataValues } = (await db.models.BotConfigModel.findByPk(
-      guildId
-    )) as IBotConfigData;
-    data = dataValues;
-    if (!dataValues.prefix) {
+    try {
+      const { dataValues } = (await db.models.BotConfigModel.findByPk(
+        guildId
+      )) as IBotConfigData;
+      data = dataValues;
+    } catch (err) {
       await db.models.BotConfigModel.create({
         id: guildId,
         preferredChannel: null,
