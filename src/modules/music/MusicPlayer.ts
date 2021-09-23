@@ -194,6 +194,7 @@ export class MusicPlayer extends PlayerQueue {
 
     if (this.GetPlayerStatus() === AudioPlayerStatus.Paused) {
       this.player.unpause();
+      return null;
     }
 
     const argsExist = args.join('');
@@ -207,10 +208,11 @@ export class MusicPlayer extends PlayerQueue {
       }
       await this.addToQueue(this.client, message, args);
 
-      if (this.isPlayerNotBusy()) {
+      if (this.isPlayerNotBusy() && this.queue[0]) {
         await this.playAudio();
         return null;
       }
+      this.stop(message);
       return null;
     }
     return null;
