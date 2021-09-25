@@ -212,7 +212,7 @@ export class MusicPlayer extends PlayerQueue {
         await this.playAudio();
         return null;
       }
-      this.stop(message);
+
       return null;
     }
     return null;
