@@ -9,13 +9,17 @@ import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { QueueItem } from './interfaces/QueueItem';
 
 export class PlayerQueue {
-  queue: QueueItem[];
+  protected queue: QueueItem[];
 
-  queuePage: number;
+  protected queuePage: number;
 
-  queueMessage: Message | null | undefined;
+  protected queueMessage: Message | null | undefined;
 
-  currentlyPlaying: QueueItem | null;
+  protected currentlyPlaying: QueueItem | null;
+
+  protected loopState: boolean;
+
+  protected queuePosition: number;
 
   // spotifyApi: SpotifyWebApi;
 
@@ -24,6 +28,8 @@ export class PlayerQueue {
     this.queuePage = 0;
     this.queueMessage = null;
     this.currentlyPlaying = null;
+    this.loopState = false;
+    this.queuePosition = 0;
     // this.spotifyApi = new SpotifyWebApi({
     //   clientId: '',
     //   clientSecret: '',
@@ -50,7 +56,7 @@ export class PlayerQueue {
         const { items: songs } = playlist;
         songs.forEach((song) =>
           this.queue.push({
-            url: song.url,
+            url: song.shortUrl,
             title: song.title,
             duration: song.duration as string,
             thumbnail: song.bestThumbnail.url as string,
@@ -142,6 +148,15 @@ export class PlayerQueue {
       );
     }
     return null;
+  };
+
+  getNextSong = () => {
+    if (this.loopState) {
+      if (this.queuePosition <= this.queue.length) this.queuePosition += 1;
+      if (this.queuePosition > this.queue.length) this.queuePosition = 1;
+      return this.queue[this.queuePosition - 1];
+    }
+    return this.queue.shift();
   };
 
   showQueue = async (client: Client, message: Message) => {

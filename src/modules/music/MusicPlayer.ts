@@ -97,7 +97,7 @@ export class MusicPlayer extends PlayerQueue {
 
   private playAudio = async (): Promise<null> => {
     try {
-      const song = this.queue.shift() as QueueItem;
+      const song = this.getNextSong() as QueueItem;
 
       const { url } = song;
       console.log(url);
@@ -134,7 +134,7 @@ export class MusicPlayer extends PlayerQueue {
         return this.playAudio();
       }
 
-      const stream = await ytdl.downloadFromInfo(metadata, {
+      const stream = ytdl.downloadFromInfo(metadata, {
         filter: 'audioonly',
         quality: 'highestaudio',
         requestOptions: {
@@ -251,5 +251,17 @@ export class MusicPlayer extends PlayerQueue {
       `Removida a música na posição: ${index}: ${removedSong[0].title}`
     );
     return null;
+  };
+
+  loop = async (message: Message) => {
+    this.loopState = !this.loopState;
+    this.queuePosition = 1;
+    if (this.currentlyPlaying && this.loopState) {
+      this.queue.unshift(this.currentlyPlaying);
+    }
+    if (this.loopState) {
+      return message.reply(`Loop foi ativado!`);
+    }
+    return message.reply(`Loop foi desativado!`);
   };
 }
