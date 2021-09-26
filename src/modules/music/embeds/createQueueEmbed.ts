@@ -1,5 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { QueueItem } from '../interfaces/QueueItem';
+import { addTime } from './helpers/addTime';
+import { formatTime } from './helpers/formatTime';
 
 export const createQueueEmbed = (
   message: Message,
@@ -10,9 +12,13 @@ export const createQueueEmbed = (
   const { guild } = message;
   const subArray = queue.slice(page, page + 10);
   const parsedSubArray = subArray
-    .map((song, index) => `${index + 1 + page}: ${song.title} [${song.duration}]\n`)
+    .map(
+      (song, index) =>
+        `${index + 1 + page}: ${song.title} [${formatTime(
+          addTime(song, { hour: 0, minute: 0, second: 0 })
+        )}]\n`
+    )
     .join('');
-
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
     .setURL(currentlyPlaying.url)
