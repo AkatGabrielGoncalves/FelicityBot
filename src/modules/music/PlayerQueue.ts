@@ -204,7 +204,9 @@ export class PlayerQueue {
             await awaitReactions();
           })
           .catch(async () => {
-            await this.queueMessage?.delete();
+            if (this.queueMessage) {
+              await this.queueMessage.delete();
+            }
             this.queueMessage = null;
             this.queuePage = 0;
           });
