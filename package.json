@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "local": "ts-node-dev --ignore-watch src/modules/serverInfo.json -T src/index.ts ",
-    "build": "tsc",
+    "build": "yarn --ignore-engines && rm -rf ./dist && tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "prettier": "prettier --check .",
     "start": "node ./dist/index.js"
@@ -21,6 +21,8 @@
     "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
     "mysql2": "^2.3.0",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.6.5",
     "spotify-web-api-node": "^5.0.2",
     "youtube-dl-exec": "^1.2.5",
