@@ -7,7 +7,8 @@
     "local": "ts-node-dev --ignore-watch src/modules/serverInfo.json -T src/index.ts ",
     "build": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "prettier": "prettier --check ."
+    "prettier": "prettier --check .",
+    "start": "node ./dist/index.js"
   },
   "dependencies": {
     "@discordjs/opus": "discordjs/opus",
