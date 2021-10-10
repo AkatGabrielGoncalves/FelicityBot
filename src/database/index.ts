@@ -19,13 +19,7 @@ export class Database {
     port,
     dialect,
   }: Options) => {
-    const conn = new Sequelize({
-      username,
-      password,
-      host,
-      port,
-      dialect,
-    });
+    const conn = new Sequelize({ username, password, host, port, dialect });
 
     try {
       if (conn) {
@@ -54,14 +48,7 @@ export class Database {
     port,
     dialect,
   }: Options) => {
-    await this.createDatabase({
-      database,
-      password,
-      username,
-      host,
-      port,
-      dialect,
-    });
+    await this.createDatabase({ database, password, username, host, port, dialect });
 
     this.conn = new Sequelize({ database, password, username, host, port, dialect });
 

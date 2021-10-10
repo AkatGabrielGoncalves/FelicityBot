@@ -1,6 +1,6 @@
-import { adminCommands } from './Admin/adminCommands';
-import { miscCommands } from './misc/miscCommands';
-import { musicCommands } from './music/musicCommands';
+import { adminCommands } from './admin';
+import { miscCommands } from './misc';
+import { musicCommands } from './music';
 
 // All commands should be listed here from the modules
 export const commands: { [key: string]: Function } = {
