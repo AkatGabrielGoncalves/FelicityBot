@@ -13,9 +13,15 @@ class HandleRemove implements ICommand {
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Music';
@@ -23,8 +29,11 @@ class HandleRemove implements ICommand {
     this.alias = [];
     this.description = `Esse comando remove uma música da fila do Bot.`;
     this.usage = ['remove <NúmeroDaMúsicaNaFila>'];
-    this.botPermissions = [[], 'SEND_MESSAGES', 'CONNECT', 'SPEAK'];
-    this.userPermissions = [[]];
+    this.botPermissions = {
+      atLeastOne: [],
+      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+    };
+    this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
   execute = async (client: Client, message: Message, args: string[]) => {

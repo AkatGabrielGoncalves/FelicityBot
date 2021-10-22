@@ -5,14 +5,14 @@ import handlePlay from './commands/play';
 import handleStop from './commands/stop';
 import handleRemove from './commands/remove';
 import handleLoop from './commands/loop';
+import ICommand from '../interfaces/ICommand';
 
-export const musicCommands: { [key: string]: Function } = {
-  play: handlePlay.execute,
-  p: handlePlay.execute, // play alias
-  stop: handleStop.execute,
-  pause: handlePause.execute,
-  next: handleNext.execute,
-  queue: handleQueue.execute,
-  remove: handleRemove.execute,
-  loop: handleLoop.execute,
-};
+export const musicCommandHandlers: ICommand[] = [
+  handlePlay,
+  handleStop,
+  handlePause,
+  handleNext,
+  handleQueue,
+  handleRemove,
+  handleLoop,
+];

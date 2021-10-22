@@ -7,15 +7,21 @@ class HandleUnban implements ICommand {
 
   command: string;
 
-  alias: never[];
+  alias: string[];
 
   description: string;
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Admin';
@@ -24,8 +30,14 @@ class HandleUnban implements ICommand {
     this.description =
       'Esse comando retira o ban de um usuário ou todos os usuários';
     this.usage = ['unban @user', 'unban @everyone'];
-    this.botPermissions = [['ADMINISTRATOR', 'BAN_MEMBERS'], 'SEND_MESSAGES'];
-    this.userPermissions = [['ADMINISTRATOR', 'BAN_MEMBERS']];
+    this.botPermissions = {
+      atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
+      mustHave: ['SEND_MESSAGES'],
+    };
+    this.userPermissions = {
+      atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
+      mustHave: [],
+    };
   }
 
   execute = async (

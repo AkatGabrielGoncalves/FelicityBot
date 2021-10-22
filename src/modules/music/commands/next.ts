@@ -13,18 +13,27 @@ class HandleNext implements ICommand {
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Music';
     this.command = 'next';
-    this.alias = [];
+    this.alias = ['skip'];
     this.description = `Esse comando toca a proxima música do Bot.`;
     this.usage = ['next'];
-    this.botPermissions = [[], 'SEND_MESSAGES', 'CONNECT', 'SPEAK'];
-    this.userPermissions = [[]];
+    this.botPermissions = {
+      atLeastOne: [],
+      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+    };
+    this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
   execute = async (client: Client, message: Message) => {

@@ -1,11 +1,11 @@
 import { Client, Message } from 'discord.js';
 import { Database } from '../database';
-import { commands } from './commands';
 import { retrieveConfig } from './helpers/retrieveConfig';
 
 export const commandsHandler = async (
   client: Client,
   message: Message,
+  commandsMap: Map<String, Function>,
   db: Database | null
 ) => {
   if (message.author.bot) return null;
@@ -17,7 +17,6 @@ export const commandsHandler = async (
     preferredChannel: string;
   };
 
-  // This is to prevent the bot from interacting with other bots and other prefixes or no prefixes
   if (!message.content.startsWith(prefix)) {
     return null;
   }
@@ -36,10 +35,8 @@ export const commandsHandler = async (
     return null;
   }
 
-  // Here we will use the command as a key to return the correct response for each command
-  try {
-    return commands[command](client, message, args, db);
-  } catch {
-    return null;
+  if (commandsMap.has(command)) {
+    return (commandsMap.get(command) as Function)(client, message, args, db);
   }
+  return null;
 };

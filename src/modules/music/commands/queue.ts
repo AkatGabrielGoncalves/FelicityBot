@@ -13,9 +13,15 @@ class HandleQueue implements ICommand {
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Music';
@@ -23,15 +29,17 @@ class HandleQueue implements ICommand {
     this.alias = [];
     this.description = `Esse comando mostra a fila de músicas do Bot.`;
     this.usage = ['queue'];
-    this.botPermissions = [
-      [],
-      'SEND_MESSAGES',
-      'CONNECT',
-      'SPEAK',
-      'ADD_REACTIONS',
-      'EMBED_LINKS',
-    ];
-    this.userPermissions = [[]];
+    this.botPermissions = {
+      atLeastOne: [],
+      mustHave: [
+        'SEND_MESSAGES',
+        'CONNECT',
+        'SPEAK',
+        'ADD_REACTIONS',
+        'EMBED_LINKS',
+      ],
+    };
+    this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
   execute = async (client: Client, message: Message) => {

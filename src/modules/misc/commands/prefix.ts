@@ -3,21 +3,28 @@ import fs from 'fs';
 import path from 'path';
 import { Database } from '../../../database';
 import ICommand from '../../interfaces/ICommand';
+import BotConfig from '../../../database/models/BotConfig';
 
 class HandlePrefix implements ICommand {
   type: string;
 
   command: string;
 
-  alias: never[];
+  alias: string[];
 
   description: string;
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Misc';
@@ -25,8 +32,11 @@ class HandlePrefix implements ICommand {
     this.alias = [];
     this.description = `Esse comando muda o prefixo para este servidor. Padrão '!'.`;
     this.usage = ['prefix @', 'prefix !', 'prefix !t'];
-    this.botPermissions = [['ADMINISTRATOR'], 'SEND_MESSAGES'];
-    this.userPermissions = [['ADMINISTRATOR']];
+    this.botPermissions = {
+      atLeastOne: [],
+      mustHave: ['SEND_MESSAGES'],
+    };
+    this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
   }
 
   execute = async (
@@ -43,7 +53,7 @@ class HandlePrefix implements ICommand {
 
     try {
       if (db && process.env.USESQLDB === 'TRUE') {
-        await db.models.BotConfigModel.update(
+        await BotConfig.update(
           {
             prefix: arg,
           },

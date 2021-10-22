@@ -7,15 +7,21 @@ class HandleBan implements ICommand {
 
   command: string;
 
-  alias: never[];
+  alias: string[];
 
   description: string;
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Admin';
@@ -24,8 +30,14 @@ class HandleBan implements ICommand {
     this.description =
       'Esse comando bane um usuário do servidor ou todos os usuários';
     this.usage = ['ban @user', 'ban @everyone'];
-    this.botPermissions = [['ADMINISTRATOR', 'BAN_MEMBERS'], 'SEND_MESSAGES'];
-    this.userPermissions = [['ADMINISTRATOR', 'BAN_MEMBERS']];
+    this.botPermissions = {
+      atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
+      mustHave: ['SEND_MESSAGES'],
+    };
+    this.userPermissions = {
+      atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
+      mustHave: [],
+    };
   }
 
   execute = async (

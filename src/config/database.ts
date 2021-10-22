@@ -1,6 +1,6 @@
 import { Dialect } from 'sequelize/types';
 
-export const connection = {
+export = {
   host: process.env.DBHOST as string,
   port: Number(process.env.DBPORT as string),
   database: process.env.DBNAME as string,

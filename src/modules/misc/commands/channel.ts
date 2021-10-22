@@ -2,6 +2,7 @@ import { Client, Message, PermissionResolvable } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { Database } from '../../../database';
+import BotConfig from '../../../database/models/BotConfig';
 import ICommand from '../../interfaces/ICommand';
 
 class HandleChannel implements ICommand {
@@ -9,15 +10,21 @@ class HandleChannel implements ICommand {
 
   command: string;
 
-  alias: never[];
+  alias: string[];
 
   description: string;
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Misc';
@@ -27,8 +34,11 @@ class HandleChannel implements ICommand {
 ou seja, só responderá quando for chamado no canal especificado. 
 Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
     this.usage = ['channel', 'channel default'];
-    this.botPermissions = [['ADMINISTRATOR'], 'SEND_MESSAGES'];
-    this.userPermissions = [['ADMINISTRATOR']];
+    this.botPermissions = {
+      atLeastOne: [],
+      mustHave: ['SEND_MESSAGES'],
+    };
+    this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
   }
 
   execute = async (
@@ -50,7 +60,7 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
 
     try {
       if (db && process.env.USESQLDB === 'TRUE') {
-        await db.models.BotConfigModel.update(
+        await BotConfig.update(
           {
             preferredChannel,
           },

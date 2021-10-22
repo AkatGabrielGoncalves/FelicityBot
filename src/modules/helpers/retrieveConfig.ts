@@ -1,22 +1,25 @@
 import fs from 'fs';
 import path from 'path';
 import { Database } from '../../database';
-import { IBotConfigData } from '../../database/models/BotConfig';
+import BotConfig from '../../database/models/BotConfig';
 
 export const retrieveConfig = async (db: Database | null, guildId: string) => {
-  let data = null;
+  let serverConfig = null;
 
   if (db && process.env.USESQLDB === 'TRUE') {
     try {
-      const { dataValues } = (await db.models.BotConfigModel.findByPk(
-        guildId
-      )) as IBotConfigData;
-      data = dataValues;
+      serverConfig = await BotConfig.findByPk(guildId);
+      if (!serverConfig) {
+        await BotConfig.create({
+          id: guildId,
+          preferredChannel: null,
+        });
+      }
     } catch (err) {
-      await db.models.BotConfigModel.create({
-        id: guildId,
-        preferredChannel: null,
-      });
+      console.log(
+        `There was a error trying to get this guild ${guildId} config.`,
+        err
+      );
     }
   }
 
@@ -25,17 +28,17 @@ export const retrieveConfig = async (db: Database | null, guildId: string) => {
     if (fs.existsSync(location)) {
       const json = fs.readFileSync(location, 'utf8');
 
-      data = JSON.parse(json);
-      if (!data[guildId]) {
-        data[guildId] = { prefix: '!', preferredChannel: null };
-        fs.writeFileSync(location, JSON.stringify(data));
+      serverConfig = JSON.parse(json);
+      if (!serverConfig[guildId]) {
+        serverConfig[guildId] = { prefix: '!', preferredChannel: null };
+        fs.writeFileSync(location, JSON.stringify(serverConfig));
       }
-      data = data[guildId];
+      serverConfig = serverConfig[guildId];
     } else {
       fs.writeFileSync(location, JSON.stringify({}));
     }
   }
-  if (!data) data = { prefix: '!', preferredChannel: null };
+  if (!serverConfig) serverConfig = { prefix: '!', preferredChannel: null };
 
-  return data;
+  return serverConfig;
 };

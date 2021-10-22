@@ -7,8 +7,14 @@ export default interface ICommand {
   alias: string[];
   description: string;
   usage: string[];
-  botPermissions: PermissionResolvable[];
-  userPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
   execute: (
     client: Client,
     message: Message,

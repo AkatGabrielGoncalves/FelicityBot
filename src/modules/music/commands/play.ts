@@ -15,9 +15,15 @@ class HandlePlay implements ICommand {
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Music';
@@ -30,8 +36,11 @@ class HandlePlay implements ICommand {
       'play <YoutubeSearch>',
       'p <YoutubeUrl>',
     ];
-    this.botPermissions = [[], 'SEND_MESSAGES', 'CONNECT', 'SPEAK'];
-    this.userPermissions = [[]];
+    this.botPermissions = {
+      atLeastOne: [],
+      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+    };
+    this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
   execute = async (

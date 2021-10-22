@@ -7,15 +7,21 @@ class HandleKick implements ICommand {
 
   command: string;
 
-  alias: never[];
+  alias: string[];
 
   description: string;
 
   usage: string[];
 
-  botPermissions: PermissionResolvable[];
+  botPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
-  userPermissions: PermissionResolvable[];
+  userPermissions: {
+    atLeastOne: PermissionResolvable[];
+    mustHave: PermissionResolvable[];
+  };
 
   constructor() {
     this.type = 'Admin';
@@ -24,8 +30,14 @@ class HandleKick implements ICommand {
     this.description =
       'Esse comando remove um usuário do servidor ou todos os usuários';
     this.usage = ['kick @user', 'kick @everyone'];
-    this.botPermissions = [['ADMINISTRATOR', 'KICK_MEMBERS'], 'SEND_MESSAGES'];
-    this.userPermissions = [['ADMINISTRATOR', 'KICK_MEMBERS']];
+    this.botPermissions = {
+      atLeastOne: ['ADMINISTRATOR', 'KICK_MEMBERS'],
+      mustHave: ['SEND_MESSAGES'],
+    };
+    this.userPermissions = {
+      atLeastOne: ['ADMINISTRATOR', 'KICK_MEMBERS'],
+      mustHave: [],
+    };
   }
 
   execute = async (
