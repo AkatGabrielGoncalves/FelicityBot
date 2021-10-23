@@ -17,12 +17,18 @@ export const addToQueueEmbed = (
     second: 0,
   };
 
+  const songAddedToPlaylistTime = formatTime(
+    addTime(currentlyPlaying, {
+      hour: 0,
+      minute: 0,
+      second: 0,
+    })
+  );
+
   // duration currently playing
   if (currentlyPlaying) {
     time = addTime(currentlyPlaying, time);
   }
-
-  const currentlyPlayingTime = formatTime(time);
 
   queue.forEach((song) => {
     time = addTime(song, time);
@@ -37,7 +43,7 @@ export const addToQueueEmbed = (
     )
     .setThumbnail(songAddedToPlaylist.thumbnail)
     .addFields(
-      { name: 'Duração', value: currentlyPlayingTime, inline: true },
+      { name: 'Duração', value: songAddedToPlaylistTime, inline: true },
       {
         name: 'Tempo até tocar',
         value: formatTime(time),
