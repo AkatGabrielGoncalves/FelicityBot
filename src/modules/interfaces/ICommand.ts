@@ -1,5 +1,6 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
-import { Database } from '../../database';
+import { Message } from 'discord.js';
+import IExecuteParameters from './IExecuteParameters';
+import IPermissions from './IPermissions';
 
 export default interface ICommand {
   type: string;
@@ -7,18 +8,7 @@ export default interface ICommand {
   alias: string[];
   description: string;
   usage: string[];
-  botPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
-  userPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
-  execute: (
-    client: Client,
-    message: Message,
-    args: string[],
-    db?: Database
-  ) => Promise<void | Message | null>;
+  botPermissions: IPermissions;
+  userPermissions: IPermissions;
+  execute: (parameters: IExecuteParameters) => Promise<void | Message | null>;
 }

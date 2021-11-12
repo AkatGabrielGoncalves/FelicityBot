@@ -1,12 +1,12 @@
 import { QueueItem } from '../../interfaces/QueueItem';
 
-interface Time {
+export interface ITime {
   hour: number;
   minute: number;
   second: number;
 }
 
-export const addTime = (song: QueueItem, time: Time) => {
+export const addTime = (song: QueueItem, time: ITime) => {
   const timeRegex =
     /([\d]+):([0-5]?[\d]):([0-5]?[\d])|([0-5]?[\d]):([0-5][\d])|([\d]+)/;
 

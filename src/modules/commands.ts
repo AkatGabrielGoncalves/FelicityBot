@@ -5,7 +5,7 @@ import { musicCommandHandlers } from './music';
 import { permissionsHandler } from './permissionsHandler';
 
 // All command handlers should be listed here from the modules
-const commandsHandlers: ICommand[] = [
+export const commandsHandlers: ICommand[] = [
   ...adminCommandHandlers,
   ...miscCommandHandlers,
   ...musicCommandHandlers,
@@ -14,7 +14,11 @@ const commandsHandlers: ICommand[] = [
 export const mapCommands = () => {
   const commandMap: Map<String, Function> = new Map();
   commandsHandlers.forEach((handler) => {
-    // Set the main command
+    if (commandMap.has(handler.command))
+      throw new Error(
+        `There are multiple commands with the same name or alias. Alias or command that gave the error: ${handler.command}`
+      );
+
     commandMap.set(
       handler.command,
       permissionsHandler(
@@ -25,6 +29,11 @@ export const mapCommands = () => {
     );
     // Set command alias
     handler.alias.forEach((alias) => {
+      if (commandMap.has(alias))
+        throw new Error(
+          `There are multiple commands with the same name or alias. Alias or command that gave the error: ${alias}`
+        );
+
       commandMap.set(
         alias,
         permissionsHandler(

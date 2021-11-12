@@ -1,5 +1,6 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
 import ICommand from '../../interfaces/ICommand';
+import IExecuteParameters from '../../interfaces/IExecuteParameters';
+import IPermissions from '../../interfaces/IPermissions';
 import { connections } from '../MusicPlayer';
 
 class HandleLoop implements ICommand {
@@ -13,15 +14,9 @@ class HandleLoop implements ICommand {
 
   usage: string[];
 
-  botPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  botPermissions: IPermissions;
 
-  userPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  userPermissions: IPermissions;
 
   constructor() {
     this.type = 'Music';
@@ -36,7 +31,7 @@ class HandleLoop implements ICommand {
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
-  execute = async (client: Client, message: Message) => {
+  execute = async ({ message }: IExecuteParameters) => {
     if (!connections[`${message.guildId}`]) {
       return message.reply(`Não há player de música nesse servidor!`);
     }

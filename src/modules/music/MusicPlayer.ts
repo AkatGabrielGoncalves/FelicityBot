@@ -17,7 +17,7 @@ import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
 
-export const connections: { [key: string]: MusicPlayer } = {};
+export const connections: Record<string, MusicPlayer> = {};
 
 export class MusicPlayer extends PlayerQueue {
   private conn: VoiceConnection | null;
@@ -58,7 +58,6 @@ export class MusicPlayer extends PlayerQueue {
           ]);
         }
       } catch (error) {
-        this.queue = [];
         await this.stop(this.message);
       }
     });
@@ -180,42 +179,39 @@ export class MusicPlayer extends PlayerQueue {
     this.GetPlayerStatus() !== AudioPlayerStatus.Buffering;
 
   play = async (message: Message, args: string[]) => {
-    this.message = message;
     if (message.member?.voice.channel !== this.channel) {
       const someoneIsListening = this.channel.members.size > 1;
       if (message.member?.voice.channel && !someoneIsListening) {
         this.conn = connectToChannel(message.member?.voice.channel);
+        this.channel = message.member.voice.channel;
+        return null;
       }
-      await message.reply(
+      return await message.reply(
         `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
       );
-      return null;
     }
 
-    if (this.GetPlayerStatus() === AudioPlayerStatus.Paused) {
-      this.player.unpause();
-      return null;
-    }
-
+    this.message = message;
     const argsExist = args.join('');
 
-    if (argsExist) {
-      if (this.queue.length > 200) {
-        await message.reply(
-          `Já tem muita música na fila! Não vou adicionar mais, meu caderninho ta cheio!`
-        );
-        return null;
-      }
-      await this.addToQueue(this.client, message, args);
-
-      if (this.isPlayerNotBusy() && this.queue[0]) {
-        await this.playAudio();
-        return null;
-      }
-
-      return null;
+    // To unpause the player when someone send !play
+    if (this.GetPlayerStatus() === AudioPlayerStatus.Paused) {
+      this.player.unpause();
     }
-    return null;
+
+    if (!argsExist) return null;
+
+    if (this.queue.length > 200) {
+      return await message.reply(
+        `Já tem muita música na fila! Não vou adicionar mais, meu caderninho ta cheio!`
+      );
+    }
+
+    if (this.isPlayerNotBusy() && this.queue[0]) {
+      await this.addToQueue(this.client, message, args);
+      return await this.playAudio();
+    }
+    return await this.addToQueue(this.client, message, args);
   };
 
   next = async (message: Message) => {
@@ -227,7 +223,9 @@ export class MusicPlayer extends PlayerQueue {
   stop = async (message: Message) => {
     this.queue = [];
     this.conn?.removeAllListeners();
-    this.conn?.destroy();
+    if (this.conn?.state.status !== VoiceConnectionStatus.Destroyed) {
+      this.conn?.destroy();
+    }
     this.player.removeAllListeners();
     delete connections[`${message.guildId}`];
     await message.channel.send(`Player foi parado!`);

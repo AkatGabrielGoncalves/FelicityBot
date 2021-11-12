@@ -1,9 +1,9 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import { Database } from '../../../database';
 import ICommand from '../../interfaces/ICommand';
 import BotConfig from '../../../database/models/BotConfig';
+import IPermissions from '../../interfaces/IPermissions';
+import IExecuteParameters from '../../interfaces/IExecuteParameters';
 
 class HandlePrefix implements ICommand {
   type: string;
@@ -16,15 +16,9 @@ class HandlePrefix implements ICommand {
 
   usage: string[];
 
-  botPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  botPermissions: IPermissions;
 
-  userPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  userPermissions: IPermissions;
 
   constructor() {
     this.type = 'Misc';
@@ -39,12 +33,7 @@ class HandlePrefix implements ICommand {
     this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
   }
 
-  execute = async (
-    client: Client,
-    message: Message,
-    args: string[], // args[0] should be only the prefix
-    db?: Database
-  ) => {
+  execute = async ({ message, args }: IExecuteParameters) => {
     const arg = args.join('');
     if (!arg || arg.length < 0 || arg.length > 2)
       return await message.reply(
@@ -52,7 +41,7 @@ class HandlePrefix implements ICommand {
       );
 
     try {
-      if (db && process.env.USESQLDB === 'TRUE') {
+      if (process.env.USESQLDB === 'TRUE') {
         await BotConfig.update(
           {
             prefix: arg,

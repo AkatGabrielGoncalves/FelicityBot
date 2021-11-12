@@ -1,24 +1,13 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
-import { Database } from '../database';
+import IExecuteParameters from './interfaces/IExecuteParameters';
+import IPermissions from './interfaces/IPermissions';
 
 export const permissionsHandler =
   (
     commandFunction: Function,
-    userPermissions: {
-      atLeastOne: PermissionResolvable[];
-      mustHave: PermissionResolvable[];
-    },
-    botPermissions: {
-      atLeastOne: PermissionResolvable[];
-      mustHave: PermissionResolvable[];
-    }
+    userPermissions: IPermissions,
+    botPermissions: IPermissions
   ) =>
-  async (
-    client: Client,
-    message: Message,
-    args: { [key: string]: string },
-    db: Database
-  ) => {
+  async ({ client, message, args }: IExecuteParameters) => {
     const botMember = message.guild?.members.cache.get(client.user?.id as string);
 
     const botHaveUniquePermission = botPermissions.atLeastOne.find((perm) => {
@@ -69,5 +58,5 @@ export const permissionsHandler =
       );
     }
 
-    return commandFunction(client, message, args, db);
+    return commandFunction({ client, message, args });
   };

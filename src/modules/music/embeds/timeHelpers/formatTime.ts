@@ -1,8 +1,4 @@
-interface ITime {
-  hour: number;
-  minute: number;
-  second: number;
-}
+import { ITime } from './addTime';
 
 export const formatTime = (time: ITime) => {
   const tempTime = {

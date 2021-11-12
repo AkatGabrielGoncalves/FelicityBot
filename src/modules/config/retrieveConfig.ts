@@ -1,12 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { Database } from '../../database';
 import BotConfig from '../../database/models/BotConfig';
 
-export const retrieveConfig = async (db: Database | null, guildId: string) => {
+export const retrieveConfig = async (guildId: string) => {
   let serverConfig = null;
 
-  if (db && process.env.USESQLDB === 'TRUE') {
+  if (process.env.USESQLDB === 'TRUE') {
     try {
       serverConfig = await BotConfig.findByPk(guildId);
       if (!serverConfig) {

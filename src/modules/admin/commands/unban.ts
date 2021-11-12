@@ -1,5 +1,6 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
 import ICommand from '../../interfaces/ICommand';
+import IExecuteParameters from '../../interfaces/IExecuteParameters';
+import IPermissions from '../../interfaces/IPermissions';
 
 // This is the function that will ban an member
 class HandleUnban implements ICommand {
@@ -13,15 +14,9 @@ class HandleUnban implements ICommand {
 
   usage: string[];
 
-  botPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  botPermissions: IPermissions;
 
-  userPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  userPermissions: IPermissions;
 
   constructor() {
     this.type = 'Admin';
@@ -40,11 +35,7 @@ class HandleUnban implements ICommand {
     };
   }
 
-  execute = async (
-    client: Client,
-    message: Message,
-    args: string[] // args should be only an user
-  ) => {
+  execute = async ({ message, args }: IExecuteParameters) => {
     if (!args[0]) return await message.reply('?');
 
     const bans = await message.guild?.bans.fetch();

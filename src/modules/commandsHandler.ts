@@ -1,18 +1,16 @@
 import { Client, Message } from 'discord.js';
-import { Database } from '../database';
-import { retrieveConfig } from './helpers/retrieveConfig';
+import { retrieveConfig } from './config/retrieveConfig';
 
 export const commandsHandler = async (
   client: Client,
   message: Message,
-  commandsMap: Map<String, Function>,
-  db: Database | null
+  commandsMap: Map<String, Function>
 ) => {
   if (message.author.bot) return null;
 
   const guildId = message.guildId as string;
 
-  const { prefix, preferredChannel } = (await retrieveConfig(db, guildId)) as {
+  const { prefix, preferredChannel } = (await retrieveConfig(guildId)) as {
     prefix: string;
     preferredChannel: string;
   };
@@ -36,7 +34,7 @@ export const commandsHandler = async (
   }
 
   if (commandsMap.has(command)) {
-    return (commandsMap.get(command) as Function)(client, message, args, db);
+    return (commandsMap.get(command) as Function)({ client, message, args });
   }
   return null;
 };

@@ -39,7 +39,7 @@ export class Database extends Sequelize {
   };
 }
 
-export const createDatabase = async () => {
+const createDatabase = async () => {
   const { database, username, password, host, port, dialect } = databaseConfig;
   const conn = new Sequelize({ username, password, host, port, dialect });
 
@@ -60,3 +60,14 @@ export const createDatabase = async () => {
     }
   }
 };
+
+const instantiateDatabase = () => {
+  if (process.env.USESQLDB === 'TRUE') {
+    createDatabase().then(() => new Database());
+  }
+  return null;
+};
+
+const db = instantiateDatabase();
+
+export default db;

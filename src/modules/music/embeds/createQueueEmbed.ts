@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { QueueItem } from '../interfaces/QueueItem';
-import { addTime } from './helpers/addTime';
-import { formatTime } from './helpers/formatTime';
+import { addTime } from './timeHelpers/addTime';
+import { formatTime } from './timeHelpers/formatTime';
 
 export const createQueueEmbed = (
   message: Message,
@@ -11,6 +11,8 @@ export const createQueueEmbed = (
 ) => {
   const { guild } = message;
   const subArray = queue.slice(page, page + 10);
+
+  // Page is actually how many songs should you "jump" (OFFSET).
   const parsedSubArray = subArray
     .map(
       (song, index) =>
@@ -19,6 +21,7 @@ export const createQueueEmbed = (
         )}]\n`
     )
     .join('');
+
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
     .setURL(currentlyPlaying.url)

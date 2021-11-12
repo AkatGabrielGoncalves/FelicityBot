@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { QueueItem } from '../interfaces/QueueItem';
-import { addTime } from './helpers/addTime';
-import { formatTime } from './helpers/formatTime';
+import { addTime, ITime } from './timeHelpers/addTime';
+import { formatTime } from './timeHelpers/formatTime';
 
 export const addToQueueEmbed = (
   message: Message,
@@ -11,12 +11,6 @@ export const addToQueueEmbed = (
 ) => {
   const { guild } = message;
 
-  let time = {
-    hour: 0,
-    minute: 0,
-    second: 0,
-  };
-
   const songAddedToPlaylistTime = formatTime(
     addTime(currentlyPlaying, {
       hour: 0,
@@ -25,28 +19,35 @@ export const addToQueueEmbed = (
     })
   );
 
+  let tempTime: ITime = {
+    hour: 0,
+    minute: 0,
+    second: 0,
+  };
+
   // duration currently playing
   if (currentlyPlaying) {
-    time = addTime(currentlyPlaying, time);
+    tempTime = addTime(currentlyPlaying, tempTime);
   }
 
   queue.forEach((song) => {
-    time = addTime(song, time);
+    tempTime = addTime(song, tempTime);
   });
 
+  const playingAndQueueTime = formatTime(tempTime);
+
+  const { title, thumbnail, url } = songAddedToPlaylist;
+
   return new MessageEmbed()
-    .setTitle(songAddedToPlaylist.title)
-    .setURL(songAddedToPlaylist.url)
-    .setAuthor(
-      `Adicionado a fila em: ${guild?.name}` || '',
-      guild?.iconURL() || undefined
-    )
-    .setThumbnail(songAddedToPlaylist.thumbnail)
+    .setTitle(title)
+    .setURL(url)
+    .setAuthor(`Adicionado a fila em: ${guild?.name}`, guild?.iconURL() || undefined)
+    .setThumbnail(thumbnail)
     .addFields(
       { name: 'Duração', value: songAddedToPlaylistTime, inline: true },
       {
         name: 'Tempo até tocar',
-        value: formatTime(time),
+        value: playingAndQueueTime,
         inline: true,
       }
     )

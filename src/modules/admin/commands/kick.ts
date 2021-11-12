@@ -1,6 +1,7 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
 import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
 import ICommand from '../../interfaces/ICommand';
+import IExecuteParameters from '../../interfaces/IExecuteParameters';
+import IPermissions from '../../interfaces/IPermissions';
 
 class HandleKick implements ICommand {
   type: string;
@@ -13,15 +14,9 @@ class HandleKick implements ICommand {
 
   usage: string[];
 
-  botPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  botPermissions: IPermissions;
 
-  userPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  userPermissions: IPermissions;
 
   constructor() {
     this.type = 'Admin';
@@ -40,11 +35,7 @@ class HandleKick implements ICommand {
     };
   }
 
-  execute = async (
-    client: Client,
-    message: Message,
-    args: string[] // args should be only an user
-  ) => {
+  execute = async ({ client, message, args }: IExecuteParameters) => {
     if (!args[0]) return await message.reply('?');
 
     const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(

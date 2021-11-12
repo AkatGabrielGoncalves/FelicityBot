@@ -1,8 +1,9 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { MusicPlayer, connections } from '../MusicPlayer';
 import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
 import ICommand from '../../interfaces/ICommand';
+import IPermissions from '../../interfaces/IPermissions';
+import IExecuteParameters from '../../interfaces/IExecuteParameters';
 
 class HandlePlay implements ICommand {
   type: string;
@@ -15,15 +16,9 @@ class HandlePlay implements ICommand {
 
   usage: string[];
 
-  botPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  botPermissions: IPermissions;
 
-  userPermissions: {
-    atLeastOne: PermissionResolvable[];
-    mustHave: PermissionResolvable[];
-  };
+  userPermissions: IPermissions;
 
   constructor() {
     this.type = 'Music';
@@ -43,11 +38,7 @@ class HandlePlay implements ICommand {
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
-  execute = async (
-    client: Client,
-    message: Message,
-    args: string[] // args should be an URL
-  ) => {
+  execute = async ({ client, message, args }: IExecuteParameters) => {
     const messages = await message.channel.messages.fetch();
     const lastMessageTime = messages.first(2)[1].createdTimestamp;
     const currentMessageTime = message.createdTimestamp;
