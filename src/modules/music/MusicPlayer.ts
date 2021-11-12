@@ -207,7 +207,7 @@ export class MusicPlayer extends PlayerQueue {
       );
     }
 
-    if (this.isPlayerNotBusy() && this.queue[0]) {
+    if (this.isPlayerNotBusy() && !this.queue[0]) {
       await this.addToQueue(this.client, message, args);
       return await this.playAudio();
     }
