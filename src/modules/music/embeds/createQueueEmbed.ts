@@ -29,7 +29,5 @@ export const createQueueEmbed = (
       `Tocando agora em: ${guild?.name}` || '',
       guild?.iconURL() || undefined
     )
-    .setDescription(`${parsedSubArray}`)
-    .setTimestamp()
-    .setFooter(guild?.name || '', guild?.iconURL() || undefined);
+    .setDescription(`${parsedSubArray}`);
 };

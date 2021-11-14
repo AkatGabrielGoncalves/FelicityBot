@@ -1,5 +1,4 @@
-import IExecuteParameters from './interfaces/IExecuteParameters';
-import IPermissions from './interfaces/IPermissions';
+import { IExecuteParameters, IPermissions } from '../interfaces/customInterfaces';
 
 export const permissionsHandler =
   (

@@ -1,9 +1,11 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { MusicPlayer, connections } from '../MusicPlayer';
 import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
-import ICommand from '../../interfaces/ICommand';
-import IPermissions from '../../interfaces/IPermissions';
-import IExecuteParameters from '../../interfaces/IExecuteParameters';
+import {
+  IPermissions,
+  ICommand,
+  IExecuteParameters,
+} from '../../../interfaces/customInterfaces';
 
 class HandlePlay implements ICommand {
   type: string;

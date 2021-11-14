@@ -50,7 +50,5 @@ export const addToQueueEmbed = (
         value: playingAndQueueTime,
         inline: true,
       }
-    )
-    .setTimestamp()
-    .setFooter(guild?.name || '', guild?.iconURL() || undefined);
+    );
 };

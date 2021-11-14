@@ -1,9 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import BotConfig from '../../../database/models/BotConfig';
-import ICommand from '../../interfaces/ICommand';
-import IExecuteParameters from '../../interfaces/IExecuteParameters';
-import IPermissions from '../../interfaces/IPermissions';
+import {
+  IPermissions,
+  ICommand,
+  IExecuteParameters,
+} from '../../../interfaces/customInterfaces';
 
 class HandleChannel implements ICommand {
   type: string;

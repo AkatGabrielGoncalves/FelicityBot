@@ -23,7 +23,5 @@ export const playingEmbed = (message: Message, currentlyPlaying: QueueItem) => {
       name: 'Duração',
       value: currentlyPlayingTime,
       inline: true,
-    })
-    .setTimestamp()
-    .setFooter(guild?.name || '', guild?.iconURL() || undefined);
+    });
 };

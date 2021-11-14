@@ -61,13 +61,9 @@ const createDatabase = async () => {
   }
 };
 
-const instantiateDatabase = () => {
+export const instantiateDatabase = () => {
   if (process.env.USESQLDB === 'TRUE') {
     createDatabase().then(() => new Database());
   }
   return null;
 };
-
-const db = instantiateDatabase();
-
-export default db;

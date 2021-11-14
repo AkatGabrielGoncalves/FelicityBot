@@ -1,6 +1,8 @@
-import ICommand from '../../interfaces/ICommand';
-import IExecuteParameters from '../../interfaces/IExecuteParameters';
-import IPermissions from '../../interfaces/IPermissions';
+import {
+  IPermissions,
+  ICommand,
+  IExecuteParameters,
+} from '../../../interfaces/customInterfaces';
 
 // This is the function that will ban an member
 class HandleUnban implements ICommand {

@@ -3,20 +3,34 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import Discord from 'discord.js';
+import { Client, ClientOptions } from 'discord.js';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
 import { mapCommands } from './modules/commands';
-import './database/index';
+import { instantiateDatabase } from './database/index';
+import { ICommand, ICustomClient } from './interfaces/customInterfaces';
 
 global.AbortController = require('abort-controller');
 
-const commandsMap = mapCommands();
+class CustomClient extends Client implements ICustomClient {
+  commandsMap: {
+    commandMap: Map<String, { handler: ICommand; execute: Function }>;
+    commandsHandlersMap: Map<String, any[]>;
+  };
 
-const client = new Discord.Client({ intents });
+  db: null;
+
+  constructor(options: ClientOptions) {
+    super(options);
+    this.commandsMap = mapCommands();
+    this.db = instantiateDatabase();
+  }
+}
+
+const client = new CustomClient({ intents });
 
 client.on('messageCreate', (message) => {
-  commandsHandler(client, message, commandsMap);
+  commandsHandler(client, message);
 });
 
 client

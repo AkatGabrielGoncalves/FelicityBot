@@ -1,11 +1,8 @@
-import { Client, Message } from 'discord.js';
+import { Message } from 'discord.js';
+import { ICustomClient } from '../interfaces/customInterfaces';
 import { retrieveConfig } from './config/retrieveConfig';
 
-export const commandsHandler = async (
-  client: Client,
-  message: Message,
-  commandsMap: Map<String, Function>
-) => {
+export const commandsHandler = async (client: ICustomClient, message: Message) => {
   if (message.author.bot) return null;
 
   const guildId = message.guildId as string;
@@ -33,8 +30,13 @@ export const commandsHandler = async (
     return null;
   }
 
-  if (commandsMap.has(command)) {
-    return (commandsMap.get(command) as Function)({ client, message, args });
+  if (client.commandsMap.commandMap.has(command)) {
+    console.log(`Executing ${command} command`);
+    return (client.commandsMap.commandMap.get(command)?.execute as Function)({
+      client,
+      message,
+      args,
+    });
   }
   return null;
 };
