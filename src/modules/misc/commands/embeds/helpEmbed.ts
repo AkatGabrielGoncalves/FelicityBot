@@ -13,7 +13,9 @@ export const defaultEmbed = (client: ICustomClient) => {
   });
   return new MessageEmbed()
     .setTitle('Todos os comandos')
-    .setDescription('Aqui estão todos os comandos!')
+    .setDescription(
+      'Aqui estão todos os comandos! Para ver informações especificas: !help ban'
+    )
     .addFields(embedFields);
 };
 
