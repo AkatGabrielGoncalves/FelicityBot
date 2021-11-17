@@ -23,7 +23,7 @@ class HandleStop implements ICommand {
   constructor() {
     this.type = 'Music';
     this.command = 'stop';
-    this.alias = [];
+    this.alias = ['exit'];
     this.description = `Esse comando para completamente o bot de música.`;
     this.usage = ['stop'];
     this.botPermissions = {

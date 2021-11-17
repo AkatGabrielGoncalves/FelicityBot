@@ -18,7 +18,7 @@ class SpotifyAuth {
     this.clientId = process.env.SPOTIFY_CLIENT_ID as string;
     this.clientSecret = process.env.SPOTIFY_CLIENT_SECRET as string;
     this.accessToken = '';
-    this.accessTokenExpiresIn = 0;
+    this.accessTokenExpiresIn = 0; // This is a timestamp which holds when the access token will expire.
   }
 
   public getAccessToken = async () => {
