@@ -2,11 +2,12 @@ import { Client, Message, MessageReaction } from 'discord.js';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import ytsr from 'ytsr';
-// import SpotifyWebApi from 'spotify-web-api-node';
+import axios from 'axios';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { QueueItem } from './interfaces/QueueItem';
+import spotifyAuth from './SpotifyAuth';
 
 export class PlayerQueue {
   protected queue: QueueItem[];
@@ -30,25 +31,57 @@ export class PlayerQueue {
     this.currentlyPlaying = null;
     this.loopState = false;
     this.queuePosition = 0;
-    // this.spotifyApi = new SpotifyWebApi({
-    //   clientId: '',
-    //   clientSecret: '',
-    // });
   }
 
   addToQueue = async (client: Client, message: Message, args: string[]) => {
     const searchStringOrUrl = args.join(' ');
     const youtubeUrlString = 'https://www.youtube.com/watch?v=';
 
-    // const isASpotifyUrl = this.isAValidSpotifyUrl(searchStringOrUrl);
+    const isASpotifyUrl = this.isAValidSpotifyUrl(searchStringOrUrl);
 
-    // if (isASpotifyUrl) {
-    //   const { type, id } = isASpotifyUrl;
-    //   this.getPlaylistFromSpotify(type, id, message);
-    // }
+    const searchOptions = { limit: 5, pages: 1 };
+
+    if (isASpotifyUrl) {
+      try {
+        const { type, id } = isASpotifyUrl;
+
+        if (type !== 'playlist')
+          return await message.reply('Somente playlist são suportadas.');
+
+        const { items: songs }: { items: Array<any> } =
+          await this.getPlaylistFromSpotify(id);
+
+        const ytResults = await Promise.all(
+          songs.map(async (song) =>
+            ytsr(`${song.track.name} ${song.track.artists[0].name}`, searchOptions)
+          )
+        );
+
+        const sendToQueue = ytResults.map(({ items }) => {
+          const song = items.find(
+            (song2) => song2.type === 'video'
+          ) as YouTubeResultItem;
+
+          return {
+            url: song.url,
+            title: song.title,
+            duration: song.duration as string,
+            thumbnail: song.bestThumbnail.url as string,
+          };
+        });
+
+        this.queue.push(...sendToQueue);
+
+        return await message.reply('Playlist do spotify adicionada!');
+      } catch (err) {
+        console.log('Erro ao tentar adicionar a playlist do Spotify', err);
+        return await message.reply(
+          'Ocorreu um erro ao tentar adicionar a sua playlist do spotify.'
+        );
+      }
+    }
 
     const isAPlaylist = ytpl.validateID(searchStringOrUrl);
-    const searchOptions = { limit: 5, pages: 1 };
 
     if (isAPlaylist) {
       try {
@@ -224,35 +257,39 @@ export class PlayerQueue {
       this.queuePage
     );
 
-  // getPlaylistFromSpotify = async (type: string, id: string, message: Message) => {
-  //   if (type === 'playlist') {
-  //     const response = await this.spotifyApi.getPlaylistTracks(id, {
-  //       market: 'US',
-  //       fields: 'items',
-  //     });
-  //     if (response.statusCode !== 200)
-  //       return message.reply(`Não consegui tocar a sua playlist!`);
+  getPlaylistFromSpotify = async (id: string) => {
+    try {
+      const accessToken = await spotifyAuth.getAccessToken();
+      console.log(accessToken);
+      const { data } = await axios({
+        method: 'GET',
+        baseURL: `https://api.spotify.com/v1/playlists/${id}/tracks?fields=items(track(name,artists(name)))&limit=50`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return data;
+    } catch (err) {
+      console.log('Error while trying to fetch the playlist tracks');
+      return new Error(`Error while trying to fetch the playlist tracks${err}`);
+    }
+  };
 
-  //     const songs = response.body;
-  //     console.log(songs);
-  //   }
+  isAValidSpotifyUrl = (url: string) => {
+    const spotifyIdRegex =
+      /^(?:(?:http|https)(?::\/\/))?(?:open|play)\.spotify\.com\/(?:user\/spotify\/)?(track|playlist)\/([\w\d]+)/;
 
-  //   return null;
-  // };
+    const isValid = spotifyIdRegex.test(url);
 
-  // isAValidSpotifyUrl = (url: string) => {
-  //   const spotifyIdRegex =
-  //     /^(?:(?:http|https)(?::\/\/))?(?:open|play)\.spotify\.com\/(?:user\/spotify\/)?(track|playlist)\/([\w\d]+)/;
-
-  //   const isValid = spotifyIdRegex.test(url);
-
-  //   if (isValid) {
-  //     const [_, type, id] = url.match(spotifyIdRegex) as RegExpMatchArray;
-  //     return {
-  //       type,
-  //       id,
-  //     };
-  //   }
-  //   return null;
-  // };
+    if (isValid) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, type, id] = url.match(spotifyIdRegex) as RegExpMatchArray;
+      return {
+        type,
+        id,
+      };
+    }
+    return null;
+  };
 }

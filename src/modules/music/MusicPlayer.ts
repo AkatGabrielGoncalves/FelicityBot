@@ -94,7 +94,7 @@ export class MusicPlayer extends PlayerQueue {
     });
   }
 
-  private playAudio = async (): Promise<null> => {
+  private playAudio = async (): Promise<Message> => {
     try {
       const song = this.getNextSong() as QueueItem;
 
@@ -117,11 +117,11 @@ export class MusicPlayer extends PlayerQueue {
           const head = await axios.head(metadata.formats[0].url);
           console.log(head.status);
         } else {
-          this.message.channel.send(
+          await this.message.channel.send(
             'Não consegui tocar essa música, vou ter que pular ela!'
           );
           this.retryAttempts = 0;
-          this.playAudio();
+          return await this.playAudio();
         }
       } catch (err: any) {
         console.log(
@@ -130,7 +130,7 @@ export class MusicPlayer extends PlayerQueue {
         );
         this.queue.unshift(song);
         this.retryAttempts += 1;
-        return this.playAudio();
+        return await this.playAudio();
       }
 
       const stream = ytdl.downloadFromInfo(metadata, {
@@ -162,13 +162,13 @@ export class MusicPlayer extends PlayerQueue {
       //   }
       // });
 
-      await this.message.channel.send({ embeds: [embed] });
-      return null;
+      return await this.message.channel.send({ embeds: [embed] });
     } catch (err) {
       console.log('Erro 1');
       console.log(err);
-      await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
-      return null;
+      return await this.message.reply(
+        `Ocorreu um erro ao tentar reproduzir o video!`
+      );
     }
   };
 

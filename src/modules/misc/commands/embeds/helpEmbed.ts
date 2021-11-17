@@ -40,8 +40,6 @@ export const specificEmbed = (client: ICustomClient, command: string) => {
 
   embedFields.push(aliasField, usageField);
 
-  console.log(embedFields);
-
   return new MessageEmbed()
     .setTitle(handler.command)
     .setDescription(handler.description)
