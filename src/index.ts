@@ -3,29 +3,12 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { Client, ClientOptions } from 'discord.js';
+import logger from './logger/Logger';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
-import { mapCommands } from './modules/commands';
-import { instantiateDatabase } from './database/index';
-import { ICommand, ICustomClient } from './interfaces/customInterfaces';
+import { CustomClient } from './CustomClient';
 
 global.AbortController = require('abort-controller');
-
-class CustomClient extends Client implements ICustomClient {
-  commandsMap: {
-    commandMap: Map<String, { handler: ICommand; execute: Function }>;
-    commandsHandlersMap: Map<String, any[]>;
-  };
-
-  db: null;
-
-  constructor(options: ClientOptions) {
-    super(options);
-    this.commandsMap = mapCommands();
-    this.db = instantiateDatabase();
-  }
-}
 
 const client = new CustomClient({ intents });
 
@@ -35,8 +18,17 @@ client.on('messageCreate', (message) => {
 
 client
   .login(process.env.BOT_TOKEN)
-  .then(() => console.log('Bot is online'))
+  .then(async () => {
+    logger.log('INFO', 'Bot is online.', new Error());
+
+    const guildsCount = (await client.guilds.fetch()).size;
+
+    client.user?.setActivity({
+      type: 'LISTENING',
+      name: `${guildsCount} servers; !help`,
+    });
+  })
   .catch((err) => {
-    console.log(`Bot failed to start ${err}`);
+    logger.log('ERROR', 'Bot failed to start.', new Error(err));
     process.exit(1);
   });

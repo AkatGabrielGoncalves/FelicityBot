@@ -11,7 +11,7 @@ export interface ICommand {
   readonly userPermissions: IPermissions;
   readonly execute: (
     parameters: IExecuteParameters
-  ) => Promise<void | Message | null>;
+  ) => Promise<Message | { content: string } | Message[]>;
 }
 
 export interface IExecuteParameters {

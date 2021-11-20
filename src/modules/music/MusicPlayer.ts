@@ -1,4 +1,4 @@
-import { StageChannel, VoiceChannel, Client, Message } from 'discord.js';
+import { StageChannel, VoiceChannel, Message } from 'discord.js';
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -16,6 +16,8 @@ import { connectToChannel } from '../helpers/connectToChannel';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
+import logger from '../../logger/Logger';
+import { ICustomClient } from '../../interfaces/customInterfaces';
 
 export const connections: Record<string, MusicPlayer> = {};
 
@@ -30,11 +32,11 @@ export class MusicPlayer extends PlayerQueue {
 
   private message: Message;
 
-  private client: Client<boolean>;
+  private client: ICustomClient;
 
   private retryAttempts: number;
 
-  constructor(client: Client, message: Message) {
+  constructor(client: ICustomClient, message: Message) {
     super();
     this.client = client;
     this.message = message;
@@ -58,7 +60,7 @@ export class MusicPlayer extends PlayerQueue {
           ]);
         }
       } catch (error) {
-        await this.stop(this.message);
+        await this.internalStop(this.message);
       }
     });
 
@@ -72,7 +74,7 @@ export class MusicPlayer extends PlayerQueue {
 
     this.player.on(AudioPlayerStatus.Idle, async () => {
       try {
-        if (this.channel.members.size === 1) await this.stop(this.message);
+        if (this.channel.members.size === 1) await this.internalStop(this.message);
         if (
           this.queue[0] &&
           this.isPlayerNotBusy() &&
@@ -85,7 +87,7 @@ export class MusicPlayer extends PlayerQueue {
           this.isPlayerNotBusy() &&
           this.conn?.state.status === 'ready'
         ) {
-          await this.stop(this.message);
+          await this.internalStop(this.message);
         }
       } catch (err) {
         console.log('erro no listener');
@@ -99,7 +101,9 @@ export class MusicPlayer extends PlayerQueue {
       const song = this.getNextSong() as QueueItem;
 
       const { url } = song;
-      console.log(url);
+
+      logger.log('INFO', `Trying to play ${url}`, new Error());
+
       if (this.conn && this.conn.state.status !== 'ready') {
         await entersState(this.conn, VoiceConnectionStatus.Ready, 5_000);
       }
@@ -114,23 +118,25 @@ export class MusicPlayer extends PlayerQueue {
 
       try {
         if (this.retryAttempts < 40) {
-          const head = await axios.head(metadata.formats[0].url);
-          console.log(head.status);
+          const { status } = await axios.head(metadata.formats[0].url);
+
+          logger.log('INFO', `URL returned code: ${status}`, new Error());
         } else {
           await this.message.channel.send(
             'Não consegui tocar essa música, vou ter que pular ela!'
           );
           this.retryAttempts = 0;
-          return await this.playAudio();
+          return (async () => await this.playAudio())();
         }
       } catch (err: any) {
-        console.log(
-          err.response.status,
-          `Erro ${err.response.status}, tentando novamente.`
+        logger.log(
+          'WARN',
+          `URL returned code ${err.response.status}, trying again.`,
+          new Error(err)
         );
         this.queue.unshift(song);
         this.retryAttempts += 1;
-        return await this.playAudio();
+        return (async () => await this.playAudio())();
       }
 
       const stream = ytdl.downloadFromInfo(metadata, {
@@ -163,9 +169,12 @@ export class MusicPlayer extends PlayerQueue {
       // });
 
       return await this.message.channel.send({ embeds: [embed] });
-    } catch (err) {
-      console.log('Erro 1');
-      console.log(err);
+    } catch (err: any) {
+      logger.log(
+        'ERROR',
+        'There was an error while trying to play the song.',
+        new Error(err)
+      );
       return await this.message.reply(
         `Ocorreu um erro ao tentar reproduzir o video!`
       );
@@ -184,22 +193,22 @@ export class MusicPlayer extends PlayerQueue {
       if (message.member?.voice.channel && !someoneIsListening) {
         this.conn = connectToChannel(message.member?.voice.channel);
         this.channel = message.member.voice.channel;
-        return null;
+      } else {
+        return await message.reply(
+          `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+        );
       }
-      return await message.reply(
-        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
-      );
     }
 
     this.message = message;
     const argsExist = args.join('');
 
-    // To unpause the player when someone send !play
+    // To unpause the player when someone sends no arguments
     if (this.GetPlayerStatus() === AudioPlayerStatus.Paused) {
       this.player.unpause();
     }
 
-    if (!argsExist) return null;
+    if (!argsExist) return { content: 'No argument' };
 
     if (this.queue.length > 200) {
       return await message.reply(
@@ -215,12 +224,17 @@ export class MusicPlayer extends PlayerQueue {
   };
 
   next = async (message: Message) => {
+    if (message.member?.voice.channel !== this.channel) {
+      return await message.reply(
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      );
+    }
+
     this.player.stop();
-    await message.channel.send(`Tocando próxima música!`);
-    return null;
+    return await message.channel.send(`Tocando próxima música!`);
   };
 
-  stop = async (message: Message) => {
+  private internalStop = async (message: Message) => {
     this.queue = [];
     this.conn?.removeAllListeners();
     if (this.conn?.state.status !== VoiceConnectionStatus.Destroyed) {
@@ -228,30 +242,68 @@ export class MusicPlayer extends PlayerQueue {
     }
     this.player.removeAllListeners();
     delete connections[`${message.guildId}`];
-    await message.channel.send(`Player foi parado!`);
-    return null;
+
+    // If the bot is kicked or banned there isn't a channel to send messages rs
+    if (!message.channel) {
+      return { content: 'Player foi parado!' };
+    }
+    return await message.channel.send(`Player foi parado!`);
+  };
+
+  stop = async (message: Message) => {
+    if (message.member?.voice.channel !== this.channel) {
+      return await message.reply(
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      );
+    }
+
+    return this.internalStop(message);
   };
 
   pause = async (message: Message) => {
+    if (message.member?.voice.channel !== this.channel) {
+      return await message.reply(
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      );
+    }
+
     this.player.pause();
-    await message.channel.send(`Player foi pausado!`);
-    return null;
+    return await message.channel.send(`Player foi pausado!`);
   };
 
+  /** The remove command  is kind of funny because if the person desires,
+   * it can remove using boolean numbers or hexadecimals. Like: 0b0011,
+   * which I don't intend to "fix", it is not a problem.
+   *
+   * The person sees the queue starting at 1, but the queue is an array,
+   * so it starts at 0. */
   remove = async (message: Message, args: string[]) => {
+    if (message.member?.voice.channel !== this.channel) {
+      return await message.reply(
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      );
+    }
+
     const index = Number(args[0]);
     if (index > this.queue.length) {
-      await message.reply(`Não existe música na posição ${index}`);
-      return null;
+      return await message.reply(`Não existe música na posição ${index}`);
     }
     const removedSong = this.queue.splice(index - 1, 1);
-    await message.reply(
+    return await message.reply(
       `Removida a música na posição: ${index}: ${removedSong[0].title}`
     );
-    return null;
   };
 
+  /** This loop is not perfect, if someone uses the command multiples times,
+   * the current track will be multiplied inside the queue, which is not a
+   * desirable outcome. */
   loop = async (message: Message) => {
+    if (message.member?.voice.channel !== this.channel) {
+      return await message.reply(
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      );
+    }
+
     this.loopState = !this.loopState;
     this.queuePosition = 1;
     if (this.currentlyPlaying && this.loopState) {

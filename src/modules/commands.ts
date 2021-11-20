@@ -1,5 +1,5 @@
-import { performance } from 'perf_hooks';
 import { ICommand } from '../interfaces/customInterfaces';
+import logger from '../logger/Logger';
 import { adminCommandHandlers } from './admin';
 import { miscCommandHandlers } from './misc';
 import { musicCommandHandlers } from './music';
@@ -16,7 +16,12 @@ export const mapCommands = () => {
   const commandsHandlersMap: Map<String, ICommand[]> = new Map();
   const commandMap: Map<String, { handler: ICommand; execute: Function }> =
     new Map();
-  const start = performance.now();
+  logger.start(
+    'mapcommands',
+    'DEBUG',
+    'Mapping all commands and aliases.',
+    new Error()
+  );
   Object.keys(commandsHandlers).forEach((category) => {
     commandsHandlersMap.set(category, commandsHandlers[category]);
     commandsHandlers[category].forEach((handler) => {
@@ -51,8 +56,12 @@ export const mapCommands = () => {
       });
     });
   });
-  const final = performance.now();
-  console.log(final - start);
+  logger.finish(
+    'mapcommands',
+    'DEBUG',
+    'Finished mapping all commands and aliases.',
+    new Error()
+  );
   return {
     commandMap,
     commandsHandlersMap,

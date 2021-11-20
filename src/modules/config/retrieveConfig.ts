@@ -5,7 +5,7 @@ import BotConfig from '../../database/models/BotConfig';
 export const retrieveConfig = async (guildId: string) => {
   let serverConfig = null;
 
-  if (process.env.USESQLDB === 'TRUE') {
+  if (process.env.USE_SQL_DB === 'TRUE') {
     try {
       serverConfig = await BotConfig.findByPk(guildId);
       if (!serverConfig) {
@@ -22,7 +22,7 @@ export const retrieveConfig = async (guildId: string) => {
     }
   }
 
-  if (process.env.USESQLDB !== 'TRUE') {
+  if (process.env.USE_SQL_DB !== 'TRUE') {
     const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
     if (fs.existsSync(location)) {
       const json = fs.readFileSync(location, 'utf8');

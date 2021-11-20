@@ -45,14 +45,17 @@ class HandleUnban implements ICommand {
     if (!bans) return await message.reply('Não tem ninguém banido aqui!!');
 
     if (message.mentions.everyone) {
-      return bans.forEach(async (ban) => {
-        try {
-          await message.guild?.members.unban(ban.user);
-          return await message.channel.send(`O <@${ban.user.id}> está desbanido!`);
-        } catch (err) {
-          return await message.reply(`Não consegui desbanir esse usuário!`);
-        }
-      });
+      // This is a map so I can take the array to assert my tests.
+      return Promise.all(
+        bans.map(async (ban) => {
+          try {
+            await message.guild?.members.unban(ban.user);
+            return await message.channel.send(`O <@${ban.user.id}> está desbanido!`);
+          } catch (err) {
+            return await message.reply(`Não consegui desbanir esse usuário!`);
+          }
+        })
+      );
     }
 
     const bannedUser = bans.find((ban) => ban.user.id === args[0]);

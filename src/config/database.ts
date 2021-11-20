@@ -1,10 +1,11 @@
 import { Dialect } from 'sequelize/types';
 
 export = {
-  host: process.env.DBHOST as string,
-  port: Number(process.env.DBPORT as string),
-  database: process.env.DBNAME as string,
-  username: process.env.DBUSERNAME as string,
-  password: process.env.DBPASSWORD as string,
-  dialect: process.env.DBDIALECT as Dialect,
+  host: process.env.DB_HOST as string,
+  port: Number(process.env.DB_PORT as string),
+  database: process.env.DB_NAME as string,
+  username: process.env.DB_USERNAME as string,
+  password: process.env.DB_PASSWORD as string,
+  dialect: process.env.DB_DIALECT as Dialect,
+  logging: (process.env.DB_LOGGING !== 'FALSE') as boolean,
 };

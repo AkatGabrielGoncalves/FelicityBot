@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import { ICustomClient } from '../interfaces/customInterfaces';
+import logger from '../logger/Logger';
 import { retrieveConfig } from './config/retrieveConfig';
 
 export const commandsHandler = async (client: ICustomClient, message: Message) => {
@@ -31,7 +32,7 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
   }
 
   if (client.commandsMap.commandMap.has(command)) {
-    console.log(`Executing ${command} command`);
+    logger.log('INFO', `Executing ${command}.`, new Error());
     return (client.commandsMap.commandMap.get(command)?.execute as Function)({
       client,
       message,

@@ -50,7 +50,7 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
     }
 
     try {
-      if (process.env.USESQLDB === 'TRUE') {
+      if (process.env.USE_SQL_DB === 'TRUE') {
         await BotConfig.update(
           {
             preferredChannel,
@@ -63,7 +63,7 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
         );
       }
 
-      if (process.env.USESQLDB !== 'TRUE') {
+      if (process.env.USE_SQL_DB !== 'TRUE') {
         const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
 
         const serverInfoJson = fs.readFileSync(location, 'utf8');

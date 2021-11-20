@@ -1,4 +1,5 @@
 import { IExecuteParameters, IPermissions } from '../interfaces/customInterfaces';
+import logger from '../logger/Logger';
 
 export const permissionsHandler =
   (
@@ -7,6 +8,8 @@ export const permissionsHandler =
     botPermissions: IPermissions
   ) =>
   async ({ client, message, args }: IExecuteParameters) => {
+    logger.log('DEBUG', `${message.guildId}:Checking permissions.`, new Error());
+
     const botMember = message.guild?.members.cache.get(client.user?.id as string);
 
     const botHaveUniquePermission = botPermissions.atLeastOne.find((perm) => {
@@ -56,6 +59,12 @@ export const permissionsHandler =
         `Você não tem as seguintes permissões necessárias para executar esse comando: ${userMissingPermissions}`
       );
     }
+
+    logger.log(
+      'DEBUG',
+      `${message.guildId}:User and Bot has necessary permissions.`,
+      new Error()
+    );
 
     return commandFunction({ client, message, args });
   };

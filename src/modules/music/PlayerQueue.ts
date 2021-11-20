@@ -2,12 +2,12 @@ import { Client, Message, MessageReaction } from 'discord.js';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import ytsr from 'ytsr';
-import axios from 'axios';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { QueueItem } from './interfaces/QueueItem';
 import spotifyAuth from './SpotifyAuth';
+import logger from '../../logger/Logger';
 
 export class PlayerQueue {
   protected queue: QueueItem[];
@@ -22,8 +22,6 @@ export class PlayerQueue {
 
   protected queuePosition: number;
 
-  // spotifyApi: SpotifyWebApi;
-
   constructor() {
     this.queue = [];
     this.queuePage = 0;
@@ -33,11 +31,39 @@ export class PlayerQueue {
     this.queuePosition = 0;
   }
 
+  /** Used to avoid repetition, these objects are pushed to this.queue or sent to the queue embed.
+   * Since there is a lot of dependencies that return different keys for their objects this is kind
+   * of necessary, there is no meaning in filtering these objects, it would cost performance.
+   */
+  private songObject = {
+    // ytpl format
+    ytPlaylist: (song: ytpl.Item) => ({
+      url: song.shortUrl,
+      title: song.title,
+      duration: song.duration as string,
+      thumbnail: song.bestThumbnail.url as string,
+    }),
+    // ytdl format
+    ytVideo: (song: ytdl.videoInfo) => ({
+      url: song.videoDetails.video_url,
+      title: song.videoDetails.title,
+      duration: song.videoDetails.lengthSeconds as string,
+      thumbnail: song.videoDetails.thumbnails[0].url as string,
+    }),
+    // ytsr format
+    ytSearch: (song: YouTubeResultItem) => ({
+      url: song.url,
+      title: song.title,
+      duration: song.duration as string,
+      thumbnail: song.bestThumbnail.url as string,
+    }),
+  };
+
   addToQueue = async (client: Client, message: Message, args: string[]) => {
     const searchStringOrUrl = args.join(' ');
     const youtubeUrlString = 'https://www.youtube.com/watch?v=';
 
-    const isASpotifyUrl = this.isAValidSpotifyUrl(searchStringOrUrl);
+    const isASpotifyUrl = spotifyAuth.isAValidSpotifyUrl(searchStringOrUrl);
 
     const searchOptions = { limit: 5, pages: 1 };
 
@@ -48,8 +74,14 @@ export class PlayerQueue {
         if (type !== 'playlist')
           return await message.reply('Somente playlist são suportadas.');
 
-        const { items: songs }: { items: Array<any> } =
-          await this.getPlaylistFromSpotify(id);
+        logger.start(
+          `spotify${message.guildId}`,
+          'DEBUG',
+          'Adding spotify playlist to queue',
+          new Error()
+        );
+
+        const { items: songs } = await spotifyAuth.getPlaylistFromSpotify(id);
 
         const ytResults = await Promise.all(
           songs.map(async (song) =>
@@ -62,19 +94,25 @@ export class PlayerQueue {
             (song2) => song2.type === 'video'
           ) as YouTubeResultItem;
 
-          return {
-            url: song.url,
-            title: song.title,
-            duration: song.duration as string,
-            thumbnail: song.bestThumbnail.url as string,
-          };
+          return this.songObject.ytSearch(song);
         });
 
         this.queue.push(...sendToQueue);
 
+        logger.finish(
+          `spotify${message.guildId}`,
+          'DEBUG',
+          `Finished adding spotify playlist to queue. Spotify link: ${searchStringOrUrl}`,
+          new Error()
+        );
+
         return await message.reply('Playlist do spotify adicionada!');
-      } catch (err) {
-        console.log('Erro ao tentar adicionar a playlist do Spotify', err);
+      } catch (err: any) {
+        logger.log(
+          'ERROR',
+          'Error while trying to add a spotify playlist to queue',
+          new Error(err)
+        );
         return await message.reply(
           'Ocorreu um erro ao tentar adicionar a sua playlist do spotify.'
         );
@@ -87,18 +125,15 @@ export class PlayerQueue {
       try {
         const playlist = await ytpl(searchStringOrUrl, searchOptions);
         const { items: songs } = playlist;
-        songs.forEach((song) =>
-          this.queue.push({
-            url: song.shortUrl,
-            title: song.title,
-            duration: song.duration as string,
-            thumbnail: song.bestThumbnail.url as string,
-          })
-        );
+        songs.forEach((song) => this.queue.push(this.songObject.ytPlaylist(song)));
+
         return await message.reply(`A playlist: ${playlist.title} foi adicionada!`);
-      } catch (err) {
-        console.log('Erro 2');
-        console.log(err);
+      } catch (err: any) {
+        logger.log(
+          'ERROR',
+          'Error while trying to add a youtube playlist to queue',
+          new Error(err)
+        );
         return await message.reply(
           `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
         );
@@ -117,30 +152,23 @@ export class PlayerQueue {
             },
           },
         });
-        this.queue.push({
-          url: song.videoDetails.video_url,
-          title: song.videoDetails.title,
-          duration: song.videoDetails.lengthSeconds as string,
-          thumbnail: song.videoDetails.thumbnails[0].url as string,
-        });
+        this.queue.push(this.songObject.ytVideo(song));
         if (this.currentlyPlaying !== null) {
           const embed = addToQueueEmbed(
             message,
             this.currentlyPlaying,
-            {
-              url: song.videoDetails.video_url,
-              title: song.videoDetails.title,
-              duration: song.videoDetails.lengthSeconds as string,
-              thumbnail: song.videoDetails.thumbnails[0].url as string,
-            },
+            this.songObject.ytVideo(song),
             this.queue
           );
           return await message.reply({ embeds: [embed] });
         }
-        return null;
-      } catch (err) {
-        console.log('Erro 4');
-        console.log(err);
+        return { content: 'Song added to queue.' };
+      } catch (err: any) {
+        logger.log(
+          'ERROR',
+          `There was an error trying to add a video URL: ${searchStringOrUrl}`,
+          new Error(err)
+        );
         return await message.reply(
           `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
         );
@@ -153,34 +181,27 @@ export class PlayerQueue {
       const song = songs.find(
         (song2) => song2.type === 'video'
       ) as YouTubeResultItem;
-      this.queue.push({
-        url: song.url,
-        title: song.title,
-        duration: song.duration as string,
-        thumbnail: song.bestThumbnail.url as string,
-      });
+      this.queue.push(this.songObject.ytSearch(song));
       if (this.currentlyPlaying !== null) {
         const embed = addToQueueEmbed(
           message,
           this.currentlyPlaying,
-          {
-            url: song.url,
-            title: song.title,
-            duration: song.duration as string,
-            thumbnail: song.bestThumbnail.url as string,
-          },
+          this.songObject.ytSearch(song),
           this.queue
         );
         return await message.reply({ embeds: [embed] });
       }
-    } catch (err) {
-      console.log('Erro 5');
-      console.log(err);
+      return { content: 'Song added to queue.' };
+    } catch (err: any) {
+      logger.log(
+        'ERROR',
+        `There was an error trying to search this: ${searchStringOrUrl}.`,
+        new Error(err)
+      );
       return await message.reply(
         `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
       );
     }
-    return null;
   };
 
   getNextSong = () => {
@@ -246,7 +267,7 @@ export class PlayerQueue {
       };
       await awaitReactions();
     }
-    return null;
+    return { content: 'Queue embed deleted or never existed in the first place...' };
   };
 
   createQueueEmbed = async (message: Message) =>
@@ -256,40 +277,4 @@ export class PlayerQueue {
       this.queue,
       this.queuePage
     );
-
-  getPlaylistFromSpotify = async (id: string) => {
-    try {
-      const accessToken = await spotifyAuth.getAccessToken();
-      console.log(accessToken);
-      const { data } = await axios({
-        method: 'GET',
-        baseURL: `https://api.spotify.com/v1/playlists/${id}/tracks?fields=items(track(name,artists(name)))&limit=50`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      return data;
-    } catch (err) {
-      console.log('Error while trying to fetch the playlist tracks');
-      return new Error(`Error while trying to fetch the playlist tracks${err}`);
-    }
-  };
-
-  isAValidSpotifyUrl = (url: string) => {
-    const spotifyIdRegex =
-      /^(?:(?:http|https)(?::\/\/))?(?:open|play)\.spotify\.com\/(?:user\/spotify\/)?(track|playlist)\/([\w\d]+)/;
-
-    const isValid = spotifyIdRegex.test(url);
-
-    if (isValid) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const [_, type, id] = url.match(spotifyIdRegex) as RegExpMatchArray;
-      return {
-        type,
-        id,
-      };
-    }
-    return null;
-  };
 }

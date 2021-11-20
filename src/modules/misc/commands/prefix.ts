@@ -43,7 +43,7 @@ class HandlePrefix implements ICommand {
       );
 
     try {
-      if (process.env.USESQLDB === 'TRUE') {
+      if (process.env.USE_SQL_DB === 'TRUE') {
         await BotConfig.update(
           {
             prefix: arg,
@@ -56,7 +56,7 @@ class HandlePrefix implements ICommand {
         );
       }
 
-      if (process.env.USESQLDB !== 'TRUE') {
+      if (process.env.USE_SQL_DB !== 'TRUE') {
         const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
 
         const serverInfoJson = fs.readFileSync(location, 'utf8');

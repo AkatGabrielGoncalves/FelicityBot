@@ -54,17 +54,19 @@ class HandleBan implements ICommand {
       return await message.reply('Haha boa tentativa.');
 
     if (message.mentions.everyone) {
-      // @ts-ignore
-      return (await message.guild?.members.fetch()).forEach(async (m) => {
-        try {
-          await m.ban();
-          return await message.channel.send(`Auf Wiedersehen, <@${m.id}>`);
-        } catch (err) {
-          return await message.reply(
-            `Eu acho que... eu não consigo banir <@${m.id}>!`
-          );
-        }
-      });
+      // This is a map so I can take the array to assert my tests.
+      return Promise.all(
+        (await message.guild?.members.fetch()!).map(async (m) => {
+          try {
+            await m.ban();
+            return await message.channel.send(`Auf Wiedersehen, <@${m.id}>`);
+          } catch (err) {
+            return await message.reply(
+              `Eu acho que... eu não consigo banir <@${m.id}>!`
+            );
+          }
+        })
+      );
     }
 
     try {
