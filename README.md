@@ -2,6 +2,8 @@
 
 This bot is being made as a generalist bot for Discord, so expect some cool features in the future.
 
+## **If you have an idea or a problem, open an issue! Or you can reach out to me on discord: ライケン#6249**
+
 ---
 
 # How do I run it?

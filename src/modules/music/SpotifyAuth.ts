@@ -67,7 +67,6 @@ class SpotifyAuth {
   ): Promise<ISpotifyResponse> => {
     try {
       const accessToken = await this.getAccessToken();
-      console.log(accessToken);
       const { data } = await axios({
         method: 'GET',
         baseURL: `https://api.spotify.com/v1/playlists/${id}/tracks?fields=items(track(name,artists(name)))&limit=50`,
