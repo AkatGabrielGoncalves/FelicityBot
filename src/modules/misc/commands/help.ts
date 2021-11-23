@@ -1,8 +1,4 @@
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { defaultEmbed, specificEmbed } from './embeds/helpEmbed';
 
 class HandleHelp implements ICommand {

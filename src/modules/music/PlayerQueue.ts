@@ -71,8 +71,7 @@ export class PlayerQueue {
       try {
         const { type, id } = isASpotifyUrl;
 
-        if (type !== 'playlist')
-          return await message.reply('Somente playlist são suportadas.');
+        if (type !== 'playlist') return await message.reply('Somente playlist são suportadas.');
 
         logger.start(
           `spotify${message.guildId}`,
@@ -90,9 +89,7 @@ export class PlayerQueue {
         );
 
         const sendToQueue = ytResults.map(({ items }) => {
-          const song = items.find(
-            (song2) => song2.type === 'video'
-          ) as YouTubeResultItem;
+          const song = items.find((song2) => song2.type === 'video') as YouTubeResultItem;
 
           return this.songObject.ytSearch(song);
         });
@@ -178,9 +175,7 @@ export class PlayerQueue {
     try {
       const { items: songs } = await ytsr(searchStringOrUrl, searchOptions);
 
-      const song = songs.find(
-        (song2) => song2.type === 'video'
-      ) as YouTubeResultItem;
+      const song = songs.find((song2) => song2.type === 'video') as YouTubeResultItem;
       this.queue.push(this.songObject.ytSearch(song));
       if (this.currentlyPlaying !== null) {
         const embed = addToQueueEmbed(
@@ -223,8 +218,7 @@ export class PlayerQueue {
       const embed = await this.createQueueEmbed(message);
 
       const filter = (reaction: MessageReaction, user: any) =>
-        ['⬅️', '➡️'].includes(reaction.emoji.name as string) &&
-        user.id !== client.user?.id;
+        ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id !== client.user?.id;
 
       this.queueMessage = await message.reply({ embeds: [embed] });
       await this.queueMessage.react('⬅️');
@@ -271,10 +265,5 @@ export class PlayerQueue {
   };
 
   createQueueEmbed = async (message: Message) =>
-    createQueueEmbed(
-      message,
-      this.currentlyPlaying as QueueItem,
-      this.queue,
-      this.queuePage
-    );
+    createQueueEmbed(message, this.currentlyPlaying as QueueItem, this.queue, this.queuePage);
 }

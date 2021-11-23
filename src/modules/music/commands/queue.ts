@@ -1,8 +1,4 @@
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { connections } from '../MusicPlayer';
 
 class HandleQueue implements ICommand {
@@ -28,13 +24,7 @@ class HandleQueue implements ICommand {
     this.usage = ['queue'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: [
-        'SEND_MESSAGES',
-        'CONNECT',
-        'SPEAK',
-        'ADD_REACTIONS',
-        'EMBED_LINKS',
-      ],
+      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK', 'ADD_REACTIONS', 'EMBED_LINKS'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

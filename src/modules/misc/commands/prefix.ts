@@ -1,11 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import BotConfig from '../../../database/models/BotConfig';
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandlePrefix implements ICommand {
   type: string;

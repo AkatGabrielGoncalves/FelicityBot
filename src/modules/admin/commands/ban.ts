@@ -1,9 +1,5 @@
 import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandleBan implements ICommand {
   type: string;
@@ -24,8 +20,7 @@ class HandleBan implements ICommand {
     this.type = 'Admin';
     this.command = 'ban';
     this.alias = [];
-    this.description =
-      'Esse comando bane um usuário do servidor ou todos os usuários';
+    this.description = 'Esse comando bane um usuário do servidor ou todos os usuários';
     this.usage = ['ban @user', 'ban @everyone'];
     this.botPermissions = {
       atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
@@ -40,17 +35,12 @@ class HandleBan implements ICommand {
   execute = async ({ client, message, args }: IExecuteParameters) => {
     if (!args[0]) return await message.reply('?');
 
-    const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(
-      message
-    );
+    const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(message);
 
     if (!mentionUser || !mentionMember)
       return await message.reply('Por favor, um usuário válido, sim?');
 
-    if (
-      mentionUser &&
-      (mentionUser.id === client.user?.id || mentionUser.id === authorUser.id)
-    )
+    if (mentionUser && (mentionUser.id === client.user?.id || mentionUser.id === authorUser.id))
       return await message.reply('Haha boa tentativa.');
 
     if (message.mentions.everyone) {
@@ -61,9 +51,7 @@ class HandleBan implements ICommand {
             await m.ban();
             return await message.channel.send(`Auf Wiedersehen, <@${m.id}>`);
           } catch (err) {
-            return await message.reply(
-              `Eu acho que... eu não consigo banir <@${m.id}>!`
-            );
+            return await message.reply(`Eu acho que... eu não consigo banir <@${m.id}>!`);
           }
         })
       );
@@ -74,9 +62,7 @@ class HandleBan implements ICommand {
       return await message.channel.send(`Auf Wiedersehen, <@${mentionUser?.id}>`);
     } catch (err) {
       return mentionUser
-        ? await message.reply(
-            `Eu acho que... eu não consigo banir <@${mentionUser.id}>!`
-          )
+        ? await message.reply(`Eu acho que... eu não consigo banir <@${mentionUser.id}>!`)
         : await message.reply(`Esse usuário não existe!`);
     }
   };

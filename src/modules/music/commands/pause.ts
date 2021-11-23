@@ -1,8 +1,4 @@
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { connections } from '../MusicPlayer';
 
 class HandlePause implements ICommand {

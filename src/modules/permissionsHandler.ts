@@ -2,11 +2,7 @@ import { IExecuteParameters, IPermissions } from '../interfaces/customInterfaces
 import logger from '../logger/Logger';
 
 export const permissionsHandler =
-  (
-    commandFunction: Function,
-    userPermissions: IPermissions,
-    botPermissions: IPermissions
-  ) =>
+  (commandFunction: Function, userPermissions: IPermissions, botPermissions: IPermissions) =>
   async ({ client, message, args }: IExecuteParameters) => {
     logger.log('DEBUG', `${message.guildId}:Checking permissions.`, new Error());
 
@@ -60,11 +56,7 @@ export const permissionsHandler =
       );
     }
 
-    logger.log(
-      'DEBUG',
-      `${message.guildId}:User and Bot has necessary permissions.`,
-      new Error()
-    );
+    logger.log('DEBUG', `${message.guildId}:User and Bot has necessary permissions.`, new Error());
 
     return commandFunction({ client, message, args });
   };

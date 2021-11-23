@@ -41,9 +41,9 @@ class SpotifyAuth {
         'grant_type=client_credentials',
         {
           headers: {
-            Authorization: `Basic ${Buffer.from(
-              `${this.clientId}:${this.clientSecret}`
-            ).toString('base64')}`,
+            Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString(
+              'base64'
+            )}`,
             'Content-type': 'application/x-www-form-urlencoded',
           },
         }
@@ -55,16 +55,12 @@ class SpotifyAuth {
       this.accessTokenExpiresIn = data.expires_in - 600 + Date.now() / 1000;
       return this.accessToken;
     } catch (err) {
-      throw new Error(
-        `Ocorreu um erro ao tentar requisitar o token do spotify${err}`
-      );
+      throw new Error(`Ocorreu um erro ao tentar requisitar o token do spotify${err}`);
     }
   };
 
   /** Only playlists id, please. */
-  public readonly getPlaylistFromSpotify = async (
-    id: string
-  ): Promise<ISpotifyResponse> => {
+  public readonly getPlaylistFromSpotify = async (id: string): Promise<ISpotifyResponse> => {
     try {
       const accessToken = await this.getAccessToken();
       const { data } = await axios({

@@ -25,9 +25,6 @@ export const createQueueEmbed = (
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
     .setURL(currentlyPlaying.url)
-    .setAuthor(
-      `Tocando agora em: ${guild?.name}` || '',
-      guild?.iconURL() || undefined
-    )
+    .setAuthor(`Tocando agora em: ${guild?.name}` || '', guild?.iconURL() || undefined)
     .setDescription(`${parsedSubArray}`);
 };

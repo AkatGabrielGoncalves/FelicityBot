@@ -23,11 +23,7 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
   const args = commandBody.split(' ');
   const command = args.shift()?.toLowerCase() as string;
 
-  if (
-    command !== 'channel' &&
-    preferredChannel &&
-    message.channelId !== preferredChannel
-  ) {
+  if (command !== 'channel' && preferredChannel && message.channelId !== preferredChannel) {
     return null;
   }
 

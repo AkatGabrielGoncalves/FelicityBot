@@ -14,10 +14,7 @@ export const playingEmbed = (message: Message, currentlyPlaying: QueueItem) => {
   return new MessageEmbed()
     .setTitle(title)
     .setURL(url)
-    .setAuthor(
-      `Tocando agora em: ${guild?.name}` || '',
-      guild?.iconURL() || undefined
-    )
+    .setAuthor(`Tocando agora em: ${guild?.name}` || '', guild?.iconURL() || undefined)
     .setThumbnail(thumbnail)
     .addFields({
       name: 'Duração',

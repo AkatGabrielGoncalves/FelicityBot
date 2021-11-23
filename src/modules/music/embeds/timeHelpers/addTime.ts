@@ -7,16 +7,14 @@ export interface ITime {
 }
 
 export const addTime = (song: QueueItem, time: ITime) => {
-  const timeRegex =
-    /([\d]+):([0-5]?[\d]):([0-5]?[\d])|([0-5]?[\d]):([0-5][\d])|([\d]+)/;
+  const timeRegex = /([\d]+):([0-5]?[\d]):([0-5]?[\d])|([0-5]?[\d]):([0-5][\d])|([\d]+)/;
 
   const timeArray = song.duration.match(timeRegex);
   if (!timeArray) return time;
   const hour = time.hour + (Number(timeArray[1]) || 0);
   const minute = time.minute + (Number(timeArray[2]) || Number(timeArray[4]) || 0);
   const second =
-    time.second +
-    (Number(timeArray[3]) || Number(timeArray[5]) || Number(timeArray[6]) || 0);
+    time.second + (Number(timeArray[3]) || Number(timeArray[5]) || Number(timeArray[6]) || 0);
   return {
     hour,
     minute,

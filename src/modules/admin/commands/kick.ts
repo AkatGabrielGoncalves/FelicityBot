@@ -1,9 +1,5 @@
 import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandleKick implements ICommand {
   type: string;
@@ -24,8 +20,7 @@ class HandleKick implements ICommand {
     this.type = 'Admin';
     this.command = 'kick';
     this.alias = [];
-    this.description =
-      'Esse comando remove um usuário do servidor ou todos os usuários';
+    this.description = 'Esse comando remove um usuário do servidor ou todos os usuários';
     this.usage = ['kick @user', 'kick @everyone'];
     this.botPermissions = {
       atLeastOne: ['ADMINISTRATOR', 'KICK_MEMBERS'],
@@ -40,17 +35,12 @@ class HandleKick implements ICommand {
   execute = async ({ client, message, args }: IExecuteParameters) => {
     if (!args[0]) return await message.reply('?');
 
-    const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(
-      message
-    );
+    const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(message);
 
     if (!mentionUser || !mentionMember)
       return await message.reply('Por favor, um usuário válido, sim?');
 
-    if (
-      mentionUser &&
-      (mentionUser.id === client.user?.id || mentionUser.id === authorUser.id)
-    )
+    if (mentionUser && (mentionUser.id === client.user?.id || mentionUser.id === authorUser.id))
       return await message.reply('Haha boa tentativa.');
 
     if (message.mentions.everyone) {
@@ -61,9 +51,7 @@ class HandleKick implements ICommand {
             await m.kick();
             return await message.channel.send(`Auf Wiedersehen, <@${m.id}>`);
           } catch (err) {
-            return await message.reply(
-              `Eu acho que... eu não consigo expulsar <@${m.id}>!`
-            );
+            return await message.reply(`Eu acho que... eu não consigo expulsar <@${m.id}>!`);
           }
         })
       );
@@ -74,9 +62,7 @@ class HandleKick implements ICommand {
       return await message.channel.send(`Auf Wiedersehen, <@${mentionUser.id}>`);
     } catch (err) {
       return mentionUser
-        ? await message.reply(
-            `Eu acho que... eu não consigo expulsar <@${mentionUser.id}>!`
-          )
+        ? await message.reply(`Eu acho que... eu não consigo expulsar <@${mentionUser.id}>!`)
         : await message.reply(`Esse usuário não existe!`);
     }
   };

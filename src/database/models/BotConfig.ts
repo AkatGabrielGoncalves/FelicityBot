@@ -8,10 +8,7 @@ export interface IBotConfigAttributes {
   preferredChannel: string | null;
 }
 
-export default class BotConfig
-  extends Model<IBotConfigAttributes>
-  implements IBotConfigAttributes
-{
+export default class BotConfig extends Model<IBotConfigAttributes> implements IBotConfigAttributes {
   public id!: string;
 
   public prefix!: string;

@@ -1,8 +1,4 @@
-import {
-  IPermissions,
-  ICommand,
-  IExecuteParameters,
-} from '../../../interfaces/customInterfaces';
+import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 // This is the function that will ban an member
 class HandleUnban implements ICommand {
@@ -24,8 +20,7 @@ class HandleUnban implements ICommand {
     this.type = 'Admin';
     this.command = 'unban';
     this.alias = [];
-    this.description =
-      'Esse comando retira o ban de um usuário ou todos os usuários';
+    this.description = 'Esse comando retira o ban de um usuário ou todos os usuários';
     this.usage = ['unban @user', 'unban @everyone'];
     this.botPermissions = {
       atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
@@ -59,14 +54,11 @@ class HandleUnban implements ICommand {
     }
 
     const bannedUser = bans.find((ban) => ban.user.id === args[0]);
-    if (!bannedUser)
-      return message.reply(`Não existe nenhum usuário banido com esse ID!`);
+    if (!bannedUser) return message.reply(`Não existe nenhum usuário banido com esse ID!`);
 
     try {
       await message.guild?.members.unban(bannedUser.user);
-      return await message.channel.send(
-        `O <@${bannedUser.user.id}> está desbanido!`
-      );
+      return await message.channel.send(`O <@${bannedUser.user.id}> está desbanido!`);
     } catch (err) {
       return await message.reply(`Não consegui desbanir esse usuário!`);
     }

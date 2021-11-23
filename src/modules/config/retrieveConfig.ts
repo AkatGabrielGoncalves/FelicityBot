@@ -15,10 +15,7 @@ export const retrieveConfig = async (guildId: string) => {
         });
       }
     } catch (err) {
-      console.log(
-        `There was a error trying to get this guild ${guildId} config.`,
-        err
-      );
+      console.log(`There was a error trying to get this guild ${guildId} config.`, err);
     }
   }
 

@@ -29,25 +29,16 @@ export class Database extends Sequelize {
   private verifyConnection = async () => {
     try {
       await this.authenticate();
-      logger.log(
-        'INFO',
-        'Connection to database has been established successfully.',
-        new Error()
-      );
+      logger.log('INFO', 'Connection to database has been established successfully.', new Error());
     } catch (err: any) {
-      logger.log(
-        'ERROR',
-        'Database failed to establish a connection',
-        new Error(err)
-      );
+      logger.log('ERROR', 'Database failed to establish a connection', new Error(err));
       process.exit(1);
     }
   };
 }
 
 const createDatabase = async () => {
-  const { database, username, password, host, port, dialect, logging } =
-    databaseConfig;
+  const { database, username, password, host, port, dialect, logging } = databaseConfig;
   const conn = new Sequelize({ username, password, host, port, dialect, logging });
 
   try {

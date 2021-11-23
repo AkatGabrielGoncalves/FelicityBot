@@ -75,18 +75,10 @@ export class MusicPlayer extends PlayerQueue {
     this.player.on(AudioPlayerStatus.Idle, async () => {
       try {
         if (this.channel.members.size === 1) await this.internalStop(this.message);
-        if (
-          this.queue[0] &&
-          this.isPlayerNotBusy() &&
-          this.conn?.state.status === 'ready'
-        ) {
+        if (this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
           await this.playAudio();
         }
-        if (
-          !this.queue[0] &&
-          this.isPlayerNotBusy() &&
-          this.conn?.state.status === 'ready'
-        ) {
+        if (!this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
           await this.internalStop(this.message);
         }
       } catch (err) {
@@ -122,9 +114,7 @@ export class MusicPlayer extends PlayerQueue {
 
           logger.log('INFO', `URL returned code: ${status}`, new Error());
         } else {
-          await this.message.channel.send(
-            'Não consegui tocar essa música, vou ter que pular ela!'
-          );
+          await this.message.channel.send('Não consegui tocar essa música, vou ter que pular ela!');
           this.retryAttempts = 0;
           return (async () => await this.playAudio())();
         }
@@ -170,14 +160,8 @@ export class MusicPlayer extends PlayerQueue {
 
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
-      logger.log(
-        'ERROR',
-        'There was an error while trying to play the song.',
-        new Error(err)
-      );
-      return await this.message.reply(
-        `Ocorreu um erro ao tentar reproduzir o video!`
-      );
+      logger.log('ERROR', 'There was an error while trying to play the song.', new Error(err));
+      return await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
     }
   };
 
@@ -289,9 +273,7 @@ export class MusicPlayer extends PlayerQueue {
       return await message.reply(`Não existe música na posição ${index}`);
     }
     const removedSong = this.queue.splice(index - 1, 1);
-    return await message.reply(
-      `Removida a música na posição: ${index}: ${removedSong[0].title}`
-    );
+    return await message.reply(`Removida a música na posição: ${index}: ${removedSong[0].title}`);
   };
 
   /** This loop is not perfect, if someone uses the command multiples times,
