@@ -1,4 +1,4 @@
-/* 
+/*
 This only exists because the Spotify Auth sucks, but you didn't hear that from me.
 The purpose is to maintain a valid access token easily and easily renew it
 */
@@ -50,7 +50,7 @@ class SpotifyAuth {
       );
 
       this.accessToken = data.access_token;
-      /* I don't want to get fu* if the Date.now() is not precise, 
+      /* I don't want to get fu* if the Date.now() is not precise,
       so I'm removing 10 minutes from the token time */
       this.accessTokenExpiresIn = data.expires_in - 600 + Date.now() / 1000;
       return this.accessToken;

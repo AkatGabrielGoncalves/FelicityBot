@@ -48,7 +48,7 @@ class HandlePlay implements ICommand {
     if (lastMessageTime) {
       const timeDifference = currentMessageTime - lastMessageTime;
       if (timeDifference < 2000) {
-        return message.reply(`Muito rápido`);
+        return await message.reply(`Muito rápido`);
       }
     }
 

@@ -26,8 +26,8 @@ class HandleChannel implements ICommand {
     this.type = 'Misc';
     this.command = 'channel';
     this.alias = [];
-    this.description = `Esse comando prende o bot ao canal que foi usado o comando, 
-ou seja, só responderá quando for chamado no canal especificado. 
+    this.description = `Esse comando prende o bot ao canal que foi usado o comando,
+ou seja, só responderá quando for chamado no canal especificado.
 Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
     this.usage = ['channel', 'channel default'];
     this.botPermissions = {
