@@ -5,5 +5,6 @@ export const connectToChannel = (channel: VoiceChannel | StageChannel) =>
   joinVoiceChannel({
     channelId: channel.id,
     guildId: channel.guild.id,
+    // @ts-ignore
     adapterCreator: channel.guild.voiceAdapterCreator,
   });
