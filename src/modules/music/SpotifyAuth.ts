@@ -3,6 +3,7 @@ This only exists because the Spotify Auth sucks, but you didn't hear that from m
 The purpose is to maintain a valid access token easily and easily renew it
 */
 import axios from 'axios';
+import logger from '../../logger/Logger';
 
 interface ISpotifyResponse {
   items: {
@@ -54,8 +55,9 @@ class SpotifyAuth {
       so I'm removing 10 minutes from the token time */
       this.accessTokenExpiresIn = data.expires_in - 600 + Date.now() / 1000;
       return this.accessToken;
-    } catch (err) {
-      throw new Error(`Ocorreu um erro ao tentar requisitar o token do spotify${err}`);
+    } catch (err: any) {
+      logger.log('ERROR', 'Error while trying to get the spotify token.', new Error(err));
+      throw new Error(err);
     }
   };
 
@@ -72,9 +74,9 @@ class SpotifyAuth {
         },
       });
       return data;
-    } catch (err) {
-      console.log('Error while trying to fetch the playlist tracks');
-      throw new Error(`Error while trying to fetch the playlist tracks${err}`);
+    } catch (err: any) {
+      logger.log('ERROR', 'Error while trying to fetch the playlist tracks', new Error(err));
+      throw new Error(err);
     }
   };
 

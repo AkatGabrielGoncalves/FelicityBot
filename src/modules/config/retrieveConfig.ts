@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import BotConfig from '../../database/models/BotConfig';
+import logger from '../../logger/Logger';
 
 export const retrieveConfig = async (guildId: string) => {
   let serverConfig = null;
@@ -14,8 +15,13 @@ export const retrieveConfig = async (guildId: string) => {
           preferredChannel: null,
         });
       }
-    } catch (err) {
-      console.log(`There was a error trying to get this guild ${guildId} config.`, err);
+    } catch (err: any) {
+      logger.log(
+        'ERROR',
+        `There was a error trying to get this guild ${guildId} config.`,
+        new Error(err)
+      );
+      throw new Error(err);
     }
   }
 

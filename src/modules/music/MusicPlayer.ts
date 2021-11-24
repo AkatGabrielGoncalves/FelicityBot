@@ -81,9 +81,8 @@ export class MusicPlayer extends PlayerQueue {
         if (!this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
           await this.internalStop(this.message);
         }
-      } catch (err) {
-        console.log('erro no listener');
-        console.log(err);
+      } catch (err: any) {
+        logger.log('ERROR', 'Error on player idle listener', new Error(err));
       }
     });
   }
