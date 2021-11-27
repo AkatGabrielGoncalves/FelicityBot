@@ -1,7 +1,7 @@
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { connections } from '../MusicPlayer';
 
-class HandleQueue implements ICommand {
+class HandleShuffle implements ICommand {
   type: string;
 
   command: string;
@@ -18,26 +18,26 @@ class HandleQueue implements ICommand {
 
   constructor() {
     this.type = 'Music';
-    this.command = 'queue';
+    this.command = 'shuffle';
     this.alias = [];
-    this.description = `Esse comando mostra a fila de músicas do Bot.`;
-    this.usage = ['queue'];
+    this.description = `Esse comando embaralha a fila de músicas.`;
+    this.usage = ['shuffle'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'ADD_REACTIONS', 'EMBED_LINKS'],
+      mustHave: ['SEND_MESSAGES'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
-  execute = async ({ client, message }: IExecuteParameters) => {
+  execute = async ({ message }: IExecuteParameters) => {
     if (!connections[`${message.guildId}`]) {
       return message.reply(`Não há player de música nesse servidor!`);
     }
 
     const conn = connections[`${message.guildId}`];
 
-    return conn.showQueue(client, message);
+    return conn.shuffleQueue(message);
   };
 }
 
-export default new HandleQueue();
+export default new HandleShuffle();

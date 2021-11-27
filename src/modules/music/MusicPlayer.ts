@@ -115,7 +115,7 @@ export class MusicPlayer extends PlayerQueue {
         } else {
           await this.message.channel.send('Não consegui tocar essa música, vou ter que pular ela!');
           this.retryAttempts = 0;
-          return (async () => await this.playAudio())();
+          return await this.playAudio();
         }
       } catch (err: any) {
         logger.log(
@@ -125,7 +125,7 @@ export class MusicPlayer extends PlayerQueue {
         );
         this.queue.unshift(song);
         this.retryAttempts += 1;
-        return (async () => await this.playAudio())();
+        return await this.playAudio();
       }
 
       const stream = ytdl.downloadFromInfo(metadata, {

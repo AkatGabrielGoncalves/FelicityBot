@@ -81,9 +81,8 @@ export class PlayerQueue {
         );
 
         const { items: songs } = await spotifyAuth.getPlaylistFromSpotify(id);
-
         const ytResults = await Promise.all(
-          songs.map(async (song) =>
+          songs.map((song) =>
             ytsr(`${song.track.name} ${song.track.artists[0].name}`, searchOptions)
           )
         );
@@ -266,4 +265,12 @@ export class PlayerQueue {
 
   createQueueEmbed = async (message: Message) =>
     createQueueEmbed(message, this.currentlyPlaying as QueueItem, this.queue, this.queuePage);
+
+  shuffleQueue = async (message: Message) => {
+    for (let i = this.queue.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
+    }
+    return await message.reply('A fila foi embaralhada!');
+  };
 }
