@@ -109,9 +109,8 @@ export class PlayerQueue {
           'Error while trying to add a spotify playlist to queue',
           new Error(err)
         );
-        return await message.reply(
-          'Ocorreu um erro ao tentar adicionar a sua playlist do spotify.'
-        );
+        await message.reply('Ocorreu um erro ao tentar adicionar a sua playlist do spotify.');
+        throw new Error(err);
       }
     }
 
@@ -130,9 +129,10 @@ export class PlayerQueue {
           'Error while trying to add a youtube playlist to queue',
           new Error(err)
         );
-        return await message.reply(
+        await message.reply(
           `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
         );
+        throw new Error(err);
       }
     }
 
@@ -165,9 +165,10 @@ export class PlayerQueue {
           `There was an error trying to add a video URL: ${searchStringOrUrl}`,
           new Error(err)
         );
-        return await message.reply(
+        await message.reply(
           `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
         );
+        throw new Error(err);
       }
     }
 
@@ -192,9 +193,10 @@ export class PlayerQueue {
         `There was an error trying to search this: ${searchStringOrUrl}.`,
         new Error(err)
       );
-      return await message.reply(
+      await message.reply(
         `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
       );
+      throw new Error(err);
     }
   };
 

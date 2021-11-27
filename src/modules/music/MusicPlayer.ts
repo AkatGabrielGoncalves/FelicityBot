@@ -73,19 +73,23 @@ export class MusicPlayer extends PlayerQueue {
     });
 
     this.player.on(AudioPlayerStatus.Idle, async () => {
-      try {
-        if (this.channel.members.size === 1) await this.internalStop(this.message);
-        if (this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
-          await this.playAudio();
-        }
-        if (!this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
-          await this.internalStop(this.message);
-        }
-      } catch (err: any) {
-        logger.log('ERROR', 'Error on player idle listener', new Error(err));
-      }
+      await this.idleListenerFunction();
     });
   }
+
+  private idleListenerFunction = async () => {
+    try {
+      if (this.channel.members.size === 1) await this.internalStop(this.message);
+      if (this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
+        await this.playAudio();
+      }
+      if (!this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
+        await this.internalStop(this.message);
+      }
+    } catch (err: any) {
+      logger.log('ERROR', 'Error on player idle listener', new Error(err));
+    }
+  };
 
   private playAudio = async (): Promise<Message> => {
     try {
@@ -160,6 +164,7 @@ export class MusicPlayer extends PlayerQueue {
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
       logger.log('ERROR', 'There was an error while trying to play the song.', new Error(err));
+      await this.idleListenerFunction();
       return await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
     }
   };
@@ -198,12 +203,16 @@ export class MusicPlayer extends PlayerQueue {
         `Já tem muita música na fila! Não vou adicionar mais, meu caderninho ta cheio!`
       );
     }
-
-    if (this.isPlayerNotBusy() && !this.queue[0]) {
-      await this.addToQueue(this.client, message, args);
-      return await this.playAudio();
+    try {
+      if (this.isPlayerNotBusy() && !this.queue[0]) {
+        await this.addToQueue(this.client, message, args);
+        return await this.playAudio();
+      }
+      return await this.addToQueue(this.client, message, args);
+    } catch (err: any) {
+      logger.log('DEBUG', 'Error at play.', new Error(err));
+      return { content: 'Error' };
     }
-    return await this.addToQueue(this.client, message, args);
   };
 
   next = async (message: Message) => {
