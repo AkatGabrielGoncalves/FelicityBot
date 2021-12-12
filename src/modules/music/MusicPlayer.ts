@@ -68,30 +68,37 @@ export class MusicPlayer extends PlayerQueue {
       // This will start the player again if it loses connection
       if (this.currentlyPlaying !== null) {
         this.queue.unshift(this.currentlyPlaying);
-        await this.playAudio();
+        await this.playerDecisionMaker();
       }
     });
 
     this.player.on(AudioPlayerStatus.Idle, async () => {
-      await this.idleListenerFunction();
+      await this.playerDecisionMaker();
     });
   }
 
-  private idleListenerFunction = async () => {
+  /** This method tells the player what it should do:
+   * Stop or play the next song. */
+  private playerDecisionMaker = async () => {
     try {
-      if (this.channel.members.size === 1) await this.internalStop(this.message);
+      if (this.channel.members.size === 1) return await this.internalStop(this.message);
       if (this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
-        await this.playAudio();
+        return await this.playAudio();
       }
       if (!this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
-        await this.internalStop(this.message);
+        return await this.internalStop(this.message);
       }
+      throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
       logger.log('ERROR', 'Error on player idle listener', new Error(err));
+      throw new Error(err);
     }
   };
 
-  private playAudio = async (): Promise<Message> => {
+  /** **DONT USE IT DIRECTLY** \
+   * This method will play the next song in queue, even if the queue is empty. \
+   * Use playerDecisionMaker() to play the next song. */
+  private playAudio = async () => {
     try {
       const song = this.getNextSong() as QueueItem;
 
@@ -119,7 +126,8 @@ export class MusicPlayer extends PlayerQueue {
         } else {
           await this.message.channel.send('Não consegui tocar essa música, vou ter que pular ela!');
           this.retryAttempts = 0;
-          return await this.playAudio();
+          this.playerDecisionMaker();
+          return { content: 'retry failed. skipping music.' };
         }
       } catch (err: any) {
         logger.log(
@@ -129,7 +137,8 @@ export class MusicPlayer extends PlayerQueue {
         );
         this.queue.unshift(song);
         this.retryAttempts += 1;
-        return await this.playAudio();
+        this.playerDecisionMaker();
+        return { content: 'retry attempt.' };
       }
 
       const stream = ytdl.downloadFromInfo(metadata, {
@@ -164,7 +173,7 @@ export class MusicPlayer extends PlayerQueue {
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
       logger.log('ERROR', 'There was an error while trying to play the song.', new Error(err));
-      await this.idleListenerFunction();
+      await this.playerDecisionMaker();
       return await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
     }
   };
@@ -206,7 +215,7 @@ export class MusicPlayer extends PlayerQueue {
     try {
       if (this.isPlayerNotBusy() && !this.queue[0]) {
         await this.addToQueue(this.client, message, args);
-        return await this.playAudio();
+        return await this.playerDecisionMaker();
       }
       return await this.addToQueue(this.client, message, args);
     } catch (err: any) {
@@ -263,7 +272,7 @@ export class MusicPlayer extends PlayerQueue {
     return await message.channel.send(`Player foi pausado!`);
   };
 
-  /** The remove command  is kind of funny because if the person desires,
+  /** The remove command is kind of funny because if the person desires,
    * it can remove using boolean numbers or hexadecimals. Like: 0b0011,
    * which I don't intend to "fix", it is not a problem.
    *

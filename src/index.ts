@@ -16,6 +16,10 @@ client.on('messageCreate', (message) => {
   commandsHandler(client, message);
 });
 
+// client.on('guildDelete', (guild) => {
+//   removeGuildFromDB(guild);
+// });
+
 client
   .login(process.env.BOT_TOKEN)
   .then(async () => {
