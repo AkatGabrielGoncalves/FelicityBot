@@ -81,13 +81,22 @@ export class MusicPlayer extends PlayerQueue {
    * Stop or play the next song. */
   private playerDecisionMaker = async () => {
     try {
+      const playerIsReady = () => this.conn?.state.status === 'ready';
+
       if (this.channel.members.size === 1) return await this.internalStop(this.message);
-      if (this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
+
+      if (this.conn && this.conn.state.status !== 'ready') {
+        await entersState(this.conn, VoiceConnectionStatus.Ready, 5_000);
+      }
+
+      if (this.queue[0] && this.isPlayerNotBusy() && playerIsReady()) {
         return await this.playAudio();
       }
-      if (!this.queue[0] && this.isPlayerNotBusy() && this.conn?.state.status === 'ready') {
+
+      if (!this.queue[0] && this.isPlayerNotBusy() && playerIsReady()) {
         return await this.internalStop(this.message);
       }
+
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
       logger.log('ERROR', 'Error on player idle listener', new Error(err));
@@ -105,10 +114,6 @@ export class MusicPlayer extends PlayerQueue {
       const { url } = song;
 
       logger.log('INFO', `Trying to play ${url}`, new Error());
-
-      if (this.conn && this.conn.state.status !== 'ready') {
-        await entersState(this.conn, VoiceConnectionStatus.Ready, 5_000);
-      }
 
       const metadata = await ytdl.getInfo(url, {
         requestOptions: {
