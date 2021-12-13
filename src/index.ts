@@ -1,13 +1,14 @@
-/* eslint-disable import/first */
 import * as dotenv from 'dotenv';
+/* eslint-disable import/first */
 
 dotenv.config();
 
+import { getServers } from './controllers/server/getServers';
 import logger from './logger/Logger';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
 import { CustomClient } from './CustomClient';
-import { registerGuild, unregisterGuild } from './events';
+import { addServer, deleteServer } from './controllers/server';
 
 global.AbortController = require('abort-controller');
 
@@ -18,19 +19,32 @@ client.on('messageCreate', (message) => {
 });
 
 client.on('guildDelete', (guild) => {
-  unregisterGuild(guild);
+  deleteServer(client, guild.id);
 });
 
 client.on('guildCreate', (guild) => {
-  registerGuild(guild);
+  addServer(guild.id);
 });
 
 client.on('ready', async () => {
-  const guildsCount = (await client.guilds.fetch()).size;
+  const guilds = await client.guilds.fetch();
+  const servers = await getServers();
+
+  if (servers) {
+    const serversIds = servers.map((server) => server.id);
+
+    guilds.forEach((guild) => {
+      if (!serversIds.includes(Number(guild.id))) {
+        addServer(guild.id);
+      }
+    });
+  }
+
+  const guildCount = guilds.size;
 
   client.user?.setActivity({
     type: 'LISTENING',
-    name: `${guildsCount} servers; !help`,
+    name: `${guildCount} servers; !help`,
   });
 });
 
