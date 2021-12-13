@@ -3,6 +3,7 @@ import { ICommand, ICustomClient } from '../../../../interfaces/customInterfaces
 
 export const defaultEmbed = (client: ICustomClient) => {
   const embedFields: EmbedFieldData[] = [];
+
   client.commandsMap.commandsHandlersMap.forEach((handlers) => {
     const field = {
       name: handlers[0].type,
@@ -11,6 +12,7 @@ export const defaultEmbed = (client: ICustomClient) => {
     };
     embedFields.push(field);
   });
+
   return new MessageEmbed()
     .setTitle('Todos os comandos')
     .setDescription('Aqui estão todos os comandos! Para ver informações especificas: !help ban')
