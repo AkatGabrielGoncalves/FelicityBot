@@ -23,7 +23,7 @@ client.on('guildDelete', (guild) => {
 });
 
 client.on('guildCreate', (guild) => {
-  addServer(guild.id);
+  addServer(client, guild.id);
 });
 
 client.on('ready', async () => {
@@ -35,7 +35,7 @@ client.on('ready', async () => {
 
     guilds.forEach((guild) => {
       if (!serversIds.includes(Number(guild.id))) {
-        addServer(guild.id);
+        addServer(client, guild.id);
       }
     });
   }
