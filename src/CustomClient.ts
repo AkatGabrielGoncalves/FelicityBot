@@ -11,9 +11,12 @@ export class CustomClient extends Client implements ICustomClient {
 
   db: Database;
 
+  serverCache: Map<string, string>;
+
   constructor(options: ClientOptions) {
     super(options);
     this.commandsMap = mapCommands();
     this.db = database;
+    this.serverCache = new Map();
   }
 }

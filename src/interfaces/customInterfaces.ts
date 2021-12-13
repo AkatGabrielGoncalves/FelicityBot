@@ -30,4 +30,6 @@ export interface ICustomClient extends Client {
     commandMap: Map<String, { handler: ICommand; execute: Function }>;
   };
   readonly db: Database | null;
+
+  serverCache: Map<string, string>;
 }
