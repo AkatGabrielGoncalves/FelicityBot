@@ -1,6 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-import BotConfig from '../../../database/models/BotConfig';
+import BotConfig from '../../../database/models/Server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandlePrefix implements ICommand {
@@ -39,32 +37,16 @@ class HandlePrefix implements ICommand {
       );
 
     try {
-      if (process.env.USE_SQL_DB === 'TRUE') {
-        await BotConfig.update(
-          {
-            prefix: arg,
+      await BotConfig.update(
+        {
+          prefix: arg,
+        },
+        {
+          where: {
+            id: message.guildId,
           },
-          {
-            where: {
-              id: message.guildId,
-            },
-          }
-        );
-      }
-
-      if (process.env.USE_SQL_DB !== 'TRUE') {
-        const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
-
-        const serverInfoJson = fs.readFileSync(location, 'utf8');
-
-        const serverInfoObj = JSON.parse(serverInfoJson) as {
-          [key: string]: { prefix: string };
-        };
-        // eslint-disable-next-line prefer-destructuring
-        serverInfoObj[`${message.guildId}`].prefix = arg;
-
-        fs.writeFileSync(location, JSON.stringify(serverInfoObj), 'utf8');
-      }
+        }
+      );
 
       return await message.reply(`Prefixo trocado para: ${arg}`);
     } catch (err) {

@@ -1,6 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-import BotConfig from '../../../database/models/BotConfig';
+import BotConfig from '../../../database/models/Server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandleChannel implements ICommand {
@@ -46,32 +44,16 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
     }
 
     try {
-      if (process.env.USE_SQL_DB === 'TRUE') {
-        await BotConfig.update(
-          {
-            preferredChannel,
+      await BotConfig.update(
+        {
+          preferredChannel,
+        },
+        {
+          where: {
+            id: message.guildId,
           },
-          {
-            where: {
-              id: message.guildId,
-            },
-          }
-        );
-      }
-
-      if (process.env.USE_SQL_DB !== 'TRUE') {
-        const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
-
-        const serverInfoJson = fs.readFileSync(location, 'utf8');
-
-        const serverInfoObj = JSON.parse(serverInfoJson) as {
-          [key: string]: { preferredChannel: string | null };
-        };
-        // eslint-disable-next-line prefer-destructuring
-        serverInfoObj[`${message.guildId}`].preferredChannel = preferredChannel;
-
-        fs.writeFileSync(location, JSON.stringify(serverInfoObj), 'utf8');
-      }
+        }
+      );
 
       if (arg !== 'default') {
         return await message.reply(

@@ -1,5 +1,5 @@
 import { Client, ClientOptions } from 'discord.js';
-import { instantiateDatabase } from './database';
+import database, { Database } from './database';
 import { ICommand, ICustomClient } from './interfaces/customInterfaces';
 import { mapCommands } from './modules/commands';
 
@@ -9,11 +9,11 @@ export class CustomClient extends Client implements ICustomClient {
     commandsHandlersMap: Map<String, any[]>;
   };
 
-  db: null;
+  db: Database;
 
   constructor(options: ClientOptions) {
     super(options);
     this.commandsMap = mapCommands();
-    this.db = instantiateDatabase();
+    this.db = database;
   }
 }
