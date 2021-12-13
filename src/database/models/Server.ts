@@ -44,6 +44,7 @@ export class Server extends Model<IServerAttributes> implements IServerAttribute
     channelAuths: Association<Server, ChannelAuth>;
   };
 
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
   static initialize = (sequelize: Sequelize) => {
     this.init(
       {
@@ -66,7 +67,8 @@ export class Server extends Model<IServerAttributes> implements IServerAttribute
     );
   };
 
-  static association = () => {
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
+  static initAssociation = () => {
     this.hasMany(ChannelAuth, {
       sourceKey: 'id',
       foreignKey: {

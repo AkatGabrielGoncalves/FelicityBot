@@ -66,7 +66,7 @@ export class CmdCategory extends Model<ICmdCategoryAttributes> implements ICmdCa
     );
   };
 
-  static association = () => {
+  static initAssociation = () => {
     this.hasMany(Command, {
       sourceKey: 'id',
       foreignKey: {

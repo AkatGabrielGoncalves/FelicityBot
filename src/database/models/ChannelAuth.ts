@@ -69,7 +69,7 @@ export class ChannelAuth extends Model<IChannelAuthAttributes> implements IChann
     );
   };
 
-  static association = () => {
+  static initAssociation = () => {
     this.belongsTo(Server, {
       foreignKey: 'server_id',
       targetKey: 'id',

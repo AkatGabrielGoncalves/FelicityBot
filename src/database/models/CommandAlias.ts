@@ -74,7 +74,7 @@ export class CommandAlias
     );
   };
 
-  static association = () => {
+  static initAssociation = () => {
     this.belongsTo(Command, {
       foreignKey: 'cmd_id',
       targetKey: 'id',

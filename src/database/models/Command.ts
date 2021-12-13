@@ -107,7 +107,7 @@ export class Command extends Model<ICommandAttributes> implements ICommandAttrib
     );
   };
 
-  static association = () => {
+  static initAssociation = () => {
     this.hasMany(CommandAlias, {
       sourceKey: 'id',
       foreignKey: {

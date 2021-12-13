@@ -54,7 +54,7 @@ export class Database extends Sequelize {
 
   private createAssociations = () => {
     this.baseModels.forEach((model) => {
-      model.association();
+      model.initAssociation();
     });
   };
 

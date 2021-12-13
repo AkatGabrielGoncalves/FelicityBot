@@ -90,7 +90,7 @@ export class CmdRoleAuth extends Model<ICmdRoleAuthAttributes> implements ICmdRo
     );
   };
 
-  static association = () => {
+  static initAssociation = () => {
     this.belongsTo(Server, {
       foreignKey: 'server_id',
       targetKey: 'id',
