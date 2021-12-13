@@ -5,6 +5,7 @@ import {
   createAudioPlayer,
   createAudioResource,
   entersState,
+  joinVoiceChannel,
   NoSubscriberBehavior,
   PlayerSubscription,
   VoiceConnection,
@@ -12,7 +13,6 @@ import {
 } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
 import axios from 'axios';
-import { connectToChannel } from '../helpers/connectToChannel';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
@@ -20,6 +20,14 @@ import logger from '../../logger/Logger';
 import { ICustomClient } from '../../interfaces/customInterfaces';
 
 export const connections: Record<string, MusicPlayer> = {};
+
+const connectToChannel = (channel: VoiceChannel | StageChannel) =>
+  joinVoiceChannel({
+    channelId: channel.id,
+    guildId: channel.guild.id,
+    // @ts-ignore
+    adapterCreator: channel.guild.voiceAdapterCreator,
+  });
 
 export class MusicPlayer extends PlayerQueue {
   private conn: VoiceConnection | null;
