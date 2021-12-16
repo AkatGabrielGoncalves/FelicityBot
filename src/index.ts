@@ -3,12 +3,11 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { getServers } from './controllers/server/getServers';
 import logger from './logger/Logger';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
 import { CustomClient } from './CustomClient';
-import { addServer, deleteServer } from './controllers/server';
+import { addServer, deleteServer, getServers } from './controllers/server';
 
 global.AbortController = require('abort-controller');
 
@@ -34,7 +33,7 @@ client.on('ready', async () => {
     const serversIds = servers.map((server) => server.id);
 
     guilds.forEach((guild) => {
-      if (!serversIds.includes(Number(guild.id))) {
+      if (!serversIds.includes(guild.id)) {
         addServer(client, guild.id);
       }
     });

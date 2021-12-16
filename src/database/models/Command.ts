@@ -18,15 +18,15 @@ import { CmdRoleAuth } from './CmdRoleAuth';
 import { CommandAlias } from './CommandAlias';
 
 export interface ICommandAttributes {
-  id: number;
-  category_id: number;
+  id: string;
+  category_id: string;
   name: string;
 }
 
 export class Command extends Model<ICommandAttributes> implements ICommandAttributes {
-  id!: number;
+  id!: string;
 
-  category_id!: number;
+  category_id!: string;
 
   name!: string;
 
@@ -39,9 +39,9 @@ export class Command extends Model<ICommandAttributes> implements ICommandAttrib
   // Has many association
   public getCommandAliases!: HasManyGetAssociationsMixin<CommandAlias>; // Note the null assertions!
 
-  public addCommandAlias!: HasManyAddAssociationMixin<CommandAlias, number>;
+  public addCommandAlias!: HasManyAddAssociationMixin<CommandAlias, string>;
 
-  public hasCommandAlias!: HasManyHasAssociationMixin<CommandAlias, number>;
+  public hasCommandAlias!: HasManyHasAssociationMixin<CommandAlias, string>;
 
   public countCommandAliases!: HasManyCountAssociationsMixin;
 
@@ -50,9 +50,9 @@ export class Command extends Model<ICommandAttributes> implements ICommandAttrib
   // Has many association
   public getCmdRoleAuths!: HasManyGetAssociationsMixin<CmdRoleAuth>;
 
-  public addCmdRoleAuth!: HasManyAddAssociationMixin<CmdRoleAuth, number>;
+  public addCmdRoleAuth!: HasManyAddAssociationMixin<CmdRoleAuth, string>;
 
-  public hasCmdRoleAuth!: HasManyHasAssociationMixin<CmdRoleAuth, number>;
+  public hasCmdRoleAuth!: HasManyHasAssociationMixin<CmdRoleAuth, string>;
 
   public countCmdRoleAuths!: HasManyCountAssociationsMixin;
 
@@ -61,7 +61,7 @@ export class Command extends Model<ICommandAttributes> implements ICommandAttrib
   // Belongs to association
   public getCmdCategory!: BelongsToGetAssociationMixin<CmdCategory>;
 
-  public setCmdCategory!: BelongsToSetAssociationMixin<CmdCategory, number>;
+  public setCmdCategory!: BelongsToSetAssociationMixin<CmdCategory, string>;
 
   public createCmdCategory!: BelongsToCreateAssociationMixin<CmdCategory>;
 

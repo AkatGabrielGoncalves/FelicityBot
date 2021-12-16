@@ -13,12 +13,12 @@ import {
 import { ChannelAuth } from './ChannelAuth';
 
 export interface IServerAttributes {
-  id: number;
+  id: string;
   prefix?: string;
 }
 
 export class Server extends Model<IServerAttributes> implements IServerAttributes {
-  public id!: number;
+  public id!: string;
 
   public prefix!: string;
 
@@ -30,9 +30,9 @@ export class Server extends Model<IServerAttributes> implements IServerAttribute
   // these will not exist until `Model.init` was called.
   public getChannelAuths!: HasManyGetAssociationsMixin<ChannelAuth>; // Note the null assertions!
 
-  public addChannelAuth!: HasManyAddAssociationMixin<ChannelAuth, number>;
+  public addChannelAuth!: HasManyAddAssociationMixin<ChannelAuth, string>;
 
-  public hasChannelAuth!: HasManyHasAssociationMixin<ChannelAuth, number>;
+  public hasChannelAuth!: HasManyHasAssociationMixin<ChannelAuth, string>;
 
   public countChannelAuths!: HasManyCountAssociationsMixin;
 

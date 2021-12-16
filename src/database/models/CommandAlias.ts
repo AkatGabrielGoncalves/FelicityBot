@@ -11,8 +11,8 @@ import {
 import { Command } from './Command';
 
 export interface ICommandAliasAttributes {
-  id: number;
-  cmd_id: number;
+  id: string;
+  cmd_id: string;
   name: string;
 }
 
@@ -20,9 +20,9 @@ export class CommandAlias
   extends Model<ICommandAliasAttributes>
   implements ICommandAliasAttributes
 {
-  id!: number;
+  id!: string;
 
-  cmd_id!: number;
+  cmd_id!: string;
 
   name!: string;
 
@@ -34,7 +34,7 @@ export class CommandAlias
   // these will not exist until `Model.init` was called.
   public getCommand!: BelongsToGetAssociationMixin<Command>; // Note the null assertions!
 
-  public setCommand!: BelongsToSetAssociationMixin<Command, number>;
+  public setCommand!: BelongsToSetAssociationMixin<Command, string>;
 
   public createCommand!: BelongsToCreateAssociationMixin<Command>;
 

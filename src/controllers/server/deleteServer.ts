@@ -10,7 +10,7 @@ export const deleteServer = async (client: ICustomClient, guildId: string) => {
   try {
     await Server.destroy({
       where: {
-        id: Number(guildId),
+        id: guildId,
       },
     });
     removeFromCache();

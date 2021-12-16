@@ -1,4 +1,4 @@
-import BotConfig from '../../../database/models/Server';
+import { setServer } from '../../../controllers/server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandlePrefix implements ICommand {
@@ -29,7 +29,7 @@ class HandlePrefix implements ICommand {
     this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
   }
 
-  execute = async ({ message, args }: IExecuteParameters) => {
+  execute = async ({ client, message, args }: IExecuteParameters) => {
     const arg = args.join('');
     if (!arg || arg.length < 0 || arg.length > 2)
       return await message.reply(
@@ -37,16 +37,7 @@ class HandlePrefix implements ICommand {
       );
 
     try {
-      await BotConfig.update(
-        {
-          prefix: arg,
-        },
-        {
-          where: {
-            id: message.guildId,
-          },
-        }
-      );
+      await setServer(client, message.guild?.id as string, arg);
 
       return await message.reply(`Prefixo trocado para: ${arg}`);
     } catch (err) {

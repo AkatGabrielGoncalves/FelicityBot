@@ -1,3 +1,6 @@
+/* eslint-disable import/first */
+require('pg').defaults.parseInt8 = true;
+
 import { Model, ModelCtor, Sequelize } from 'sequelize';
 import {
   ICmdRoleAuthAttributes,
@@ -40,7 +43,7 @@ export class Database extends Sequelize {
   constructor() {
     super(databaseConfig);
     this.verifyConnection();
-    this.baseModels = [ChannelAuth, CmdCategory, CmdRoleAuth, Command, CommandAlias, Server];
+    this.baseModels = [Server, CmdCategory, Command, CmdRoleAuth, CommandAlias, ChannelAuth];
     this.initModels();
     this.createAssociations();
     this.sync();

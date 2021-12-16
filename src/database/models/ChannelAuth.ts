@@ -11,15 +11,15 @@ import {
 import { Server } from './Server';
 
 export interface IChannelAuthAttributes {
-  id: number;
-  server_id: number;
+  id: string;
+  server_id: string;
   type: 'permitted' | 'excluded';
 }
 
 export class ChannelAuth extends Model<IChannelAuthAttributes> implements IChannelAuthAttributes {
-  public id!: number;
+  public id!: string;
 
-  public server_id!: number;
+  public server_id!: string;
 
   public type!: 'permitted' | 'excluded';
 
@@ -31,7 +31,7 @@ export class ChannelAuth extends Model<IChannelAuthAttributes> implements IChann
   // these will not exist until `Model.init` was called.
   public getServer!: BelongsToGetAssociationMixin<Server>; // Note the null assertions!
 
-  public setServer!: BelongsToSetAssociationMixin<Server, number>;
+  public setServer!: BelongsToSetAssociationMixin<Server, string>;
 
   public createServer!: BelongsToCreateAssociationMixin<Server>;
 

@@ -1,7 +1,8 @@
 import { Message } from 'discord.js';
+import { getChannelAuths } from '../controllers/channelAuth';
+import { getServer } from '../controllers/server';
 import { ICustomClient } from '../interfaces/customInterfaces';
 import logger from '../logger/Logger';
-import { retrieveConfig } from './config/retrieveConfig';
 
 export const commandsHandler = async (client: ICustomClient, message: Message) => {
   try {
@@ -9,10 +10,7 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
 
     const guildId = message.guildId as string;
 
-    const { prefix, preferredChannel } = (await retrieveConfig(guildId)) as {
-      prefix: string;
-      preferredChannel: string;
-    };
+    const prefix = client.serverCache.get(guildId) || (await getServer(client, guildId));
 
     if (!message.content.startsWith(prefix)) {
       return null;
@@ -24,7 +22,21 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
     const args = commandBody.split(' ');
     const command = args.shift()?.toLowerCase() as string;
 
-    if (command !== 'channel' && preferredChannel && message.channelId !== preferredChannel) {
+    const channels = await getChannelAuths(guildId);
+
+    let authorized = false;
+
+    if (!channels[0]) {
+      authorized = true;
+    } else {
+      channels.forEach((channel) => {
+        if (String(channel.id) === message.channel.id && channel.type === 'permitted') {
+          authorized = true;
+        }
+      });
+    }
+
+    if (!authorized) {
       return null;
     }
 

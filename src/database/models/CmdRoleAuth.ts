@@ -12,18 +12,18 @@ import { Command } from './Command';
 import { Server } from './Server';
 
 export interface ICmdRoleAuthAttributes {
-  id: number;
-  server_id: number;
-  cmd_id: number;
+  id: string;
+  server_id: string;
+  cmd_id: string;
   type: 'permitted' | 'excluded';
 }
 
 export class CmdRoleAuth extends Model<ICmdRoleAuthAttributes> implements ICmdRoleAuthAttributes {
-  public id!: number;
+  public id!: string;
 
-  public server_id!: number;
+  public server_id!: string;
 
-  public cmd_id!: number;
+  public cmd_id!: string;
 
   public type!: 'permitted' | 'excluded';
 
@@ -35,13 +35,13 @@ export class CmdRoleAuth extends Model<ICmdRoleAuthAttributes> implements ICmdRo
   // these will not exist until `Model.init` was called.
   public getServer!: BelongsToGetAssociationMixin<Server>; // Note the null assertions!
 
-  public setServer!: BelongsToSetAssociationMixin<Server, number>;
+  public setServer!: BelongsToSetAssociationMixin<Server, string>;
 
   public createServer!: BelongsToCreateAssociationMixin<Server>;
 
   public getCommand!: BelongsToGetAssociationMixin<Command>;
 
-  public setCommand!: BelongsToSetAssociationMixin<Command, number>;
+  public setCommand!: BelongsToSetAssociationMixin<Command, string>;
 
   public createCommand!: BelongsToCreateAssociationMixin<Command>;
 

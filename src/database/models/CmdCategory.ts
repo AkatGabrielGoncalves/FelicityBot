@@ -13,12 +13,12 @@ import {
 import { Command } from './Command';
 
 export interface ICmdCategoryAttributes {
-  id: number;
+  id: string;
   category: string;
 }
 
 export class CmdCategory extends Model<ICmdCategoryAttributes> implements ICmdCategoryAttributes {
-  public id!: number;
+  public id!: string;
 
   public category!: string;
 
@@ -30,9 +30,9 @@ export class CmdCategory extends Model<ICmdCategoryAttributes> implements ICmdCa
   // these will not exist until `Model.init` was called.
   public getCommands!: HasManyGetAssociationsMixin<Command>; // Note the null assertions!
 
-  public addCommand!: HasManyAddAssociationMixin<Command, number>;
+  public addCommand!: HasManyAddAssociationMixin<Command, string>;
 
-  public hasCommand!: HasManyHasAssociationMixin<Command, number>;
+  public hasCommand!: HasManyHasAssociationMixin<Command, string>;
 
   public countCommands!: HasManyCountAssociationsMixin;
 

@@ -9,7 +9,7 @@ export const setServer = async (client: ICustomClient, guildId: string, prefix: 
       { prefix },
       {
         where: {
-          id: Number(guildId),
+          id: guildId,
         },
       }
     );

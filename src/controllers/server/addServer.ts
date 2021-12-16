@@ -6,7 +6,7 @@ export const addServer = async (client: ICustomClient, guildId: string) => {
   const saveInCache = (prefix: string) => client.serverCache.set(guildId, prefix);
   try {
     const { prefix } = await Server.create({
-      id: Number(guildId),
+      id: guildId,
     });
     saveInCache(prefix);
   } catch (err: any) {
