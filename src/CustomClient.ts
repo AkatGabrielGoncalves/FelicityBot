@@ -17,6 +17,7 @@ export class CustomClient extends Client implements ICustomClient {
     super(options);
     this.commandsMap = mapCommands();
     this.db = database;
+    // Cache patrocinado pelo https://github.com/GustavoBitten
     this.serverCache = new Map();
   }
 }
