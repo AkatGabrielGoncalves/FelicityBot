@@ -8,4 +8,9 @@ export = {
   password: process.env.DB_PASSWORD as string,
   dialect: process.env.DB_DIALECT as Dialect,
   logging: (process.env.DB_LOGGING !== 'FALSE') as boolean,
+  define: {
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
 };

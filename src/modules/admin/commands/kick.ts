@@ -1,4 +1,4 @@
-import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
+import { getUserAndAuthor } from '../../../utils/modules/commands/getUserAndAuthor';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandleKick implements ICommand {
@@ -35,7 +35,7 @@ class HandleKick implements ICommand {
   execute = async ({ client, message, args }: IExecuteParameters) => {
     if (!args[0]) return await message.reply('?');
 
-    const { mentionUser, mentionMember, authorUser } = await retrieveUserAndAuthor(message);
+    const { mentionUser, mentionMember, authorUser } = await getUserAndAuthor(message);
 
     if (!mentionUser || !mentionMember)
       return await message.reply('Por favor, um usuário válido, sim?');

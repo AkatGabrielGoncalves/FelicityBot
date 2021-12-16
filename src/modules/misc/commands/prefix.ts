@@ -1,6 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-import BotConfig from '../../../database/models/BotConfig';
+import { setServer } from '../../../controllers/server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandlePrefix implements ICommand {
@@ -31,7 +29,7 @@ class HandlePrefix implements ICommand {
     this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
   }
 
-  execute = async ({ message, args }: IExecuteParameters) => {
+  execute = async ({ client, message, args }: IExecuteParameters) => {
     const arg = args.join('');
     if (!arg || arg.length < 0 || arg.length > 2)
       return await message.reply(
@@ -39,32 +37,7 @@ class HandlePrefix implements ICommand {
       );
 
     try {
-      if (process.env.USE_SQL_DB === 'TRUE') {
-        await BotConfig.update(
-          {
-            prefix: arg,
-          },
-          {
-            where: {
-              id: message.guildId,
-            },
-          }
-        );
-      }
-
-      if (process.env.USE_SQL_DB !== 'TRUE') {
-        const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
-
-        const serverInfoJson = fs.readFileSync(location, 'utf8');
-
-        const serverInfoObj = JSON.parse(serverInfoJson) as {
-          [key: string]: { prefix: string };
-        };
-        // eslint-disable-next-line prefer-destructuring
-        serverInfoObj[`${message.guildId}`].prefix = arg;
-
-        fs.writeFileSync(location, JSON.stringify(serverInfoObj), 'utf8');
-      }
+      await setServer(client, message.guild?.id as string, arg);
 
       return await message.reply(`Prefixo trocado para: ${arg}`);
     } catch (err) {

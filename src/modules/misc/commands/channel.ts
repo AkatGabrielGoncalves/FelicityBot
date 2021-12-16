@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import BotConfig from '../../../database/models/BotConfig';
+import { addChannelAuth, getChannelAuth } from '../../../controllers/channelAuth';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
+import logger from '../../../logger/Logger';
 
 class HandleChannel implements ICommand {
   type: string;
@@ -25,7 +24,7 @@ class HandleChannel implements ICommand {
     this.description = `Esse comando prende o bot ao canal que foi usado o comando,
 ou seja, só responderá quando for chamado no canal especificado.
 Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
-    this.usage = ['channel', 'channel default'];
+    this.usage = ['channel permitted', 'channel excluded', 'channel permitted {ChannelID}'];
     this.botPermissions = {
       atLeastOne: [],
       mustHave: ['SEND_MESSAGES'],
@@ -33,55 +32,71 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
     this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
   }
 
-  execute = async ({ message, args }: IExecuteParameters) => {
-    const arg = args.join('');
-
-    let preferredChannel = null;
-    if (!arg) {
-      preferredChannel = message.channelId;
-    }
-
-    if (arg === 'default') {
-      preferredChannel = null;
-    }
-
+  execute = async ({ client, message, args }: IExecuteParameters) => {
     try {
-      if (process.env.USE_SQL_DB === 'TRUE') {
-        await BotConfig.update(
-          {
-            preferredChannel,
-          },
-          {
-            where: {
-              id: message.guildId,
-            },
-          }
-        );
-      }
-
-      if (process.env.USE_SQL_DB !== 'TRUE') {
-        const location = path.resolve(__dirname, '..', '..', 'database', 'db.json');
-
-        const serverInfoJson = fs.readFileSync(location, 'utf8');
-
-        const serverInfoObj = JSON.parse(serverInfoJson) as {
-          [key: string]: { preferredChannel: string | null };
-        };
-        // eslint-disable-next-line prefer-destructuring
-        serverInfoObj[`${message.guildId}`].preferredChannel = preferredChannel;
-
-        fs.writeFileSync(location, JSON.stringify(serverInfoObj), 'utf8');
-      }
-
-      if (arg !== 'default') {
+      if (!args[0])
         return await message.reply(
-          `Agora eu só irei responder nesse canal! Use o comando '!channel default' para remover este comportamento!`
+          'Para usar esse comando tem que enviar um argumento! Ex: channel permitted'
         );
+
+      const possibleFirstArg = ['permitted', 'excluded', 'remove'];
+      const firstArg = args[0].toLowerCase() as 'permitted' | 'excluded' | 'remove';
+
+      if (!possibleFirstArg.includes(firstArg))
+        return await message.reply(`Seu argumento: ${firstArg} não é válido!  :(`);
+
+      const guildId = message.guild?.id as string;
+
+      if (args[1]) {
+        const [, channelId] = args;
+
+        if (!(await message.guild?.channels.fetch(channelId)))
+          return await message.reply('O ID do canal informado no segundo argumento não é válido.');
+
+        return await this.handler({ client, message, args }, channelId, guildId, firstArg);
       }
-      return await message.reply(`Agora eu tô prestando atenção em todos os chats!`);
-    } catch (err) {
-      return await message.reply('Não foi possivel me prender neste canal. :(');
+
+      const channelId = message.channel.id;
+
+      return await this.handler({ client, message, args }, channelId, guildId, firstArg);
+    } catch (err: any) {
+      logger.log(
+        'ERROR',
+        `There was an error in channel command. arguments: ${args}`,
+        new Error(err)
+      );
+      return message.reply('Não foi possivel executar esse comando no momento...');
     }
+  };
+
+  private handler = async (
+    { message }: IExecuteParameters,
+    channelId: string,
+    guildId: string,
+    firstArg: 'permitted' | 'excluded' | 'remove'
+  ) => {
+    const channel = await getChannelAuth(channelId, guildId);
+
+    if (firstArg === 'remove' && channel) {
+      await channel.destroy();
+    }
+    if (firstArg === 'remove' && !channel) {
+      return await message.reply('Não existe esse canal para ser removido!!');
+    }
+
+    if (!channel) {
+      await addChannelAuth(channelId, guildId, firstArg as 'permitted' | 'excluded');
+      return await message.reply(`Canal adicionado como ${firstArg}`);
+    }
+
+    if (channel.type !== firstArg) {
+      await channel.update({
+        type: firstArg as 'permitted' | 'excluded',
+      });
+      return await message.reply(`Canal trocado de ${channel.type} para ${firstArg}`);
+    }
+
+    return await message.reply('Configuração não foi alterada pois é a mesma!');
   };
 }
 

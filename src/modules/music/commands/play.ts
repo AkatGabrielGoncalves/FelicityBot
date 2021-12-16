@@ -1,6 +1,6 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { MusicPlayer, connections } from '../MusicPlayer';
-import { retrieveUserAndAuthor } from '../../helpers/retrieveUserAndAuthor';
+import { getUserAndAuthor } from '../../../utils/modules/commands/getUserAndAuthor';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandlePlay implements ICommand {
@@ -48,7 +48,7 @@ class HandlePlay implements ICommand {
       }
     }
 
-    const { authorMember } = await retrieveUserAndAuthor(message);
+    const { authorMember } = await getUserAndAuthor(message);
 
     if (!authorMember?.voice.channel) {
       return await message.reply(`Você precisa estar em um canal de voz!`);
