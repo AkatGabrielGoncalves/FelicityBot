@@ -49,7 +49,7 @@ client.on('ready', async () => {
 
 client
   .login(process.env.BOT_TOKEN)
-  .then(async () => {
+  .then(() => {
     logger.log('INFO', 'Bot is online.', new Error());
   })
   .catch((err) => {

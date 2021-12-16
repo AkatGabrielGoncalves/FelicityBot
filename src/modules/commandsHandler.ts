@@ -22,22 +22,24 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
     const args = commandBody.split(' ');
     const command = args.shift()?.toLowerCase() as string;
 
-    const channels = await getChannelAuths(guildId);
+    if (!message.member?.permissions.has('ADMINISTRATOR')) {
+      const channels = await getChannelAuths(guildId);
 
-    let authorized = false;
+      let authorized = false;
 
-    if (!channels[0]) {
-      authorized = true;
-    } else {
-      channels.forEach((channel) => {
-        if (String(channel.id) === message.channel.id && channel.type === 'permitted') {
-          authorized = true;
-        }
-      });
-    }
+      if (!channels[0]) {
+        authorized = true;
+      } else {
+        channels.forEach((channel) => {
+          if (String(channel.id) === message.channel.id && channel.type === 'permitted') {
+            authorized = true;
+          }
+        });
+      }
 
-    if (!authorized) {
-      return null;
+      if (!authorized) {
+        return null;
+      }
     }
 
     if (client.commandsMap.commandMap.has(command)) {
