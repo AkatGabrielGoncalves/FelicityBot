@@ -1,6 +1,3 @@
-/* eslint-disable import/first */
-require('pg').defaults.parseInt8 = true;
-
 import { Model, ModelCtor, Sequelize } from 'sequelize';
 import {
   ICmdRoleAuthAttributes,
