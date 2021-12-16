@@ -3,7 +3,7 @@ This only exists because the Spotify Auth sucks, but you didn't hear that from m
 The purpose is to maintain a valid access token easily and easily renew it
 */
 import axios, { AxiosPromise } from 'axios';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 interface ISpotifyResponse {
   // href: string;
@@ -62,7 +62,7 @@ class SpotifyAuth {
       this.accessTokenExpiresIn = data.expires_in - 600 + Date.now() / 1000;
       return this.accessToken;
     } catch (err: any) {
-      logger.log('ERROR', 'Error while trying to get the spotify token.', new Error(err));
+      Logger.log('ERROR', 'Error while trying to get the spotify token.', new Error(err));
       throw new Error(err);
     }
   };
@@ -87,7 +87,7 @@ class SpotifyAuth {
 
       return data;
     } catch (err: any) {
-      logger.log('ERROR', 'Error while trying to fetch the playlist tracks', new Error(err));
+      Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', new Error(err));
       throw new Error(err);
     }
   };

@@ -1,6 +1,6 @@
 import { ICustomClient } from '../../interfaces/customInterfaces';
 import { Server } from '../../database/models';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export const setServer = async (client: ICustomClient, guildId: string, prefix: string) => {
   const saveInCache = () => client.serverCache.set(guildId, prefix);
@@ -17,7 +17,7 @@ export const setServer = async (client: ICustomClient, guildId: string, prefix: 
     saveInCache();
     return prefix;
   } catch (err: any) {
-    logger.log(
+    Logger.log(
       'ERROR',
       `There was a error trying to set this guild ${guildId} prefix.`,
       new Error(err)

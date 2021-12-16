@@ -1,6 +1,6 @@
 import { Server } from '../../database/models';
 import { ICustomClient } from '../../interfaces/customInterfaces';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export const getServer = async (client: ICustomClient, guildId: string) => {
   const saveInCache = (prefix: string) => client.serverCache.set(guildId, prefix);
@@ -12,7 +12,7 @@ export const getServer = async (client: ICustomClient, guildId: string) => {
     saveInCache(server.prefix);
     return server.prefix;
   } catch (err: any) {
-    logger.log(
+    Logger.log(
       'ERROR',
       `There was a error trying to get this guild ${guildId} config.`,
       new Error(err)

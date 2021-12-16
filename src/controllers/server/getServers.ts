@@ -1,5 +1,5 @@
 import { Server } from '../../database/models';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export const getServers = async () => {
   try {
@@ -7,7 +7,7 @@ export const getServers = async () => {
 
     return servers;
   } catch (err: any) {
-    logger.log('ERROR', `There was a error trying to get all guilds`, new Error(err));
+    Logger.log('ERROR', `There was a error trying to get all guilds`, new Error(err));
 
     return null;
   }

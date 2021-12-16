@@ -1,6 +1,6 @@
 import { addChannelAuth, getChannelAuth } from '../../../controllers/channelAuth';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
-import logger from '../../../logger/Logger';
+import Logger from '../../../logger/Logger';
 
 class HandleChannel implements ICommand {
   type: string;
@@ -60,7 +60,7 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
 
       return await this.handler({ client, message, args }, channelId, guildId, firstArg);
     } catch (err: any) {
-      logger.log(
+      Logger.log(
         'ERROR',
         `There was an error in channel command. arguments: ${args}`,
         new Error(err)

@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { getChannelAuths } from '../controllers/channelAuth';
 import { getServer } from '../controllers/server';
 import { ICustomClient } from '../interfaces/customInterfaces';
-import logger from '../logger/Logger';
+import Logger from '../logger/Logger';
 
 export const commandsHandler = async (client: ICustomClient, message: Message) => {
   try {
@@ -43,7 +43,7 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
     }
 
     if (client.commandsMap.commandMap.has(command)) {
-      logger.log('INFO', `Executing ${command}.`, new Error());
+      Logger.log('INFO', `Executing ${command}.`, new Error());
       return (client.commandsMap.commandMap.get(command)?.execute as Function)({
         client,
         message,
@@ -52,7 +52,7 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
     }
     return null;
   } catch (err: any) {
-    logger.log('ERROR', 'There was an error trying execute the command', new Error(err));
+    Logger.log('ERROR', 'There was an error trying execute the command', new Error(err));
 
     return null;
   }

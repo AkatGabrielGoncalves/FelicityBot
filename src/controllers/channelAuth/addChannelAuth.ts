@@ -1,5 +1,5 @@
 import { ChannelAuth } from '../../database/models';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export const addChannelAuth = async (
   channelId: string,
@@ -15,7 +15,7 @@ export const addChannelAuth = async (
 
     return channel;
   } catch (err: any) {
-    logger.log(
+    Logger.log(
       'ERROR',
       `There was a error trying to create this guild ${guildId} and channel ${channelId}.`,
       new Error(err)

@@ -16,7 +16,7 @@ import axios from 'axios';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 import { ICustomClient } from '../../interfaces/customInterfaces';
 
 export const connections: Record<string, MusicPlayer> = {};
@@ -107,7 +107,7 @@ export class MusicPlayer extends PlayerQueue {
 
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
-      logger.log('ERROR', 'Error on player idle listener', new Error(err));
+      Logger.log('ERROR', 'Error on player idle listener', new Error(err));
       throw new Error(err);
     }
   };
@@ -121,7 +121,7 @@ export class MusicPlayer extends PlayerQueue {
 
       const { url } = song;
 
-      logger.log('INFO', `Trying to play ${url}`, new Error());
+      Logger.log('INFO', `Trying to play ${url}`, new Error());
 
       const metadata = await ytdl.getInfo(url, {
         requestOptions: {
@@ -135,7 +135,7 @@ export class MusicPlayer extends PlayerQueue {
         if (this.retryAttempts < 40) {
           const { status } = await axios.head(metadata.formats[0].url);
 
-          logger.log('INFO', `URL returned code: ${status}`, new Error());
+          Logger.log('INFO', `URL returned code: ${status}`, new Error());
         } else {
           await this.message.channel.send('Não consegui tocar essa música, vou ter que pular ela!');
           this.retryAttempts = 0;
@@ -143,7 +143,7 @@ export class MusicPlayer extends PlayerQueue {
           return { content: 'retry failed. skipping music.' };
         }
       } catch (err: any) {
-        logger.log(
+        Logger.log(
           'WARN',
           `URL returned code ${err.response.status}, trying again.`,
           new Error(err)
@@ -185,7 +185,7 @@ export class MusicPlayer extends PlayerQueue {
 
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
-      logger.log('ERROR', 'There was an error while trying to play the song.', new Error(err));
+      Logger.log('ERROR', 'There was an error while trying to play the song.', new Error(err));
       await this.playerDecisionMaker();
       return await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
     }
@@ -232,7 +232,7 @@ export class MusicPlayer extends PlayerQueue {
       }
       return await this.addToQueue(this.client, message, args);
     } catch (err: any) {
-      logger.log('DEBUG', 'Error at play.', new Error(err));
+      Logger.log('DEBUG', 'Error at play.', new Error(err));
       return { content: 'Error' };
     }
   };

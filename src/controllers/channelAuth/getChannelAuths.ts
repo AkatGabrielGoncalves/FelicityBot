@@ -1,5 +1,5 @@
 import { ChannelAuth } from '../../database/models';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export const getChannelAuths = async (guildId: string) => {
   try {
@@ -11,7 +11,7 @@ export const getChannelAuths = async (guildId: string) => {
 
     return channels;
   } catch (err: any) {
-    logger.log(
+    Logger.log(
       'ERROR',
       `There was a error trying to get this guild ${guildId} channels.`,
       new Error(err)

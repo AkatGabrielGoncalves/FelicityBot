@@ -1,6 +1,6 @@
 import { ICustomClient } from '../../interfaces/customInterfaces';
 import { Server } from '../../database/models';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export const deleteServer = async (client: ICustomClient, guildId: string) => {
   const removeFromCache = () => {
@@ -15,7 +15,7 @@ export const deleteServer = async (client: ICustomClient, guildId: string) => {
     });
     removeFromCache();
   } catch (err: any) {
-    logger.log(
+    Logger.log(
       'ERROR',
       `There was a error trying to delete this guild: ${guildId}`,
       new Error(err)

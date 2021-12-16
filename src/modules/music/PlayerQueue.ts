@@ -7,7 +7,7 @@ import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { QueueItem } from './interfaces/QueueItem';
 import spotifyAuth from './SpotifyAuth';
-import logger from '../../logger/Logger';
+import Logger from '../../logger/Logger';
 
 export class PlayerQueue {
   protected queue: QueueItem[];
@@ -73,7 +73,7 @@ export class PlayerQueue {
 
         if (type !== 'playlist') return await message.reply('Somente playlist são suportadas.');
 
-        logger.start(
+        Logger.start(
           `spotify${message.guildId}`,
           'DEBUG',
           'Adding spotify playlist to queue',
@@ -95,7 +95,7 @@ export class PlayerQueue {
 
         this.queue.push(...sendToQueue);
 
-        logger.finish(
+        Logger.finish(
           `spotify${message.guildId}`,
           'DEBUG',
           `Finished adding spotify playlist to queue. Spotify link: ${searchStringOrUrl}`,
@@ -104,7 +104,7 @@ export class PlayerQueue {
 
         return await message.reply('Playlist do spotify adicionada!');
       } catch (err: any) {
-        logger.log(
+        Logger.log(
           'ERROR',
           'Error while trying to add a spotify playlist to queue',
           new Error(err)
@@ -124,7 +124,7 @@ export class PlayerQueue {
 
         return await message.reply(`A playlist: ${playlist.title} foi adicionada!`);
       } catch (err: any) {
-        logger.log(
+        Logger.log(
           'ERROR',
           'Error while trying to add a youtube playlist to queue',
           new Error(err)
@@ -160,7 +160,7 @@ export class PlayerQueue {
         }
         return { content: 'Song added to queue.' };
       } catch (err: any) {
-        logger.log(
+        Logger.log(
           'ERROR',
           `There was an error trying to add a video URL: ${searchStringOrUrl}`,
           new Error(err)
@@ -188,7 +188,7 @@ export class PlayerQueue {
       }
       return { content: 'Song added to queue.' };
     } catch (err: any) {
-      logger.log(
+      Logger.log(
         'ERROR',
         `There was an error trying to search this: ${searchStringOrUrl}.`,
         new Error(err)

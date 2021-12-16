@@ -14,7 +14,7 @@ import {
   Server,
 } from './models';
 import databaseConfig from '../config/database';
-import logger from '../logger/Logger';
+import Logger from '../logger/Logger';
 
 export type IModels = {
   Server: ModelCtor<Model<IServerAttributes>>;
@@ -61,9 +61,9 @@ export class Database extends Sequelize {
   private verifyConnection = async () => {
     try {
       await this.authenticate();
-      logger.log('INFO', 'Connection to database has been established successfully.', new Error());
+      Logger.log('INFO', 'Connection to database has been established successfully.', new Error());
     } catch (err: any) {
-      logger.log('ERROR', 'Database failed to establish a connection', new Error(err));
+      Logger.log('ERROR', 'Database failed to establish a connection', new Error(err));
       process.exit(1);
     }
   };
