@@ -42,9 +42,9 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
       }
     }
 
-    if (client.commandsMap.commandMap.has(command)) {
+    if (client.commandsMap.has(command)) {
       Logger.log('INFO', `Executing ${command}.`, new Error());
-      return (client.commandsMap.commandMap.get(command)?.execute as Function)({
+      return (client.commandsMap.get(command)?.execute as Function)({
         client,
         message,
         args,

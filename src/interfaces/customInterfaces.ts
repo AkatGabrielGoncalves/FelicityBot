@@ -25,10 +25,8 @@ export interface IPermissions {
   readonly mustHave: PermissionResolvable[];
 }
 export interface ICustomClient extends Client {
-  readonly commandsMap: {
-    commandsHandlersMap: Map<String, ICommand[]>;
-    commandMap: Map<String, { handler: ICommand; execute: Function }>;
-  };
+  readonly commandsCategoriesMap: Map<String, ICommand[]>;
+  readonly commandsMap: Map<String, { handler: ICommand; execute: Function }>;
   readonly db: Database | null;
 
   serverCache: Map<string, string>;

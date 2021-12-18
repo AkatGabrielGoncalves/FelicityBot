@@ -38,7 +38,7 @@ class HandleHelp implements ICommand {
 
     const command = args[0].toLowerCase();
 
-    if (!client.commandsMap.commandMap.has(command.toLowerCase()))
+    if (!client.commandsMap.has(command.toLowerCase()))
       return message.reply('Não existe esse comando viu!');
 
     return message.reply({ embeds: [specificEmbed(client, command.toLowerCase())] });

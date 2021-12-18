@@ -4,7 +4,7 @@ import { ICommand, ICustomClient } from '../../../../interfaces/customInterfaces
 export const defaultEmbed = (client: ICustomClient) => {
   const embedFields: EmbedFieldData[] = [];
 
-  client.commandsMap.commandsHandlersMap.forEach((handlers) => {
+  client.commandsCategoriesMap.forEach((handlers) => {
     const field = {
       name: handlers[0].type,
       inline: true,
@@ -22,7 +22,7 @@ export const defaultEmbed = (client: ICustomClient) => {
 export const specificEmbed = (client: ICustomClient, command: string) => {
   const embedFields: EmbedFieldData[] = [];
 
-  const handler = client.commandsMap.commandMap.get(command)?.handler as ICommand;
+  const handler = client.commandsMap.get(command)?.handler as ICommand;
 
   const aliasField = {
     name: 'Apelido',

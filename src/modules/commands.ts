@@ -13,18 +13,18 @@ const commandsHandlers: Record<string, ICommand[]> = {
 };
 
 export const mapCommands = () => {
-  const commandsHandlersMap: Map<String, ICommand[]> = new Map();
-  const commandMap: Map<String, { handler: ICommand; execute: Function }> = new Map();
+  const commandsCategoriesMap: Map<String, ICommand[]> = new Map();
+  const commandsMap: Map<String, { handler: ICommand; execute: Function }> = new Map();
   Logger.start('mapcommands', 'DEBUG', 'Mapping all commands and aliases.', new Error());
   Object.keys(commandsHandlers).forEach((category) => {
-    commandsHandlersMap.set(category, commandsHandlers[category]);
+    commandsCategoriesMap.set(category, commandsHandlers[category]);
     commandsHandlers[category].forEach((handler) => {
-      if (commandMap.has(handler.command))
+      if (commandsMap.has(handler.command))
         throw new Error(
           `There are multiple commands with the same name or alias. Alias or command that gave the error: ${handler.command}`
         );
 
-      commandMap.set(handler.command, {
+      commandsMap.set(handler.command, {
         handler,
         execute: permissionsHandler(
           handler.execute,
@@ -34,12 +34,12 @@ export const mapCommands = () => {
       });
       // Set command alias
       handler.alias.forEach((alias) => {
-        if (commandMap.has(alias))
+        if (commandsMap.has(alias))
           throw new Error(
             `There are multiple commands with the same name or alias. Alias or command that gave the error: ${alias}`
           );
 
-        commandMap.set(alias, {
+        commandsMap.set(alias, {
           handler,
           execute: permissionsHandler(
             handler.execute,
@@ -52,7 +52,7 @@ export const mapCommands = () => {
   });
   Logger.finish('mapcommands', 'DEBUG', 'Finished mapping all commands and aliases.', new Error());
   return {
-    commandMap,
-    commandsHandlersMap,
+    commandsMap,
+    commandsCategoriesMap,
   };
 };
