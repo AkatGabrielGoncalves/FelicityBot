@@ -77,7 +77,7 @@ class SpotifyAuth {
 
       if (total > 50) {
         const nextData = [];
-        for (let i = 1; i < Math.ceil(total / 50); i += 1) {
+        for (let i = 1; i < Math.ceil(total / 50) && i <= 2; i += 1) {
           nextData.push(this.getPlaylistRoute(id, i * 50, accessToken));
         }
         (await Promise.all(nextData)).forEach((axiosRes) => {
