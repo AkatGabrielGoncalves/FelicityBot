@@ -37,6 +37,12 @@ client.on('ready', async () => {
         addServer(client, guild.id);
       }
     });
+
+    serversIds.forEach((serverId) => {
+      if (!guilds.has(serverId)) {
+        deleteServer(client, serverId);
+      }
+    });
   }
 
   client.user?.setActivity({
