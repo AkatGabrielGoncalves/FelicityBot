@@ -232,7 +232,7 @@ export class MusicPlayer extends PlayerQueue {
       }
       return await this.addToQueue(this.client, message, args);
     } catch (err: any) {
-      Logger.log('DEBUG', 'Error at play.', new Error(err));
+      Logger.log('ERROR', 'Error at play.', new Error(err));
       return { content: 'Error' };
     }
   };

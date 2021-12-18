@@ -8,12 +8,9 @@ export const permissionsHandler =
 
     const botMember = message.guild?.members.cache.get(client.user?.id as string);
 
-    const botHaveUniquePermission = botPermissions.atLeastOne.find((perm) => {
-      if (botMember?.permissions.has(perm)) {
-        return true;
-      }
-      return false;
-    });
+    const botHaveUniquePermission = botPermissions.atLeastOne.find((perm) =>
+      botMember?.permissions.has(perm)
+    );
 
     if (!botHaveUniquePermission && botPermissions.atLeastOne[0]) {
       return message.reply(
@@ -33,12 +30,9 @@ export const permissionsHandler =
 
     const authorMember = message.member;
 
-    const userHaveUniquePermission = userPermissions.atLeastOne.find((perm) => {
-      if (authorMember?.permissions.has(perm)) {
-        return true;
-      }
-      return false;
-    });
+    const userHaveUniquePermission = userPermissions.atLeastOne.find((perm) =>
+      authorMember?.permissions.has(perm)
+    );
 
     if (!userHaveUniquePermission && userPermissions.atLeastOne[0]) {
       return message.reply(

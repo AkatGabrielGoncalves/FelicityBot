@@ -39,11 +39,9 @@ client.on('ready', async () => {
     });
   }
 
-  const guildCount = guilds.size;
-
   client.user?.setActivity({
     type: 'LISTENING',
-    name: `${guildCount} servers; !help`,
+    name: `${guilds.size} servers; !help`,
   });
 });
 
