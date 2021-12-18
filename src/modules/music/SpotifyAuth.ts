@@ -83,7 +83,8 @@ class SpotifyAuth {
         });
       }
 
-      return items;
+      // Spotify limit can return empty tracks if it exceeds the number of tracks
+      return items.filter((item) => item.track.name);
     } catch (err: any) {
       Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', new Error(err));
       throw new Error(err);
