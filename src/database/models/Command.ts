@@ -77,6 +77,7 @@ export class Command extends Model<ICommandAttributes> implements ICommandAttrib
     cmdCategory: Association<Command, CmdRoleAuth>;
   };
 
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
   static initialize = (sequelize: Sequelize) => {
     this.init(
       {

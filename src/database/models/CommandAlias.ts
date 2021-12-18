@@ -44,6 +44,7 @@ export class CommandAlias
     command: Association<CommandAlias, Command>;
   };
 
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
   static initialize = (sequelize: Sequelize) => {
     this.init(
       {

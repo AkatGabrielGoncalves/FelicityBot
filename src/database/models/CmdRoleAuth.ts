@@ -54,6 +54,7 @@ export class CmdRoleAuth extends Model<ICmdRoleAuthAttributes> implements ICmdRo
     command: Association<CmdRoleAuth, Command>;
   };
 
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
   static initialize = (sequelize: Sequelize) => {
     this.init(
       {

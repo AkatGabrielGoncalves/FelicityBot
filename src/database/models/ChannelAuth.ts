@@ -41,6 +41,7 @@ export class ChannelAuth extends Model<IChannelAuthAttributes> implements IChann
     server: Association<ChannelAuth, Server>;
   };
 
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
   static initialize = (sequelize: Sequelize) => {
     this.init(
       {

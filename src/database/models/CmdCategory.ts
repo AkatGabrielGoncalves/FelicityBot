@@ -44,6 +44,7 @@ export class CmdCategory extends Model<ICmdCategoryAttributes> implements ICmdCa
     commands: Association<CmdCategory, Command>;
   };
 
+  /** DON'T USE THIS OUTSIDE OF THE DATABASE CLASS */
   static initialize = (sequelize: Sequelize) => {
     this.init(
       {
