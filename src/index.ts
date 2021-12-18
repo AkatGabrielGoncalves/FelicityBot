@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import os from 'os';
+import v8 from 'v8';
 import Logger from './logger/Logger';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
@@ -51,11 +51,7 @@ client.on('ready', async () => {
     name: `${guilds.size} servers; !help`,
   });
 
-  // Print the result in MB
-  console.log(os.totalmem() / (1024 * 1024));
-
-  // Get the number of available memory in Byte
-  console.log(os.freemem() / (1024 * 1024));
+  console.log(v8.getHeapStatistics().total_available_size / 1024 / 1024);
 });
 
 client
