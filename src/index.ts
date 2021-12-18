@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import v8 from 'v8';
 import Logger from './logger/Logger';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
@@ -50,8 +49,6 @@ client.on('ready', async () => {
     type: 'LISTENING',
     name: `${guilds.size} servers; !help`,
   });
-
-  console.log(v8.getHeapStatistics().total_available_size / 1024 / 1024);
 });
 
 client

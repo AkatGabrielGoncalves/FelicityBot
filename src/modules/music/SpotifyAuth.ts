@@ -2,7 +2,7 @@
 This only exists because the Spotify Auth sucks, but you didn't hear that from me.
 The purpose is to maintain a valid access token easily and easily renew it
 */
-import axios, { AxiosPromise } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import Logger from '../../logger/Logger';
 
 interface ISpotifyResponse {
@@ -68,36 +68,30 @@ class SpotifyAuth {
   };
 
   /** Only playlists id, please. */
-  public readonly getPlaylistFromSpotify = async (id: string): Promise<ISpotifyResponse> => {
+  public readonly getPlaylistFromSpotify = async (id: string) => {
     try {
       const accessToken = await this.getAccessToken();
-      const { data } = await this.getPlaylistRoute(id, 0, accessToken);
-
-      const { total } = data;
+      const { items, total } = await this.getPlaylistRoute(id, 0, accessToken);
 
       if (total > 50) {
         const nextData = [];
-        for (let i = 1; i < Math.ceil(total / 50) && i <= 2; i += 1) {
+        for (let i = 1; i < Math.ceil(total / 50) && i <= 1; i += 1) {
           nextData.push(this.getPlaylistRoute(id, i * 50, accessToken));
         }
-        (await Promise.all(nextData)).forEach((axiosRes) => {
-          data.items.push(...axiosRes.data.items);
+        (await Promise.all(nextData)).forEach((res) => {
+          items.push(...res.items);
         });
       }
 
-      return data;
+      return items;
     } catch (err: any) {
       Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', new Error(err));
       throw new Error(err);
     }
   };
 
-  private readonly getPlaylistRoute = (
-    id: string,
-    offset: number,
-    accessToken: string
-  ): AxiosPromise<ISpotifyResponse> =>
-    axios({
+  private readonly getPlaylistRoute = async (id: string, offset: number, accessToken: string) => {
+    const response: AxiosResponse<ISpotifyResponse> = await axios({
       method: 'GET',
       baseURL: `https://api.spotify.com/v1/playlists/${id}/tracks?fields=total,items(track(name,artists(name)))&limit=50&offset=${offset}`,
       headers: {
@@ -105,6 +99,9 @@ class SpotifyAuth {
         'Content-Type': 'application/json',
       },
     });
+
+    return { items: response.data.items, total: response.data.total };
+  };
 
   /** This method actually can validate if it is a track or playlist, but I don't think I will
    * implement the track playing since there is no meaning, just write the track name ffs.

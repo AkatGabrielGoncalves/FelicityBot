@@ -65,7 +65,7 @@ export class PlayerQueue {
 
     const isASpotifyUrl = spotifyAuth.isAValidSpotifyUrl(searchStringOrUrl);
 
-    const searchOptions = { limit: 5, pages: 1 };
+    const searchOptions = { limit: 2, maxRetries: 5 };
 
     if (isASpotifyUrl) {
       try {
@@ -80,18 +80,30 @@ export class PlayerQueue {
           new Error()
         );
 
-        const { items: songs } = await spotifyAuth.getPlaylistFromSpotify(id);
-        const ytResults = await Promise.all(
-          songs.map((song) =>
-            ytsr(`${song.track.name} ${song.track.artists[0].name}`, searchOptions)
-          )
-        );
-
-        const sendToQueue = ytResults.map(({ items }) => {
+        const filterYtsrResult = async (spotifySong: any) => {
+          const { items } = await ytsr(
+            `${spotifySong.track.name} ${spotifySong.track.artists[0].name}`,
+            searchOptions
+          );
           const song = items.find((song2) => song2.type === 'video') as YouTubeResultItem;
-
           return this.songObject.ytSearch(song);
-        });
+        };
+
+        const songs = await spotifyAuth.getPlaylistFromSpotify(id);
+
+        const sendToQueue = await Promise.all(songs.map((song) => filterYtsrResult(song)));
+
+        // const ytResults = await Promise.all(
+        //   songs.map((song) =>
+        //     ytsr(`${song.track.name} ${song.track.artists[0].name}`, searchOptions)
+        //   )
+        // );
+
+        // const sendToQueue = ytResults.map(({ items }) => {
+        //   const song = items.find((song2) => song2.type === 'video') as YouTubeResultItem;
+
+        //   return this.songObject.ytSearch(song);
+        // });
 
         this.queue.push(...sendToQueue);
 
@@ -104,11 +116,7 @@ export class PlayerQueue {
 
         return await message.reply('Playlist do spotify adicionada!');
       } catch (err: any) {
-        Logger.log(
-          'ERROR',
-          'Error while trying to add a spotify playlist to queue',
-          new Error(err)
-        );
+        Logger.log('ERROR', 'Error while trying to add a spotify playlist to queue', err);
         await message.reply('Ocorreu um erro ao tentar adicionar a sua playlist do spotify.');
         throw new Error(err);
       }
