@@ -9,8 +9,6 @@ import { commandsHandler } from './modules/commandsHandler';
 import { CustomClient } from './CustomClient';
 import { addServer, deleteServer, getServers } from './controllers/server';
 
-global.AbortController = require('abort-controller');
-
 const client = new CustomClient({ intents });
 
 client.on('messageCreate', (message) => {

@@ -11,8 +11,7 @@ import {
   VoiceConnection,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
-import ytdl from 'ytdl-core';
-import axios from 'axios';
+import { exec as ytdlexec } from 'youtube-dl-exec';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
@@ -56,7 +55,6 @@ export class MusicPlayer extends PlayerQueue {
       },
     });
     this.subscription = this.conn.subscribe(this.player);
-    this.retryAttempts = 0;
 
     this.conn.on(VoiceConnectionStatus.Disconnected, async () => {
       // This is to check if the bot was really disconnected or changed channels / changed region
@@ -123,65 +121,22 @@ export class MusicPlayer extends PlayerQueue {
 
       Logger.log('INFO', `Trying to play ${url}`, new Error());
 
-      const metadata = await ytdl.getInfo(url, {
-        requestOptions: {
-          headers: {
-            cookie: process.env.YOUTUBE_LOGIN_COOKIE,
-          },
+      const stream = ytdlexec(
+        url,
+        {
+          output: '-',
+          format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
+          limitRate: '100K',
+          cookies: process.env.YOUTUBE_LOGIN_COOKIE,
         },
-      });
+        { stdio: ['ignore', 'pipe', 'ignore'] }
+      );
 
-      try {
-        if (this.retryAttempts < 40) {
-          const { status } = await axios.head(metadata.formats[0].url);
-
-          Logger.log('INFO', `URL returned code: ${status}`, new Error());
-        } else {
-          await this.message.channel.send('Não consegui tocar essa música, vou ter que pular ela!');
-          this.retryAttempts = 0;
-          this.playerDecisionMaker();
-          return { content: 'retry failed. skipping music.' };
-        }
-      } catch (err: any) {
-        Logger.log(
-          'WARN',
-          `URL returned code ${err.response.status}, trying again.`,
-          new Error(err)
-        );
-        this.queue.unshift(song);
-        this.retryAttempts += 1;
-        this.playerDecisionMaker();
-        return { content: 'retry attempt.' };
-      }
-
-      const stream = ytdl.downloadFromInfo(metadata, {
-        filter: 'audioonly',
-        quality: 'highestaudio',
-        requestOptions: {
-          headers: {
-            cookie: process.env.YOUTUBE_LOGIN_COOKIE,
-          },
-        },
-      });
-
-      const audioResource = createAudioResource(stream);
+      const audioResource = createAudioResource(stream.stdout!);
 
       this.player.play(audioResource);
       this.currentlyPlaying = song;
       const embed = playingEmbed(this.message, this.currentlyPlaying);
-
-      // const funcao = stream.listeners('error')[2];
-      // stream.removeListener('error', funcao);
-
-      // stream.on('error', (err) => {
-      //   try {
-      //     throw new Error();
-      //   } catch {
-      //     stream.destroy();
-      //     this.queue.unshift(song);
-      //     console.log(err);
-      //   }
-      // });
 
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {

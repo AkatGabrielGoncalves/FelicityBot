@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "engines": {
-    "node": "14.x"
-  },
   "scripts": {
     "local": "ts-node-dev -T src/index.ts ",
     "build": "tsc",
@@ -17,7 +14,6 @@
     "@discordjs/opus": "discordjs/opus",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",
-    "abort-controller": "^3.0.0",
     "axios": "^0.21.4",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
@@ -28,6 +24,7 @@
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.6.5",
+    "youtube-dl-exec": "^2.0.2",
     "ytdl-core": "^4.9.1",
     "ytpl": "^2.2.3",
     "ytsr": "^3.5.3"
