@@ -52,7 +52,7 @@ export const commandsHandler = async (client: ICustomClient, message: Message) =
     }
     return null;
   } catch (err: any) {
-    Logger.log('ERROR', 'There was an error trying execute the command', new Error(err));
+    Logger.log('ERROR', 'There was an error trying execute the command', err);
 
     return null;
   }

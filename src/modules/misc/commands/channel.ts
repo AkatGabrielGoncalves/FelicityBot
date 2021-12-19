@@ -60,11 +60,7 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
 
       return await this.handler({ client, message, args }, channelId, guildId, firstArg);
     } catch (err: any) {
-      Logger.log(
-        'ERROR',
-        `There was an error in channel command. arguments: ${args}`,
-        new Error(err)
-      );
+      Logger.log('ERROR', `There was an error in channel command. arguments: ${args}`, err);
       return message.reply('Não foi possivel executar esse comando no momento...');
     }
   };

@@ -18,7 +18,7 @@ export const addChannelAuth = async (
     Logger.log(
       'ERROR',
       `There was a error trying to create this guild ${guildId} and channel ${channelId}.`,
-      new Error(err)
+      err
     );
     throw new Error(err);
   }

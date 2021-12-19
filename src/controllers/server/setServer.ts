@@ -17,11 +17,7 @@ export const setServer = async (client: ICustomClient, guildId: string, prefix: 
     saveInCache();
     return prefix;
   } catch (err: any) {
-    Logger.log(
-      'ERROR',
-      `There was a error trying to set this guild ${guildId} prefix.`,
-      new Error(err)
-    );
+    Logger.log('ERROR', `There was a error trying to set this guild ${guildId} prefix.`, err);
     throw new Error(err);
   }
 };

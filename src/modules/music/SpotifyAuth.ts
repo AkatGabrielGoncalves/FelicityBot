@@ -62,7 +62,7 @@ class SpotifyAuth {
       this.accessTokenExpiresIn = data.expires_in - 600 + Date.now() / 1000;
       return this.accessToken;
     } catch (err: any) {
-      Logger.log('ERROR', 'Error while trying to get the spotify token.', new Error(err));
+      Logger.log('ERROR', 'Error while trying to get the spotify token.', err);
       throw new Error(err);
     }
   };
@@ -86,7 +86,7 @@ class SpotifyAuth {
       // Spotify limit can return empty tracks if it exceeds the number of tracks
       return items.filter((item) => item.track.name);
     } catch (err: any) {
-      Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', new Error(err));
+      Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', err);
       throw new Error(err);
     }
   };

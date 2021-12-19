@@ -63,7 +63,7 @@ export class Database extends Sequelize {
       await this.authenticate();
       Logger.log('INFO', 'Connection to database has been established successfully.', new Error());
     } catch (err: any) {
-      Logger.log('ERROR', 'Database failed to establish a connection', new Error(err));
+      Logger.log('ERROR', 'Database failed to establish a connection', err);
       process.exit(1);
     }
   };

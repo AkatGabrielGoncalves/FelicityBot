@@ -12,11 +12,7 @@ export const getServer = async (client: ICustomClient, guildId: string) => {
     saveInCache(server.prefix);
     return server.prefix;
   } catch (err: any) {
-    Logger.log(
-      'ERROR',
-      `There was a error trying to get this guild ${guildId} config.`,
-      new Error(err)
-    );
+    Logger.log('ERROR', `There was a error trying to get this guild ${guildId} config.`, err);
 
     saveInCache('!');
     return '!';

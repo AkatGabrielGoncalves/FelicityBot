@@ -57,6 +57,6 @@ client
     Logger.log('INFO', 'Bot is online.', new Error());
   })
   .catch((err) => {
-    Logger.log('ERROR', 'Bot failed to start.', new Error(err));
+    Logger.log('ERROR', 'Bot failed to start.', err);
     process.exit(1);
   });

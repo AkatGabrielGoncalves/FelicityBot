@@ -107,7 +107,7 @@ export class MusicPlayer extends PlayerQueue {
 
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
-      Logger.log('ERROR', 'Error on player idle listener', new Error(err));
+      Logger.log('ERROR', 'Error on player idle listener', err);
       throw new Error(err);
     }
   };
@@ -185,7 +185,7 @@ export class MusicPlayer extends PlayerQueue {
 
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
-      Logger.log('ERROR', 'There was an error while trying to play the song.', new Error(err));
+      Logger.log('ERROR', 'There was an error while trying to play the song.', err);
       await this.playerDecisionMaker();
       return await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
     }
@@ -232,7 +232,7 @@ export class MusicPlayer extends PlayerQueue {
       }
       return await this.addToQueue(this.client, message, args);
     } catch (err: any) {
-      Logger.log('ERROR', 'Error at play.', new Error(err));
+      Logger.log('ERROR', 'Error at play.', err);
       return { content: 'Error' };
     }
   };

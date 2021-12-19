@@ -7,7 +7,7 @@ export const getServers = async () => {
 
     return servers;
   } catch (err: any) {
-    Logger.log('ERROR', `There was a error trying to get all guilds`, new Error(err));
+    Logger.log('ERROR', `There was a error trying to get all guilds`, err);
 
     return null;
   }

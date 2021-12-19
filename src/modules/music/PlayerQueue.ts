@@ -132,11 +132,7 @@ export class PlayerQueue {
 
         return await message.reply(`A playlist: ${playlist.title} foi adicionada!`);
       } catch (err: any) {
-        Logger.log(
-          'ERROR',
-          'Error while trying to add a youtube playlist to queue',
-          new Error(err)
-        );
+        Logger.log('ERROR', 'Error while trying to add a youtube playlist to queue', err);
         await message.reply(
           `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
         );
@@ -171,7 +167,7 @@ export class PlayerQueue {
         Logger.log(
           'ERROR',
           `There was an error trying to add a video URL: ${searchStringOrUrl}`,
-          new Error(err)
+          err
         );
         await message.reply(
           `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
@@ -196,11 +192,7 @@ export class PlayerQueue {
       }
       return { content: 'Song added to queue.' };
     } catch (err: any) {
-      Logger.log(
-        'ERROR',
-        `There was an error trying to search this: ${searchStringOrUrl}.`,
-        new Error(err)
-      );
+      Logger.log('ERROR', `There was an error trying to search this: ${searchStringOrUrl}.`, err);
       await message.reply(
         `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
       );
