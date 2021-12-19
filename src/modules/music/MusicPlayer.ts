@@ -41,8 +41,6 @@ export class MusicPlayer extends PlayerQueue {
 
   private client: ICustomClient;
 
-  private retryAttempts: number;
-
   constructor(client: ICustomClient, message: Message) {
     super();
     this.client = client;
