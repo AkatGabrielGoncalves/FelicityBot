@@ -4,8 +4,11 @@ import axios from 'axios';
 class Webhook {
   webhookURI: string;
 
+  userID: string;
+
   constructor() {
     this.webhookURI = process.env.DISCORD_WEBHOOK_URI as string;
+    this.userID = process.env.DISCORD_WEBHOOK_USER_ID as string;
   }
 
   sendLog = async (
@@ -18,7 +21,7 @@ class Webhook {
       await axios.post(this.webhookURI, {
         content: `type: ${type}\nmessage: ${message}\nerr: ${
           err.stack
-        }\ndate: ${new Date()}\nextra: ${extra}\n<@333672963566075905>`,
+        }\ndate: ${new Date()}\nextra: ${extra}\n<@${this.userID}>`,
       });
     } catch (error) {
       console.log(error);
