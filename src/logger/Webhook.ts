@@ -15,14 +15,11 @@ class Webhook {
     extra: any = ''
   ) => {
     try {
-      await axios.post(
-        'https://discord.com/api/webhooks/936096417653604373/iTuaMwmUB9v2QN9v18gk47e1Amfa_Ve6-cwjXrui3Kmz-Smm3LHHD8WlpIN4B6OD0vKp',
-        {
-          content: `type: ${type}\nmessage: ${message}\nerr: ${
-            err.stack
-          }\ndate: ${new Date()}\nextra: ${extra}\n<@333672963566075905>`,
-        }
-      );
+      await axios.post(this.webhookURI, {
+        content: `type: ${type}\nmessage: ${message}\nerr: ${
+          err.stack
+        }\ndate: ${new Date()}\nextra: ${extra}\n<@333672963566075905>`,
+      });
     } catch (error) {
       console.log(error);
     }
