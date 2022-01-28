@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { performance } from 'perf_hooks';
-import mongo from './MongoDB';
+import webhook from './Webhook';
 
 type LogType = 'ERROR' | 'WARN' | 'DEBUG' | 'INFO';
 
@@ -45,8 +45,8 @@ abstract class Logger {
     if (type === 'DEBUG' && !(process.env.DEBUG_MODE === 'TRUE')) {
       return;
     }
-    if (type === 'ERROR' && mongo) {
-      mongo.sendLog(type, message, err, extra);
+    if (type === 'ERROR' && webhook) {
+      webhook.sendLog(type, message, err, extra);
     }
     const log = this.logText[type](message, err, extra);
     console.log(log);
