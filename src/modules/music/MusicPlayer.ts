@@ -186,7 +186,7 @@ export class MusicPlayer extends PlayerQueue {
       return await this.addToQueue(this.client, message, args);
     } catch (err: any) {
       Logger.log('ERROR', 'Error at play.', err);
-      return { content: 'Error' };
+      return await this.playerDecisionMaker();
     }
   };
 
