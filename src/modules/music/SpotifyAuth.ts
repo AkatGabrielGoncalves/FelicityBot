@@ -63,7 +63,7 @@ class SpotifyAuth {
       return this.accessToken;
     } catch (err: any) {
       Logger.log('ERROR', 'Error while trying to get the spotify token.', err);
-      throw new Error(err);
+      throw err;
     }
   };
 
@@ -87,7 +87,7 @@ class SpotifyAuth {
       return items.filter((item) => item.track.name);
     } catch (err: any) {
       Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', err);
-      throw new Error(err);
+      throw err;
     }
   };
 

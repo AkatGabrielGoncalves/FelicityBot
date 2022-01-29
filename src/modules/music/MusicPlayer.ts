@@ -104,7 +104,7 @@ export class MusicPlayer extends PlayerQueue {
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
       Logger.log('ERROR', 'Error on player idle listener', err);
-      throw new Error(err);
+      throw err;
     }
   };
 

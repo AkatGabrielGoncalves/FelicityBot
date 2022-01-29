@@ -118,7 +118,7 @@ export class PlayerQueue {
       } catch (err: any) {
         Logger.log('ERROR', 'Error while trying to add a spotify playlist to queue', err);
         await message.reply('Ocorreu um erro ao tentar adicionar a sua playlist do spotify.');
-        throw new Error(err);
+        throw err;
       }
     }
 
@@ -136,7 +136,7 @@ export class PlayerQueue {
         await message.reply(
           `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
         );
-        throw new Error(err);
+        throw err;
       }
     }
 
@@ -172,7 +172,7 @@ export class PlayerQueue {
         await message.reply(
           `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
         );
-        throw new Error(err);
+        throw err;
       }
     }
 
@@ -196,7 +196,7 @@ export class PlayerQueue {
       await message.reply(
         `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
       );
-      throw new Error(err);
+      throw err;
     }
   };
 

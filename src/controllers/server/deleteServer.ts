@@ -16,6 +16,6 @@ export const deleteServer = async (client: ICustomClient, guildId: string) => {
     removeFromCache();
   } catch (err: any) {
     Logger.log('ERROR', `There was a error trying to delete this guild: ${guildId}`, err);
-    throw new Error(err);
+    throw err;
   }
 };
