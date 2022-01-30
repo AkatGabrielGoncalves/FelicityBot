@@ -1,13 +1,12 @@
 import { Client, Message, MessageReaction } from 'discord.js';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
-import ytsr from 'ytsr';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
-import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import { QueueItem } from './interfaces/QueueItem';
 import spotifyAuth from './SpotifyAuth';
 import Logger from '../../logger/Logger';
+import yt from './YoutubeTracks';
 
 export class PlayerQueue {
   protected queue: QueueItem[];
@@ -31,44 +30,17 @@ export class PlayerQueue {
     this.queuePosition = 0;
   }
 
-  /** Used to avoid repetition, these objects are pushed to this.queue or sent to the queue embed.
-   * Since there is a lot of dependencies that return different keys for their objects this is kind
-   * of necessary, there is no meaning in filtering these objects, it would cost performance.
-   */
-  private songObject = {
-    // ytpl format
-    ytPlaylist: (song: ytpl.Item) => ({
-      url: song.shortUrl,
-      title: song.title,
-      duration: song.duration as string,
-      thumbnail: song.bestThumbnail.url as string,
-    }),
-    // ytdl format
-    ytVideo: (song: ytdl.videoInfo) => ({
-      url: song.videoDetails.video_url,
-      title: song.videoDetails.title,
-      duration: song.videoDetails.lengthSeconds as string,
-      thumbnail: song.videoDetails.thumbnails[0].url as string,
-    }),
-    // ytsr format
-    ytSearch: (song: YouTubeResultItem) => ({
-      url: song.url,
-      title: song.title,
-      duration: song.duration as string,
-      thumbnail: song.bestThumbnail.url as string,
-    }),
-  };
-
   addToQueue = async (client: Client, message: Message, args: string[]) => {
     const searchStringOrUrl = args.join(' ');
-    const youtubeUrlString = 'https://www.youtube.com/watch?v=';
 
     const isASpotifyUrl = spotifyAuth.isAValidSpotifyUrl(searchStringOrUrl);
+    const isAYtPlaylist = ytpl.validateID(searchStringOrUrl);
+    const isAYtVideo = ytdl.validateURL(searchStringOrUrl);
 
-    const searchOptions = { limit: 2, maxRetries: 5 };
-
-    if (isASpotifyUrl) {
-      try {
+    let argsType = '';
+    try {
+      if (isASpotifyUrl) {
+        argsType = 'Spotify Playlist/Track';
         const { type, id } = isASpotifyUrl;
 
         if (type !== 'playlist') return await message.reply('Somente playlist são suportadas.');
@@ -80,32 +52,12 @@ export class PlayerQueue {
           new Error()
         );
 
-        const filterYtsrResult = async (spotifySong: any) => {
-          const { items } = await ytsr(
-            `${spotifySong.track.name} ${spotifySong.track.artists[0].name}`,
-            searchOptions
-          );
-          const song = items.find((song2) => song2.type === 'video') as YouTubeResultItem;
-          return this.songObject.ytSearch(song);
-        };
+        const items = await spotifyAuth.getPlaylistFromSpotify(id);
 
-        const songs = await spotifyAuth.getPlaylistFromSpotify(id);
-
-        const sendToQueue = await Promise.all(songs.map((song) => filterYtsrResult(song)));
-
-        // const ytResults = await Promise.all(
-        //   songs.map((song) =>
-        //     ytsr(`${song.track.name} ${song.track.artists[0].name}`, searchOptions)
-        //   )
-        // );
-
-        // const sendToQueue = ytResults.map(({ items }) => {
-        //   const song = items.find((song2) => song2.type === 'video') as YouTubeResultItem;
-
-        //   return this.songObject.ytSearch(song);
-        // });
-
-        this.queue.push(...sendToQueue);
+        const tracks = await Promise.all(
+          items.map((item) => yt.getTrackFromSearch(item.track.artists[0].name + item.track.name))
+        );
+        this.queue.push(...tracks);
 
         Logger.finish(
           `spotify${message.guildId}`,
@@ -115,88 +67,44 @@ export class PlayerQueue {
         );
 
         return await message.reply('Playlist do spotify adicionada!');
-      } catch (err: any) {
-        Logger.log('ERROR', 'Error while trying to add a spotify playlist to queue', err);
-        await message.reply('Ocorreu um erro ao tentar adicionar a sua playlist do spotify.');
-        throw err;
       }
-    }
 
-    const isAPlaylist = ytpl.validateID(searchStringOrUrl);
+      if (isAYtPlaylist) {
+        argsType = 'Youtube Playlist';
+        const tracks = await yt.getTrackFromPlaylist(searchStringOrUrl);
+        this.queue.push(...tracks);
 
-    if (isAPlaylist) {
-      try {
-        const playlist = await ytpl(searchStringOrUrl, searchOptions);
-        const { items: songs } = playlist;
-        songs.forEach((song) => this.queue.push(this.songObject.ytPlaylist(song)));
-
-        return await message.reply(`A playlist: ${playlist.title} foi adicionada!`);
-      } catch (err: any) {
-        Logger.log('ERROR', 'Error while trying to add a youtube playlist to queue', err);
-        await message.reply(
-          `Ocorreu um erro ao tentarmos adicionar sua playlist, ela é realmente válida?`
-        );
-        throw err;
+        return await message.reply(`A playlist foi adicionada!`);
       }
-    }
 
-    const isAValidVideo = ytdl.validateURL(searchStringOrUrl);
+      if (isAYtVideo) {
+        argsType = 'Youtube Track';
+        const track = await yt.getTrackFromURL(searchStringOrUrl);
+        this.queue.push(track);
 
-    if (isAValidVideo) {
-      try {
-        const videoId = ytdl.getURLVideoID(searchStringOrUrl);
-        const song = await ytdl.getBasicInfo(youtubeUrlString + videoId, {
-          requestOptions: {
-            headers: {
-              cookie: process.env.YOUTUBE_LOGIN_COOKIE,
-            },
-          },
-        });
-        this.queue.push(this.songObject.ytVideo(song));
         if (this.currentlyPlaying !== null) {
-          const embed = addToQueueEmbed(
-            message,
-            this.currentlyPlaying,
-            this.songObject.ytVideo(song),
-            this.queue
-          );
+          const embed = addToQueueEmbed(message, this.currentlyPlaying, track, this.queue);
           return await message.reply({ embeds: [embed] });
         }
         return { content: 'Song added to queue.' };
-      } catch (err: any) {
-        Logger.log(
-          'ERROR',
-          `There was an error trying to add a video URL: ${searchStringOrUrl}`,
-          err
-        );
-        await message.reply(
-          `Ocorreu um erro ao tentarmos adicionar seu video, ele é realmente válido?`
-        );
-        throw err;
       }
-    }
 
-    try {
-      const { items: songs } = await ytsr(searchStringOrUrl, searchOptions);
+      argsType = 'Pesquisa';
+      const track = await yt.getTrackFromSearch(searchStringOrUrl);
 
-      const song = songs.find((song2) => song2.type === 'video') as YouTubeResultItem;
-      this.queue.push(this.songObject.ytSearch(song));
+      this.queue.push(track);
+
       if (this.currentlyPlaying !== null) {
-        const embed = addToQueueEmbed(
-          message,
-          this.currentlyPlaying,
-          this.songObject.ytSearch(song),
-          this.queue
-        );
+        const embed = addToQueueEmbed(message, this.currentlyPlaying, track, this.queue);
         return await message.reply({ embeds: [embed] });
       }
+
       return { content: 'Song added to queue.' };
     } catch (err: any) {
-      Logger.log('ERROR', `There was an error trying to search this: ${searchStringOrUrl}.`, err);
-      await message.reply(
-        `Ocorreu um erro ao tentarmos adicionar sua pesquisa ou playlist, ela é realmente válida?`
+      Logger.log('ERROR', `There was an error trying to add this: ${searchStringOrUrl}.`, err);
+      return await message.reply(
+        `Ocorreu um erro ao tentarmos adicionar um/uma ${argsType}, é realmente válido/válida?`
       );
-      throw err;
     }
   };
 
@@ -225,48 +133,10 @@ export class PlayerQueue {
       await this.queueMessage.react('⬅️');
       await this.queueMessage.react('➡️');
 
-      const awaitReactions = async () => {
-        await this.queueMessage
-          ?.awaitReactions({ filter, max: 1, time: 30000, errors: ['time'] })
-          .then(async (collected) => {
-            const reaction = collected.first();
-            if (reaction?.emoji.name === '➡️') {
-              if (this.queue.length < this.queuePage + 10) await awaitReactions();
-              this.queuePage += 10;
-              const nextEmbed = await this.createQueueEmbed(message);
-
-              await this.queueMessage?.edit({
-                embeds: [nextEmbed],
-              });
-              await awaitReactions();
-            }
-            if (reaction?.emoji.name === '⬅️') {
-              if (this.queuePage === 0) await awaitReactions();
-              this.queuePage -= 10;
-              const backEmbed = await this.createQueueEmbed(message);
-
-              await this.queueMessage?.edit({
-                embeds: [backEmbed],
-              });
-              await awaitReactions();
-            }
-            await awaitReactions();
-          })
-          .catch(async () => {
-            if (this.queueMessage) {
-              await this.queueMessage.delete();
-              this.queueMessage = null;
-              this.queuePage = 0;
-            }
-          });
-      };
-      await awaitReactions();
+      await this.awaitReactions(filter, message);
     }
     return { content: 'Queue embed deleted or never existed in the first place...' };
   };
-
-  createQueueEmbed = async (message: Message) =>
-    createQueueEmbed(message, this.currentlyPlaying as QueueItem, this.queue, this.queuePage);
 
   shuffleQueue = async (message: Message) => {
     for (let i = this.queue.length - 1; i > 0; i -= 1) {
@@ -275,4 +145,46 @@ export class PlayerQueue {
     }
     return await message.reply('A fila foi embaralhada!');
   };
+
+  private awaitReactions = async (
+    filter: (reaction: MessageReaction, user: any) => boolean,
+    message: Message
+  ) => {
+    await this.queueMessage
+      ?.awaitReactions({ filter, max: 1, time: 30000, errors: ['time'] })
+      .then(async (collected) => {
+        const reaction = collected.first();
+        if (reaction?.emoji.name === '➡️') {
+          if (this.queue.length < this.queuePage + 10) await this.awaitReactions(filter, message);
+          this.queuePage += 10;
+          const nextEmbed = await this.createQueueEmbed(message);
+
+          await this.queueMessage?.edit({
+            embeds: [nextEmbed],
+          });
+          await this.awaitReactions(filter, message);
+        }
+        if (reaction?.emoji.name === '⬅️') {
+          if (this.queuePage === 0) await this.awaitReactions(filter, message);
+          this.queuePage -= 10;
+          const backEmbed = await this.createQueueEmbed(message);
+
+          await this.queueMessage?.edit({
+            embeds: [backEmbed],
+          });
+          await this.awaitReactions(filter, message);
+        }
+        await this.awaitReactions(filter, message);
+      })
+      .catch(async () => {
+        if (this.queueMessage) {
+          await this.queueMessage.delete();
+          this.queueMessage = null;
+          this.queuePage = 0;
+        }
+      });
+  };
+
+  private createQueueEmbed = async (message: Message) =>
+    createQueueEmbed(message, this.currentlyPlaying as QueueItem, this.queue, this.queuePage);
 }

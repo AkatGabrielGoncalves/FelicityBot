@@ -5,7 +5,7 @@ The purpose is to maintain a valid access token easily and easily renew it
 import axios, { AxiosResponse } from 'axios';
 import Logger from '../../logger/Logger';
 
-interface ISpotifyResponse {
+interface ISpotifyPlaylistRes {
   // href: string;
   items: {
     track: {
@@ -20,6 +20,13 @@ interface ISpotifyResponse {
   // offset: number;
   // previous: string;
   total: number;
+}
+
+interface ISpotifyTrackRes {
+  artists: {
+    name: string;
+  }[];
+  name: string;
 }
 
 class SpotifyAuth {
@@ -71,12 +78,12 @@ class SpotifyAuth {
   public readonly getPlaylistFromSpotify = async (id: string) => {
     try {
       const accessToken = await this.getAccessToken();
-      const { items, total } = await this.getPlaylistRoute(id, 0, accessToken);
+      const { items, total } = await this.getPlaylistURI(id, 0, accessToken);
 
       if (total > 50) {
         const nextData = [];
         for (let i = 1; i < Math.ceil(total / 50) && i <= 1; i += 1) {
-          nextData.push(this.getPlaylistRoute(id, i * 50, accessToken));
+          nextData.push(this.getPlaylistURI(id, i * 50, accessToken));
         }
         (await Promise.all(nextData)).forEach((res) => {
           items.push(...res.items);
@@ -91,8 +98,8 @@ class SpotifyAuth {
     }
   };
 
-  private readonly getPlaylistRoute = async (id: string, offset: number, accessToken: string) => {
-    const response: AxiosResponse<ISpotifyResponse> = await axios({
+  private readonly getPlaylistURI = async (id: string, offset: number, accessToken: string) => {
+    const response: AxiosResponse<ISpotifyPlaylistRes> = await axios({
       method: 'GET',
       baseURL: `https://api.spotify.com/v1/playlists/${id}/tracks?fields=total,items(track(name,artists(name)))&limit=50&offset=${offset}`,
       headers: {
@@ -102,6 +109,22 @@ class SpotifyAuth {
     });
 
     return { items: response.data.items, total: response.data.total };
+  };
+
+  private readonly getTrackURI = async (id: string, accessToken: string) => {
+    const response: AxiosResponse<ISpotifyTrackRes> = await axios({
+      method: 'GET',
+      baseURL: `https://api.spotify.com/v1/tracks/${id}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return {
+      artist: response.data.artists.map((artist) => artist.name).join(','),
+      name: response.data.name,
+    };
   };
 
   /** This method actually can validate if it is a track or playlist, but I don't think I will
