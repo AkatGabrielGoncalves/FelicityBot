@@ -104,6 +104,7 @@ export class MusicPlayer extends PlayerQueue {
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
       Logger.log('ERROR', 'Error on player idle listener', err);
+      throw err;
     }
   };
 
@@ -127,7 +128,7 @@ export class MusicPlayer extends PlayerQueue {
           cookies: process.env.YOUTUBE_LOGIN_COOKIE,
           // ignoreErrors: true,
         },
-        { stdio: ['ignore', 'pipe', 'ignore'], killSignal: 'SIGKILL' }
+        { stdio: ['ignore', 'pipe', 'ignore'] }
       );
 
       const audioResource = createAudioResource(stream.stdout!);
