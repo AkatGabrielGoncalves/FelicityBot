@@ -1,7 +1,5 @@
-import * as dotenv from 'dotenv';
 /* eslint-disable import/first */
-
-dotenv.config();
+import 'dotenv/config';
 
 import Logger from './logger/Logger';
 import intents from './intents';
