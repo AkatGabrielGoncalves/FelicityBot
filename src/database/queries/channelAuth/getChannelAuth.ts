@@ -17,6 +17,5 @@ export const getChannelAuth = async (channelId: string, guildId: string) => {
       `There was a error trying to get this guild ${guildId} and channel ${channelId}.`,
       err
     );
-    throw err;
   }
 };

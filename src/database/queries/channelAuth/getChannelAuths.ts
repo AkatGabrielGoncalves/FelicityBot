@@ -12,6 +12,5 @@ export const getChannelAuths = async (guildId: string) => {
     return channels;
   } catch (err: any) {
     Logger.log('ERROR', `There was a error trying to get this guild ${guildId} channels.`, err);
-    throw err;
   }
 };

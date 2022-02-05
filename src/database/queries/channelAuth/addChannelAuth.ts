@@ -20,6 +20,5 @@ export const addChannelAuth = async (
       `There was a error trying to create this guild ${guildId} and channel ${channelId}.`,
       err
     );
-    throw err;
   }
 };
