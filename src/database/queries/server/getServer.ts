@@ -1,6 +1,6 @@
-import { Server } from '../../database/models';
-import { ICustomClient } from '../../interfaces/customInterfaces';
-import Logger from '../../logger/Logger';
+import { ICustomClient } from '../../../interfaces/customInterfaces';
+import Logger from '../../../logger/Logger';
+import { Server } from '../../models';
 
 export const getServer = async (client: ICustomClient, guildId: string) => {
   const saveInCache = (prefix: string) => client.serverCache.set(guildId, prefix);

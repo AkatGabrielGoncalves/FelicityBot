@@ -7,7 +7,7 @@ import Logger from './logger/Logger';
 import intents from './intents';
 import { commandsHandler } from './modules/commandsHandler';
 import { CustomClient } from './CustomClient';
-import { addServer, deleteServer, getServers } from './controllers/server';
+import { addServer, deleteServer, getServers } from './database/queries/server';
 
 const client = new CustomClient({ intents });
 

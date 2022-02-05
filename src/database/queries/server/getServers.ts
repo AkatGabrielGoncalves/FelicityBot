@@ -1,5 +1,5 @@
-import { Server } from '../../database/models';
-import Logger from '../../logger/Logger';
+import Logger from '../../../logger/Logger';
+import { Server } from '../../models';
 
 export const getServers = async () => {
   try {

@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
-import { getChannelAuths } from '../controllers/channelAuth';
-import { getServer } from '../controllers/server';
+import { getChannelAuths } from '../database/queries/channelAuth';
+import { getServer } from '../database/queries/server';
 import { ICustomClient } from '../interfaces/customInterfaces';
 import Logger from '../logger/Logger';
 

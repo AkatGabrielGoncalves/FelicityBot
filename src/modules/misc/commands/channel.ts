@@ -1,4 +1,4 @@
-import { addChannelAuth, getChannelAuth } from '../../../controllers/channelAuth';
+import { addChannelAuth, getChannelAuth } from '../../../database/queries/channelAuth';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import Logger from '../../../logger/Logger';
 

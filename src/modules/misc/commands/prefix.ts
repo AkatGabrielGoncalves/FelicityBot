@@ -1,4 +1,4 @@
-import { setServer } from '../../../controllers/server';
+import { setServer } from '../../../database/queries/server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 
 class HandlePrefix implements ICommand {
