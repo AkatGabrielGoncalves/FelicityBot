@@ -1,5 +1,5 @@
-import Logger from "../../../logger/Logger";
-import { ChannelAuth } from "../../models";
+import Logger from '../../../logger/Logger';
+import { ChannelAuth } from '../../models';
 
 export const getChannelAuths = async (guildId: string) => {
   try {
