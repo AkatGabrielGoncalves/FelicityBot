@@ -128,7 +128,7 @@ export class MusicPlayer extends PlayerQueue {
           cookies: process.env.YOUTUBE_LOGIN_COOKIE,
           verbose: true,
         },
-        { stdio: ['ignore', 'pipe', 'ignore'] }
+        { stdio: ['ignore', 'pipe', 'pipe'] }
       );
 
       const audioResource = createAudioResource(stream.stdout!);
