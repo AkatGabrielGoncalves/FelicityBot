@@ -103,8 +103,13 @@ export class MusicPlayer extends PlayerQueue {
 
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
-      Logger.log('ERROR', 'Error on player idle listener', err);
-      throw err;
+      Logger.log('ERROR', 'Error on player idle listener', err, {
+        connStatus: this.conn?.state.status,
+        playerStatus: this.GetPlayerStatus(),
+        queue: this.queue,
+        channelMembers: this.channel.members.size,
+      });
+      return await this.internalStop(this.message);
     }
   };
 
