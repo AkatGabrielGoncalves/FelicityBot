@@ -18,11 +18,19 @@ class Webhook {
     extra: any = ''
   ) => {
     try {
-      await axios.post(this.webhookURI, {
-        content: `type: ${type}\nmessage: ${message}\nerr: ${
-          err.stack
-        }\ndate: ${new Date()}\nextra: ${extra}\n<@${this.userID}>`,
-      });
+      const content = `type: ${type}\nmessage: ${message}\nerr: ${
+        err.stack
+      }\ndate: ${new Date()}\nextra: ${extra}`;
+
+      if (type !== 'ERROR') {
+        await axios.post(this.webhookURI, {
+          content,
+        });
+      } else {
+        await axios.post(this.webhookURI, {
+          content: `${content}\n<@${this.userID}>`,
+        });
+      }
     } catch (error) {
       console.log(error);
     }

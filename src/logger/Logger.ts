@@ -45,7 +45,7 @@ abstract class Logger {
     if (type === 'DEBUG' && !(process.env.DEBUG_MODE === 'TRUE')) {
       return;
     }
-    if (type === 'ERROR' && webhook) {
+    if (webhook) {
       webhook.sendLog(type, message, err, extra);
     }
     const log = this.logText[type](message, err, extra);
