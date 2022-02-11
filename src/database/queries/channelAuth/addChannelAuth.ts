@@ -7,13 +7,11 @@ export const addChannelAuth = async (
   type: 'permitted' | 'excluded'
 ) => {
   try {
-    const channel = await ChannelAuth.create({
+    return await ChannelAuth.create({
       id: channelId,
       server_id: guildId,
       type,
     });
-
-    return channel;
   } catch (err: any) {
     Logger.log(
       'ERROR',

@@ -5,7 +5,7 @@ import { QueueItem } from './interfaces/QueueItem';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 
 class YoutubeTracks {
-  private searchOptions: { limit: number; maxRetries: number };
+  private readonly searchOptions: { limit: number; maxRetries: number };
 
   constructor() {
     this.searchOptions = { limit: 3, maxRetries: 5 };
@@ -37,8 +37,7 @@ class YoutubeTracks {
 
   public getTrackFromPlaylist = async (playlistURL: string): Promise<QueueItem[]> => {
     const { items } = await ytpl(playlistURL, this.searchOptions);
-    const tracks = items.map((item) => this.songObject.ytPlaylist(item));
-    return tracks;
+    return items.map((item) => this.songObject.ytPlaylist(item));
   };
 
   public getTrackFromURL = async (trackURL: string): Promise<QueueItem> => {

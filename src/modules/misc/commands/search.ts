@@ -36,15 +36,12 @@ class HandleSearch implements ICommand {
     const regex = new RegExp(args[0]);
 
     const messages = await message.channel.messages.fetch({ limit: 100 });
-    // eslint-disable-next-line consistent-return
+
     const foundMessage = messages.find((msg) => {
-      if (message.id !== msg.id) {
-        if (regex.test(msg.content)) {
-          return true;
-        }
+      if (message.id === msg.id) {
         return false;
       }
-      return false;
+      return regex.test(msg.content);
     });
 
     if (!foundMessage) {

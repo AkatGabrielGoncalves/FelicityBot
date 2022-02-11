@@ -3,9 +3,7 @@ import { Server } from '../../models';
 
 export const getServers = async () => {
   try {
-    const servers = await Server.findAll();
-
-    return servers;
+    return await Server.findAll();
   } catch (err: any) {
     Logger.log('ERROR', `There was a error trying to get all guilds`, err);
 
