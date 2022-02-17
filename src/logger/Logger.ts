@@ -41,7 +41,7 @@ abstract class Logger {
     this.logs.delete(name);
   };
 
-  static log = (type: LogType, message: string, err: Error, extra: any = '') => {
+  static log = (type: LogType, message: string, err: Error, extra: any = {}) => {
     if (type === 'DEBUG' && !(process.env.DEBUG_MODE === 'TRUE')) {
       return;
     }

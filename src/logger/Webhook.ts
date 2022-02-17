@@ -15,13 +15,13 @@ class Webhook {
     type: 'ERROR' | 'WARN' | 'DEBUG' | 'INFO',
     message: string,
     err: Error,
-    extra: any = ''
+    extra: any
   ) => {
     try {
       if (type !== 'ERROR') {
         const content = `type: ${type}\nmessage: ${message}\nerr: ${
           /\/.+?:\d*:\d*/.exec(err.stack as string)![0]
-        }\ndate: ${new Date()}\nextra: ${extra}`;
+        }\ndate: ${new Date()}\nextra: ${JSON.stringify(extra)}`;
 
         await axios.post(this.webhookURI, {
           content,
@@ -29,7 +29,7 @@ class Webhook {
       } else {
         const content = `type: ${type}\nmessage: ${message}\nerr: ${
           err.stack
-        }\ndate: ${new Date()}\nextra: ${extra}\n<@${this.userID}>`;
+        }\ndate: ${new Date()}\nextra: ${JSON.stringify(extra)}\n<@${this.userID}>`;
 
         await axios.post(this.webhookURI, {
           content,
