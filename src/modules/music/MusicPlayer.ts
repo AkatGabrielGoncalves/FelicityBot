@@ -41,6 +41,8 @@ export class MusicPlayer extends PlayerQueue {
 
   private client: ICustomClient;
 
+  private disconnected: boolean;
+
   constructor(client: ICustomClient, message: Message) {
     super();
     this.client = client;
@@ -53,11 +55,13 @@ export class MusicPlayer extends PlayerQueue {
       },
     });
     this.subscription = this.conn.subscribe(this.player);
+    this.disconnected = false;
 
     this.conn.on(VoiceConnectionStatus.Disconnected, async () => {
       // This is to check if the bot was really disconnected or changed channels / changed region
       try {
         if (this.conn !== null) {
+          this.disconnected = true;
           await Promise.race([
             entersState(this.conn, VoiceConnectionStatus.Signalling, 5_000),
             entersState(this.conn, VoiceConnectionStatus.Connecting, 5_000),
@@ -70,7 +74,8 @@ export class MusicPlayer extends PlayerQueue {
 
     this.conn.on(VoiceConnectionStatus.Ready, async () => {
       // This will start the player again if it loses connection
-      if (this.currentlyPlaying !== null) {
+      if (this.currentlyPlaying !== null && this.disconnected) {
+        this.disconnected = false;
         this.queue.unshift(this.currentlyPlaying);
         await this.playerDecisionMaker();
       }
