@@ -134,9 +134,10 @@ export class MusicPlayer extends PlayerQueue {
         {
           output: '-',
           format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best',
-          limitRate: '200K',
+          limitRate: '100K',
           retries: 20,
-          cookies: process.env.YOUTUBE_LOGIN_COOKIE,
+          rmCacheDir: true,
+          verbose: true,
         },
         { stdio: ['ignore', 'pipe', 'pipe'] }
       );
