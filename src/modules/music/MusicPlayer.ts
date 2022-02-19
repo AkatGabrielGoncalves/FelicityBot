@@ -146,8 +146,7 @@ export class MusicPlayer extends PlayerQueue {
       });
 
       stream.stderr!.on('data', (data) => {
-        stream.kill('SIGTERM');
-        Logger.log('ERROR', data, new Error(data));
+        Logger.log('DEBUG', data, new Error(data));
       });
 
       stream.unref();
