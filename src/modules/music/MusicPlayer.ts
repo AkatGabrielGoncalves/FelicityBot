@@ -145,9 +145,9 @@ export class MusicPlayer extends PlayerQueue {
         Logger.log('ERROR', 'Spawn failed!', err);
       });
 
-      stream.stderr!.on('error', (err) => {
+      stream.stderr!.on('data', (data) => {
         stream.kill('SIGTERM');
-        Logger.log('ERROR', 'stream stderr', err);
+        Logger.log('ERROR', data, new Error(data));
       });
 
       stream.unref();
