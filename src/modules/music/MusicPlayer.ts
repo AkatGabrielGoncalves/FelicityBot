@@ -90,6 +90,7 @@ export class MusicPlayer extends PlayerQueue {
    * Stop or play the next song. */
   private playerDecisionMaker = async () => {
     try {
+      console.log('RUNNING PLAYER DECISION MAKER');
       const playerIsReady = () => this.conn?.state.status === 'ready';
 
       if (this.channel.members.size === 1) return await this.internalStop(this.message);
@@ -133,9 +134,11 @@ export class MusicPlayer extends PlayerQueue {
         url,
         {
           output: '-',
-          format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
+          format: 'bestaudio[ext=webm+acodec=opus]/bestaudio/best',
           limitRate: '100K',
-          cookies: process.env.YOUTUBE_LOGIN_COOKIE,
+          bufferSize: '16K',
+          rmCacheDir: true,
+          verbose: true,
         },
         { stdio: ['ignore', 'pipe', 'pipe'] }
       );
@@ -145,9 +148,8 @@ export class MusicPlayer extends PlayerQueue {
         Logger.log('ERROR', 'Spawn failed!', err);
       });
 
-      stream.stderr!.on('error', (err) => {
-        stream.kill('SIGTERM');
-        Logger.log('ERROR', 'stream stderr', err);
+      stream.stderr!.on('data', (data) => {
+        console.log(Buffer.from(data).toString());
       });
 
       stream.unref();
