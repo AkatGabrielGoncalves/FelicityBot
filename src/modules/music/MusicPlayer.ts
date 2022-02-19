@@ -133,8 +133,9 @@ export class MusicPlayer extends PlayerQueue {
         url,
         {
           output: '-',
-          format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-          limitRate: '100K',
+          format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best',
+          limitRate: '200K',
+          retries: 20,
           cookies: process.env.YOUTUBE_LOGIN_COOKIE,
         },
         { stdio: ['ignore', 'pipe', 'pipe'] }
@@ -146,7 +147,7 @@ export class MusicPlayer extends PlayerQueue {
       });
 
       stream.stderr!.on('data', (data) => {
-        Logger.log('DEBUG', data, new Error(data));
+        console.log(data);
       });
 
       stream.unref();
