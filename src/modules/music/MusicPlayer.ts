@@ -136,10 +136,21 @@ export class MusicPlayer extends PlayerQueue {
           format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
           limitRate: '100K',
           cookies: process.env.YOUTUBE_LOGIN_COOKIE,
-          verbose: true,
         },
         { stdio: ['ignore', 'pipe', 'pipe'] }
       );
+
+      stream.on('error', (err) => {
+        stream.kill('SIGTERM');
+        Logger.log('ERROR', 'Spawn failed!', err);
+      });
+
+      stream.stderr!.on('error', (err) => {
+        stream.kill('SIGTERM');
+        Logger.log('ERROR', 'stream stderr', err);
+      });
+
+      stream.unref();
 
       const audioResource = createAudioResource(stream.stdout!);
 
@@ -208,7 +219,7 @@ export class MusicPlayer extends PlayerQueue {
       );
     }
 
-    this.player.stop();
+    this.player.stop(true);
     return await message.channel.send(`Tocando próxima música!`);
   };
 
