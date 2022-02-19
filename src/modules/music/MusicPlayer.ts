@@ -147,7 +147,7 @@ export class MusicPlayer extends PlayerQueue {
       });
 
       stream.stderr!.on('data', (data) => {
-        console.log(data);
+        console.log(Buffer.from(data).toString());
       });
 
       stream.unref();
