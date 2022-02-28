@@ -221,6 +221,8 @@ export class MusicPlayer extends PlayerQueue {
   };
 
   private internalStop = async (message: Message) => {
+    if (!connections[`${message.guildId}`]) return { content: 'Player foi parado!' };
+
     this.queue = [];
     this.conn?.removeAllListeners();
     if (this.conn?.state.status !== VoiceConnectionStatus.Destroyed) {
@@ -230,9 +232,8 @@ export class MusicPlayer extends PlayerQueue {
     delete connections[`${message.guildId}`];
 
     // If the bot is kicked or banned there isn't a channel to send messages rs
-    if (!message.channel) {
-      return { content: 'Player foi parado!' };
-    }
+    if (!message.channel) return { content: 'Player foi parado!' };
+
     return await message.channel.send(`Player foi parado!`);
   };
 
