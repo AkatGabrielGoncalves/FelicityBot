@@ -90,6 +90,9 @@ export class MusicPlayer extends PlayerQueue {
    * Stop or play the next song. */
   private playerDecisionMaker = async () => {
     try {
+      if (this.conn && this.conn.state.status === 'destroyed')
+        return await this.internalStop(this.message);
+
       const playerIsReady = () => this.conn?.state.status === 'ready';
 
       if (this.channel.members.size === 1) return await this.internalStop(this.message);
