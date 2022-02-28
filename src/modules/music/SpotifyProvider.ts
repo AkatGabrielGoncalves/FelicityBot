@@ -137,25 +137,6 @@ class SpotifyProvider extends SpotifyAuth {
       name: item.name,
     }));
   };
-
-  public readonly isAValidSpotifyUrl = (
-    url: string
-  ): { type: 'track' | 'playlist' | 'album'; id: string } | null => {
-    const spotifyIdRegex =
-      /^(?:(?:http|https)(?::\/\/))?(?:open|play)\.spotify\.com\/(?:user\/spotify\/)?(track|playlist|album)\/([\w\d]+)/;
-
-    const isValid = spotifyIdRegex.test(url);
-
-    if (isValid) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const [_, type, id] = url.match(spotifyIdRegex) as RegExpMatchArray;
-      return {
-        type,
-        id,
-      } as { type: 'track' | 'playlist' | 'album'; id: string };
-    }
-    return null;
-  };
 }
 
 export default new SpotifyProvider();
