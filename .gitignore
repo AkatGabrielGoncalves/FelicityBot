@@ -3,3 +3,4 @@ node_modules
 dist
 db
 src/modules/serverInfo.json
+.idea

@@ -4,7 +4,7 @@ import ytpl from 'ytpl';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { QueueItem } from './interfaces/QueueItem';
-import spotifyAuth from './SpotifyAuth';
+import sp from './SpotifyProvider';
 import Logger from '../../logger/Logger';
 import yt from './YoutubeTracks';
 
@@ -30,10 +30,10 @@ export class PlayerQueue {
     this.queuePosition = 0;
   }
 
-  addToQueue = async (client: Client, message: Message, args: string[]) => {
+  protected readonly addToQueue = async (client: Client, message: Message, args: string[]) => {
     const searchStringOrUrl = args.join(' ');
 
-    const isASpotifyUrl = spotifyAuth.isAValidSpotifyUrl(searchStringOrUrl);
+    const isASpotifyUrl = sp.isAValidSpotifyUrl(searchStringOrUrl);
     const isAYtPlaylist = ytpl.validateID(searchStringOrUrl);
     const isAYtVideo = ytdl.validateURL(searchStringOrUrl);
 
@@ -43,30 +43,46 @@ export class PlayerQueue {
         argsType = 'Spotify Playlist/Track';
         const { type, id } = isASpotifyUrl;
 
-        if (type !== 'playlist') return await message.reply('Somente playlist são suportadas.');
+        if (type !== 'playlist' && type !== 'track' && type !== 'album')
+          return await message.reply('Link do spotify não suportado');
+
+        const spotifyTypesFunctions = {
+          playlist: {
+            getItems: sp.getPlaylistFromSpotify,
+            getTrack: yt.getTrackFromSearch,
+          },
+          album: {
+            getItems: sp.getAlbumFromSpotify,
+            getTrack: yt.getTrackFromSearch,
+          },
+          track: {
+            getItems: sp.getTrackFromSpotify,
+            getTrack: yt.getTrackFromSearch,
+          },
+        };
 
         Logger.start(
           `spotify${message.guildId}`,
           'DEBUG',
-          'Adding spotify playlist to queue',
+          `Adding spotify ${type} to queue`,
           new Error()
         );
 
-        const items = await spotifyAuth.getPlaylistFromSpotify(id);
+        const { getItems, getTrack } = spotifyTypesFunctions[type];
 
-        const tracks = await Promise.all(
-          items.map((item) => yt.getTrackFromSearch(item.track.artists[0].name + item.track.name))
-        );
+        const items = await getItems(id);
+
+        const tracks = await Promise.all(items.map((item) => getTrack(item)));
         this.queue.push(...tracks);
 
         Logger.finish(
           `spotify${message.guildId}`,
           'DEBUG',
-          `Finished adding spotify playlist to queue. Spotify link: ${searchStringOrUrl}`,
+          `Finished adding spotify ${type} to queue. Spotify link: ${searchStringOrUrl}`,
           new Error()
         );
 
-        return await message.reply('Playlist do spotify adicionada!');
+        return await message.reply(`${type} do spotify adicionado(a)!`);
       }
 
       if (isAYtPlaylist) {
@@ -108,7 +124,7 @@ export class PlayerQueue {
     }
   };
 
-  getNextSong = () => {
+  protected readonly getNextSong = () => {
     if (this.loopState) {
       if (this.queuePosition <= this.queue.length) this.queuePosition += 1;
       if (this.queuePosition > this.queue.length) this.queuePosition = 1;
@@ -117,7 +133,7 @@ export class PlayerQueue {
     return this.queue.shift();
   };
 
-  showQueue = async (client: Client, message: Message) => {
+  protected readonly showQueue = async (client: Client, message: Message) => {
     if (this.currentlyPlaying !== null) {
       if (this.queueMessage) {
         await this.queueMessage.delete();
@@ -138,7 +154,7 @@ export class PlayerQueue {
     return { content: 'Queue embed deleted or never existed in the first place...' };
   };
 
-  shuffleQueue = async (message: Message) => {
+  protected readonly shuffleQueue = async (message: Message) => {
     for (let i = this.queue.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
@@ -146,7 +162,7 @@ export class PlayerQueue {
     return await message.reply('A fila foi embaralhada!');
   };
 
-  private awaitReactions = async (
+  private readonly awaitReactions = async (
     filter: (reaction: MessageReaction, user: any) => boolean,
     message: Message
   ) => {
@@ -185,6 +201,6 @@ export class PlayerQueue {
       });
   };
 
-  private createQueueEmbed = async (message: Message) =>
+  private readonly createQueueEmbed = async (message: Message) =>
     createQueueEmbed(message, this.currentlyPlaying as QueueItem, this.queue, this.queuePage);
 }

@@ -11,7 +11,7 @@ class YoutubeTracks {
     this.searchOptions = { limit: 3, maxRetries: 5 };
   }
 
-  private songObject = {
+  private readonly songObject = {
     // ytpl format
     ytPlaylist: (song: ytpl.Item): QueueItem => ({
       url: song.shortUrl,
@@ -35,12 +35,12 @@ class YoutubeTracks {
     }),
   };
 
-  public getTrackFromPlaylist = async (playlistURL: string): Promise<QueueItem[]> => {
+  public readonly getTrackFromPlaylist = async (playlistURL: string): Promise<QueueItem[]> => {
     const { items } = await ytpl(playlistURL, this.searchOptions);
     return items.map((item) => this.songObject.ytPlaylist(item));
   };
 
-  public getTrackFromURL = async (trackURL: string): Promise<QueueItem> => {
+  public readonly getTrackFromURL = async (trackURL: string): Promise<QueueItem> => {
     const youtubeUrl = 'https://www.youtube.com/watch?v=';
     const videoId = ytdl.getURLVideoID(trackURL);
     const track = await ytdl.getBasicInfo(youtubeUrl + videoId, {
@@ -53,7 +53,7 @@ class YoutubeTracks {
     return this.songObject.ytVideo(track);
   };
 
-  public getTrackFromSearch = async (search: string): Promise<QueueItem> => {
+  public readonly getTrackFromSearch = async (search: string): Promise<QueueItem> => {
     const { items } = await ytsr(search, this.searchOptions);
     const track = items.find((item) => item.type === 'video') as YouTubeResultItem;
     return this.songObject.ytSearch(track);
