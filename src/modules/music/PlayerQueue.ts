@@ -133,7 +133,7 @@ export class PlayerQueue {
     return this.queue.shift();
   };
 
-  protected readonly showQueue = async (client: Client, message: Message) => {
+  public readonly showQueue = async (client: Client, message: Message) => {
     if (this.currentlyPlaying !== null) {
       if (this.queueMessage) {
         await this.queueMessage.delete();
@@ -154,7 +154,7 @@ export class PlayerQueue {
     return { content: 'Queue embed deleted or never existed in the first place...' };
   };
 
-  protected readonly shuffleQueue = async (message: Message) => {
+  public readonly shuffleQueue = async (message: Message) => {
     for (let i = this.queue.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
