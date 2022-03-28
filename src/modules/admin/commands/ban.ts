@@ -1,5 +1,6 @@
 import { getUserAndAuthor } from '../../../utils/modules/commands/getUserAndAuthor';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
+import { basicReply } from '../../../utils/basicReply';
 
 class HandleBan implements ICommand {
   type: string;
@@ -33,15 +34,15 @@ class HandleBan implements ICommand {
   }
 
   execute = async ({ client, message, args }: IExecuteParameters) => {
-    if (!args[0]) return await message.reply('?');
+    if (!args[0]) return basicReply(message, '?', 'info');
 
     const { mentionUser, mentionMember, authorUser } = await getUserAndAuthor(message);
 
     if (!mentionUser || !mentionMember)
-      return await message.reply('Por favor, um usuário válido, sim?');
+      return basicReply(message, 'Por favor, um usuário válido, sim?', 'info');
 
     if (mentionUser && (mentionUser.id === client.user?.id || mentionUser.id === authorUser.id))
-      return await message.reply('Haha boa tentativa.');
+      return basicReply(message, 'Haha boa tentativa.', 'info');
 
     if (message.mentions.everyone) {
       // This is a map so I can take the array to assert my tests.
@@ -59,11 +60,11 @@ class HandleBan implements ICommand {
 
     try {
       await mentionMember?.ban();
-      return await message.channel.send(`Auf Wiedersehen, <@${mentionUser?.id}>`);
+      return basicReply(message, `Auf Wiedersehen, <@${mentionUser?.id}>`, 'success');
     } catch (err) {
       return mentionUser
-        ? await message.reply(`Eu acho que... eu não consigo banir <@${mentionUser.id}>!`)
-        : await message.reply(`Esse usuário não existe!`);
+        ? basicReply(message, `Eu acho que... eu não consigo banir <@${mentionUser.id}>!`, 'error')
+        : basicReply(message, `Esse usuário não existe!`, 'error');
     }
   };
 }

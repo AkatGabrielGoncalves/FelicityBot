@@ -17,6 +17,7 @@ import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
 import Logger from '../../logger/Logger';
 import { ICustomClient } from '../../interfaces/customInterfaces';
+import { basicReply } from '../../utils/basicReply';
 
 export const connections: Record<string, MusicPlayer> = {};
 
@@ -162,7 +163,7 @@ export class MusicPlayer extends PlayerQueue {
     } catch (err: any) {
       Logger.log('ERROR', 'There was an error while trying to play the song.', err);
       await this.playerDecisionMaker();
-      return await this.message.reply(`Ocorreu um erro ao tentar reproduzir o video!`);
+      return basicReply(this.message, `Ocorreu um erro ao tentar reproduzir o video!`, 'error');
     }
   };
 
@@ -179,8 +180,10 @@ export class MusicPlayer extends PlayerQueue {
         this.conn = connectToChannel(message.member?.voice.channel);
         this.channel = message.member.voice.channel;
       } else {
-        return await message.reply(
-          `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+        return basicReply(
+          message,
+          `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+          'info'
         );
       }
     }
@@ -196,8 +199,10 @@ export class MusicPlayer extends PlayerQueue {
     if (!argsExist) return { content: 'No argument' };
 
     if (this.queue.length > 200) {
-      return await message.reply(
-        `Já tem muita música na fila! Não vou adicionar mais, meu caderninho ta cheio!`
+      return basicReply(
+        message,
+        `Já tem muita música na fila! Não vou adicionar mais, meu caderninho ta cheio!`,
+        'info'
       );
     }
     try {
@@ -214,13 +219,15 @@ export class MusicPlayer extends PlayerQueue {
 
   next = async (message: Message) => {
     if (message.member?.voice.channel !== this.channel) {
-      return await message.reply(
-        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      return basicReply(
+        message,
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+        'info'
       );
     }
 
     this.player.stop(true);
-    return await message.channel.send(`Tocando próxima música!`);
+    return basicReply(message, `Tocando próxima música!`, 'success');
   };
 
   private internalStop = async (message: Message) => {
@@ -242,8 +249,10 @@ export class MusicPlayer extends PlayerQueue {
 
   stop = async (message: Message) => {
     if (message.member?.voice.channel !== this.channel) {
-      return await message.reply(
-        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      return basicReply(
+        message,
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+        'info'
       );
     }
 
@@ -252,13 +261,15 @@ export class MusicPlayer extends PlayerQueue {
 
   pause = async (message: Message) => {
     if (message.member?.voice.channel !== this.channel) {
-      return await message.reply(
-        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      return basicReply(
+        message,
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+        'info'
       );
     }
 
     this.player.pause();
-    return await message.channel.send(`Player foi pausado!`);
+    return basicReply(message, `Player foi pausado!`, 'info');
   };
 
   /** The remove command is kind of funny because if the person desires,
@@ -269,17 +280,23 @@ export class MusicPlayer extends PlayerQueue {
    * so it starts at 0. */
   remove = async (message: Message, args: string[]) => {
     if (message.member?.voice.channel !== this.channel) {
-      return await message.reply(
-        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      return basicReply(
+        message,
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+        'info'
       );
     }
 
     const index = Number(args[0]);
     if (index > this.queue.length) {
-      return await message.reply(`Não existe música na posição ${index}`);
+      return basicReply(message, `Não existe música na posição ${index}`, 'info');
     }
     const removedSong = this.queue.splice(index - 1, 1);
-    return await message.reply(`Removida a música na posição: ${index}: ${removedSong[0].title}`);
+    return basicReply(
+      message,
+      `Removida a música na posição: ${index}: ${removedSong[0].title}`,
+      'success'
+    );
   };
 
   /** This loop is not perfect, if someone uses the command multiples times,
@@ -287,8 +304,10 @@ export class MusicPlayer extends PlayerQueue {
    * desirable outcome. */
   loop = async (message: Message) => {
     if (message.member?.voice.channel !== this.channel) {
-      return await message.reply(
-        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`
+      return basicReply(
+        message,
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+        'info'
       );
     }
 
@@ -298,8 +317,8 @@ export class MusicPlayer extends PlayerQueue {
       this.queue.unshift(this.currentlyPlaying);
     }
     if (this.loopState) {
-      return message.reply(`Loop foi ativado!`);
+      return basicReply(message, `Loop foi ativado!`, 'success');
     }
-    return message.reply(`Loop foi desativado!`);
+    return basicReply(message, `Loop foi desativado!`, 'success');
   };
 }

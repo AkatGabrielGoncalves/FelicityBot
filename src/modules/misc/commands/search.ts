@@ -1,4 +1,5 @@
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
+import { basicReply } from '../../../utils/basicReply';
 
 class HandleSearch implements ICommand {
   type: string;
@@ -30,7 +31,7 @@ class HandleSearch implements ICommand {
 
   execute = async ({ message, args }: IExecuteParameters) => {
     if (!args.join('')) {
-      return message.reply('Eu preciso de uma regex pra fazer a busca! :(');
+      return basicReply(message, 'Eu preciso de uma regex pra fazer a busca! :(', 'info');
     }
 
     const regex = new RegExp(args[0]);
@@ -45,9 +46,9 @@ class HandleSearch implements ICommand {
     });
 
     if (!foundMessage) {
-      return message.reply('Não encontrei nada :(');
+      return basicReply(message, 'Não encontrei nada :(', 'info');
     }
-    return message.reply(`Encontrei uma mensagem! aqui: ${foundMessage.url}`);
+    return basicReply(message, `Encontrei uma mensagem! aqui: ${foundMessage.url}`, 'success');
   };
 }
 

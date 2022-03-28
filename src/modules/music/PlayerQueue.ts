@@ -1,6 +1,7 @@
 import { Client, Message, MessageReaction } from 'discord.js';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
+import { basicReply } from '../../utils/basicReply';
 import { addToQueueEmbed } from './embeds/addToQueueEmbed';
 import { createQueueEmbed } from './embeds/createQueueEmbed';
 import { QueueItem } from './interfaces/QueueItem';
@@ -44,7 +45,7 @@ export class PlayerQueue {
         const { type, id } = isASpotifyUrl;
 
         if (type !== 'playlist' && type !== 'track' && type !== 'album')
-          return await message.reply('Link do spotify não suportado');
+          return basicReply(message, 'Link do spotify não suportado', 'info');
 
         const spotifyTypesFunctions = {
           playlist: {
@@ -82,7 +83,7 @@ export class PlayerQueue {
           new Error()
         );
 
-        return await message.reply(`${type} do spotify adicionado(a)!`);
+        return basicReply(message, `${type} do spotify adicionado(a)!`, 'success');
       }
 
       if (isAYtPlaylist) {
@@ -90,7 +91,7 @@ export class PlayerQueue {
         const tracks = await yt.getTrackFromPlaylist(searchStringOrUrl);
         this.queue.push(...tracks);
 
-        return await message.reply(`A playlist foi adicionada!`);
+        return basicReply(message, 'A playlist foi adicionada!', 'success');
       }
 
       if (isAYtVideo) {
@@ -118,8 +119,10 @@ export class PlayerQueue {
       return { content: 'Song added to queue.' };
     } catch (err: any) {
       Logger.log('ERROR', `There was an error trying to add this: ${searchStringOrUrl}.`, err);
-      return await message.reply(
-        `Ocorreu um erro ao tentarmos adicionar um/uma ${argsType}, é realmente válido/válida?`
+      return basicReply(
+        message,
+        `Ocorreu um erro ao tentarmos adicionar um/uma ${argsType}, é realmente válido/válida?`,
+        'error'
       );
     }
   };
@@ -159,7 +162,7 @@ export class PlayerQueue {
       const j = Math.floor(Math.random() * (i + 1));
       [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
     }
-    return await message.reply('A fila foi embaralhada!');
+    return basicReply(message, 'A fila foi embaralhada!', 'success');
   };
 
   private readonly awaitReactions = async (

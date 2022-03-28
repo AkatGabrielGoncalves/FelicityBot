@@ -1,5 +1,6 @@
 import { setServer } from '../../../database/queries/server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
+import { basicReply } from '../../../utils/basicReply';
 
 class HandlePrefix implements ICommand {
   type: string;
@@ -32,16 +33,18 @@ class HandlePrefix implements ICommand {
   execute = async ({ client, message, args }: IExecuteParameters) => {
     const arg = args.join('');
     if (!arg || arg.length < 0 || arg.length > 2)
-      return await message.reply(
-        'Alguma coisa tem que ser meu prefixo! São só um ou dois caracteres!'
+      return basicReply(
+        message,
+        'Alguma coisa tem que ser meu prefixo! São só um ou dois caracteres!',
+        'info'
       );
 
     try {
       await setServer(client, message.guild?.id as string, arg);
 
-      return await message.reply(`Prefixo trocado para: ${arg}`);
+      return basicReply(message, `Prefixo trocado para: ${arg}`, 'success');
     } catch (err) {
-      return await message.reply('Não foi possivel mudar o prefixo :(');
+      return basicReply(message, 'Não foi possivel mudar o prefixo :(', 'error');
     }
   };
 }

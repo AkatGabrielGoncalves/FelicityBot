@@ -1,4 +1,5 @@
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
+import { basicReply } from '../../../utils/basicReply';
 
 // This is the function that will ban an member
 class HandleUnban implements ICommand {
@@ -33,11 +34,11 @@ class HandleUnban implements ICommand {
   }
 
   execute = async ({ message, args }: IExecuteParameters) => {
-    if (!args[0]) return await message.reply('?');
+    if (!args[0]) return basicReply(message, '?', 'info');
 
     const bans = await message.guild?.bans.fetch();
 
-    if (!bans) return await message.reply('Não tem ninguém banido aqui!!');
+    if (!bans) return basicReply(message, 'Não tem ninguém banido aqui!!', 'info');
 
     if (message.mentions.everyone) {
       // This is a map so I can take the array to assert my tests.
@@ -54,13 +55,14 @@ class HandleUnban implements ICommand {
     }
 
     const bannedUser = bans.find((ban) => ban.user.id === args[0]);
-    if (!bannedUser) return message.reply(`Não existe nenhum usuário banido com esse ID!`);
+    if (!bannedUser)
+      return basicReply(message, `Não existe nenhum usuário banido com esse ID!`, 'info');
 
     try {
       await message.guild?.members.unban(bannedUser.user);
-      return await message.channel.send(`O <@${bannedUser.user.id}> está desbanido!`);
+      return basicReply(message, `O <@${bannedUser.user.id}> está desbanido!`, 'success');
     } catch (err) {
-      return await message.reply(`Não consegui desbanir esse usuário!`);
+      return basicReply(message, `Não consegui desbanir esse usuário!`, 'error');
     }
   };
 }

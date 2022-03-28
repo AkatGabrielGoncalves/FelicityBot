@@ -1,5 +1,6 @@
 import { IExecuteParameters, IPermissions } from '../interfaces/customInterfaces';
 import Logger from '../logger/Logger';
+import { basicReply } from '../utils/basicReply';
 
 export const permissionsHandler =
   (commandFunction: Function, userPermissions: IPermissions, botPermissions: IPermissions) =>
@@ -13,8 +14,10 @@ export const permissionsHandler =
     );
 
     if (!botHaveUniquePermission && botPermissions.atLeastOne[0]) {
-      return message.reply(
-        `Eu não tenho pelo menos uma dessas permissões! ${botPermissions.atLeastOne}`
+      return basicReply(
+        message,
+        `Eu não tenho pelo menos uma dessas permissões! ${botPermissions.atLeastOne}`,
+        'info'
       );
     }
 
@@ -23,8 +26,10 @@ export const permissionsHandler =
     );
 
     if (botMissingPermissions[0]) {
-      return message.reply(
-        `Eu não tenho as seguintes permissões necessárias para executar esse comando: ${botMissingPermissions}`
+      return basicReply(
+        message,
+        `Eu não tenho as seguintes permissões necessárias para executar esse comando: ${botMissingPermissions}`,
+        'info'
       );
     }
 
@@ -35,8 +40,10 @@ export const permissionsHandler =
     );
 
     if (!userHaveUniquePermission && userPermissions.atLeastOne[0]) {
-      return message.reply(
-        `Você não tem pelo menos uma dessas permissões! ${userPermissions.atLeastOne}`
+      return basicReply(
+        message,
+        `Você não tem pelo menos uma dessas permissões! ${userPermissions.atLeastOne}`,
+        'info'
       );
     }
 
@@ -45,8 +52,10 @@ export const permissionsHandler =
     );
 
     if (userMissingPermissions[0]) {
-      return message.reply(
-        `Você não tem as seguintes permissões necessárias para executar esse comando: ${userMissingPermissions}`
+      return basicReply(
+        message,
+        `Você não tem as seguintes permissões necessárias para executar esse comando: ${userMissingPermissions}`,
+        'info'
       );
     }
 
