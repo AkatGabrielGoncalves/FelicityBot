@@ -26,7 +26,7 @@ export interface IPermissions {
 }
 export interface ICustomClient extends Client {
   readonly commandsCategoriesMap: Map<String, ICommand[]>;
-  readonly commandsMap: Map<String, { handler: ICommand; execute: Function }>;
+  readonly commandsMap: Map<String, ICommand>;
   readonly db: Database | null;
 
   serverCache: Map<string, string>;

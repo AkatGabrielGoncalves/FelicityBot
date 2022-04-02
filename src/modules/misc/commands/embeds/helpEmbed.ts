@@ -22,7 +22,7 @@ export const defaultEmbed = (client: ICustomClient) => {
 export const specificEmbed = (client: ICustomClient, command: string) => {
   const embedFields: EmbedFieldData[] = [];
 
-  const handler = client.commandsMap.get(command)?.handler as ICommand;
+  const handler = client.commandsMap.get(command) as ICommand;
 
   const aliasField = {
     name: 'Apelido',

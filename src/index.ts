@@ -5,14 +5,15 @@ dotenv.config();
 
 import Logger from './logger/Logger';
 import intents from './intents';
-import { commandsHandler } from './modules/commandsHandler';
 import { CustomClient } from './CustomClient';
 import { addServer, deleteServer, getServers } from './database/queries/server';
+import { CommandHandler } from './modules/CommandHandler';
 
 const client = new CustomClient({ intents });
+const commandHandler = new CommandHandler(client);
 
 client.on('messageCreate', (message) => {
-  commandsHandler(client, message);
+  commandHandler.main(message);
 });
 
 client.on('guildDelete', (guild) => {

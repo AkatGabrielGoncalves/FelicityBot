@@ -3,7 +3,6 @@ import Logger from '../logger/Logger';
 import { adminCommandHandlers } from './admin';
 import { miscCommandHandlers } from './misc';
 import { musicCommandHandlers } from './music';
-import { permissionsHandler } from './permissionsHandler';
 
 // All command handlers should be listed here from the modules
 const commandsHandlers: Record<string, ICommand[]> = {
@@ -14,7 +13,7 @@ const commandsHandlers: Record<string, ICommand[]> = {
 
 export const mapCommands = () => {
   const commandsCategoriesMap: Map<String, ICommand[]> = new Map();
-  const commandsMap: Map<String, { handler: ICommand; execute: Function }> = new Map();
+  const commandsMap: Map<String, ICommand> = new Map();
   Logger.start('mapcommands', 'DEBUG', 'Mapping all commands and aliases.', new Error());
   Object.keys(commandsHandlers).forEach((category) => {
     commandsCategoriesMap.set(category, commandsHandlers[category]);
@@ -24,14 +23,7 @@ export const mapCommands = () => {
           `There are multiple commands with the same name or alias. Alias or command that gave the error: ${handler.command}`
         );
 
-      commandsMap.set(handler.command, {
-        handler,
-        execute: permissionsHandler(
-          handler.execute,
-          handler.userPermissions,
-          handler.botPermissions
-        ),
-      });
+      commandsMap.set(handler.command, handler);
       // Set command alias
       handler.alias.forEach((alias) => {
         if (commandsMap.has(alias))
@@ -39,14 +31,7 @@ export const mapCommands = () => {
             `There are multiple commands with the same name or alias. Alias or command that gave the error: ${alias}`
           );
 
-        commandsMap.set(alias, {
-          handler,
-          execute: permissionsHandler(
-            handler.execute,
-            handler.userPermissions,
-            handler.botPermissions
-          ),
-        });
+        commandsMap.set(alias, handler);
       });
     });
   });
