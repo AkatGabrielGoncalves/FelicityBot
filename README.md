@@ -1,6 +1,6 @@
 # Felicity Bot
 
-This bot is being made as a generalist bot for Discord, so expect some cool features in the future.
+This bot is being made as a generalist bot for Discord. But it mainly plays music from youtube and can understand spotify playlists. Made it for fun. Not commercial use.
 
 ## **If you have an idea or a problem, open an issue! Or you can reach out to me on discord: ライケン#6249**
 
@@ -8,12 +8,12 @@ This bot is being made as a generalist bot for Discord, so expect some cool feat
 
 # How do I run it?
 
-**Node 14.x LTS REQUIRED**
+**Node 16.x LTS REQUIRED**
 
-- Install dependencies
+- Install dependencies. ( [yarn](https://yarnpkg.com/getting-started/install) required )
 
 ```
-yarn --ignore-engines
+yarn
 ```
 
 - Get your Discord Bot Token from [Discord Developers](https://discord.com/developers/)
@@ -28,25 +28,35 @@ yarn --ignore-engines
 
 ```
 # Copy your bot token here and remove the .example from this archive! =)
-BOT_TOKEN= *YOUR BOT TOKEN GOES HERE*
+BOT_TOKEN=
 
-#YOUTUBE LOGIN COOKIE // OPCIONAL
+#YOUTUBE LOGIN COOKIE
 YOUTUBE_LOGIN_COOKIE=
 
 #DISABLE YTDL UPDATE CHECK
 YTDL_NO_UPDATE=FALSE
 
-#USE A SQL DATABASE? // TRUE TO USE IT, FALSE OR ANYTHING ELSE TO NOT USE
-USESQLDB=FALSE
-
-#DATABASE CONFIG //OPCIONAL
-DBHOST=
-DBPORT=3306
-DBNAME=
-DBUSERNAME=
-DBPASSWORD=
-DBDIALECT=mysql
+#DATABASE CONFIG
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=
+DB_USERNAME=root
+DB_PASSWORD=
+DB_DIALECT=
 #one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' // anything that works with sequelize
+DB_LOGGING=FALSE #Leave it this way
+
+#DISCORD WEBHOOK URI FOR LOGGING IN A CHANNEL
+DISCORD_WEBHOOK_URI_USE=FALSE
+DISCORD_WEBHOOK_URI=
+DISCORD_WEBHOOK_USER_ID=
+
+#TURN ON DEBUG? // TRUE TO USE IT, FALSE OR ANYTHING ELSE TO NOT USE
+DEBUG_MODE=FALSE
+
+#SPOTIFY CLIENT
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
 ```
 
 - Now you can use this command to start your bot locally:
@@ -69,31 +79,24 @@ yarn build
 
 ---
 
-# Where the per server configuration is saved?
+# Using a Relational Database
 
-- The per server configuration is saved at /src/database/db.json
-
----
-
-# Can I use a real database?
-
-- Yes, you can, but only **relational databases** like mySQL.
 - To setup your database you need to fill these fields inside your .env file:
 
 ```
-#DATABASE CONFIG //OPCIONAL
-DBHOST=
-DBPORT=
-DBNAME=
-DBUSERNAME=
-DBPASSWORD=
-DBDIALECT=
+#DATABASE CONFIG
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=
+DB_USERNAME=root
+DB_PASSWORD=
+DB_DIALECT=
 #one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' // anything that works with sequelize
+DB_LOGGING=FALSE #Leave it this way
 ```
 
 - The app will handle the creation of the database, if the user you are going to use don't have permissions to create a database, create it before hand.
 
-- **Obs: No configuration from db.json will be copied to this database, if you want, you would need to do it manually.**
 
 ---
 
@@ -150,7 +153,7 @@ class HandleHelp implements ICommand {
       mustHave: [], // BOT MUST HAVE ALL PERMISSIONS LISTED HERE
     };
     this.userPermissions = {
-      // HERE YOU NEED TO WRITE THE PERMISSIONS THAT THE USER WHO MADE THE COMMAND NEEDS TO HAVE
+      // HERE YOU NEED TO WRITE THE PERMISSIONS THAT THE USER WHO USED THE COMMAND NEEDS TO HAVE
       atLeastOne: [], // USER MUST HAVE AT LEAST ONE PERMISSION FROM THIS ARRAY
       mustHave: [], // USER MUST HAVE ALL PERMISSIONS LISTED HERE
     };
