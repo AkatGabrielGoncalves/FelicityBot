@@ -138,7 +138,7 @@ export class MusicPlayer extends PlayerQueue {
         {
           output: '-',
           format:
-            'bestaudio[ext=webm+acodec=opus+tbr>100]/bestaudio[ext=webm+acodec=opus]/bestaudio/best',
+            'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
           limitRate: '1M',
           rmCacheDir: true,
           verbose: true,
