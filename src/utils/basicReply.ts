@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder as MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder as MessageEmbed, InteractionResponse } from 'discord.js';
 import { embedColors } from './embedColors';
 
 export const basicReply = (
@@ -11,6 +11,12 @@ export const basicReply = (
   const embed = new MessageEmbed()
     .setDescription(reply[0].toUpperCase() + reply.slice(1))
     .setColor(color);
+
+  if (message instanceof InteractionResponse) {
+    return message.interaction.channel?.send({ embeds: [embed] }) as unknown as Promise<
+      Message<boolean>
+    >;
+  }
 
   return message.reply({ embeds: [embed] });
 };

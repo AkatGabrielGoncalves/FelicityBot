@@ -1,9 +1,15 @@
-import { Client, Message, MessageReaction } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  Client,
+  ComponentType,
+  Message,
+} from 'discord.js';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import { basicReply } from '../../utils/basicReply';
-import { addToQueueEmbed } from './embeds/addToQueueEmbed';
-import { createQueueEmbed } from './embeds/createQueueEmbed';
+import { createQueueButton, createQueueEmbed } from './embeds/createQueueEmbed';
 import { QueueItem } from './interfaces/QueueItem';
 import sp from './SpotifyProvider';
 import Logger from '../../logger/Logger';
@@ -64,51 +70,52 @@ export class PlayerQueue {
 
         Logger.debug(`Adding spotify ${type} to queue`);
 
+        const addingMessage = await basicReply(
+          message,
+          `Adicionando ${type} do spotify...`,
+          'success'
+        );
+
         const { getItems, getTrack } = spotifyTypesFunctions[type];
 
-        const items = await getItems(id);
+        const { items, title, url } = await getItems(id);
 
-        const tracks = await Promise.all(items.map((item) => getTrack(item)));
-        this.queue.push(...tracks);
+        const tracksInfo = await Promise.all(items.map((item) => getTrack(item)));
+        this.queue.push(...tracksInfo.map((info) => info.track));
 
         Logger.debug(
           `Finished adding spotify ${type} to queue. Spotify link: ${searchStringOrUrl}`
         );
 
-        return basicReply(message, `${type} do spotify adicionado(a)!`, 'success');
+        return basicReply(
+          addingMessage,
+          `${type} do spotify adicionado(a)!\n[${title}](${url})`,
+          'success'
+        );
       }
 
       if (isAYtPlaylist) {
         argsType = 'Youtube Playlist';
-        const tracks = await yt.getTrackFromPlaylist(searchStringOrUrl);
+        const { tracks, title, url } = await yt.getTrackFromPlaylist(searchStringOrUrl);
         this.queue.push(...tracks);
 
-        return basicReply(message, 'A playlist foi adicionada!', 'success');
+        return basicReply(message, `A playlist foi adicionada!\n[${title}](${url})`, 'success');
       }
 
       if (isAYtVideo) {
         argsType = 'Youtube Track';
-        const track = await yt.getTrackFromURL(searchStringOrUrl);
+        const { track, title, url } = await yt.getTrackFromURL(searchStringOrUrl);
         this.queue.push(track);
 
-        if (this.currentlyPlaying !== null) {
-          const embed = addToQueueEmbed(message, this.currentlyPlaying, track, this.queue);
-          return await message.reply({ embeds: [embed] });
-        }
-        return { content: 'Song added to queue.' };
+        return basicReply(message, `O video foi adicionado!\n[${title}](${url})`, 'success');
       }
 
       argsType = 'Pesquisa';
-      const track = await yt.getTrackFromSearch(searchStringOrUrl);
+      const { track, title, url } = await yt.getTrackFromSearch(searchStringOrUrl);
 
       this.queue.push(track);
 
-      if (this.currentlyPlaying !== null) {
-        const embed = addToQueueEmbed(message, this.currentlyPlaying, track, this.queue);
-        return await message.reply({ embeds: [embed] });
-      }
-
-      return { content: 'Song added to queue.' };
+      return basicReply(message, `O video foi adicionado!\n[${title}](${url})`, 'success');
     } catch (err: any) {
       Logger.error(`There was an error trying to add this: ${searchStringOrUrl}.`, err);
       return basicReply(
@@ -137,14 +144,22 @@ export class PlayerQueue {
       }
       const embed = await this.createQueueEmbed(message);
 
-      const filter = (reaction: MessageReaction, user: any) =>
-        ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id !== client.user?.id;
+      const filter = (interaction: ButtonInteraction) =>
+        interaction.isButton() && !interaction.component.disabled;
 
-      this.queueMessage = await message.reply({ embeds: [embed] });
-      await this.queueMessage.react('⬅️');
-      await this.queueMessage.react('➡️');
+      const previousButton = createQueueButton('Previous Page', true);
+      const nextButton = createQueueButton('Next Page', this.queue.length < this.queuePage + 10);
 
-      await this.awaitReactions(filter, message);
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents([previousButton, nextButton]);
+
+      this.queueMessage = await message.reply({
+        embeds: [embed],
+        components: [row],
+        // @ts-ignore
+        fetchReply: true,
+      });
+
+      await this.awaitButtonRes(filter, message);
     }
     return { content: 'Queue embed deleted or never existed in the first place...' };
   };
@@ -157,35 +172,63 @@ export class PlayerQueue {
     return basicReply(message, 'A fila foi embaralhada!', 'success');
   };
 
-  private readonly awaitReactions = async (
-    filter: (reaction: MessageReaction, user: any) => boolean,
+  private readonly awaitButtonRes = async (
+    filter: (interaction: ButtonInteraction) => boolean,
     message: Message
   ) => {
     await this.queueMessage
-      ?.awaitReactions({ filter, max: 1, time: 30000, errors: ['time'] })
-      .then(async (collected) => {
-        const reaction = collected.first();
-        if (reaction?.emoji.name === '➡️') {
-          if (this.queue.length < this.queuePage + 10) await this.awaitReactions(filter, message);
-          this.queuePage += 10;
+      ?.awaitMessageComponent({
+        filter,
+        componentType: ComponentType.Button,
+        time: 30000,
+      })
+      .then(async (interaction: ButtonInteraction) => {
+        if (interaction.component.label === 'Next Page') {
+          if (this.queue.length > this.queuePage + 10) {
+            this.queuePage += 10;
+          }
+
           const nextEmbed = await this.createQueueEmbed(message);
+          const previousButton = createQueueButton('Previous Page', false);
+          const nextButton = createQueueButton(
+            'Next Page',
+            this.queue.length < this.queuePage + 10
+          );
 
-          await this.queueMessage?.edit({
+          const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
+            previousButton,
+            nextButton,
+          ]);
+
+          await interaction.update({
             embeds: [nextEmbed],
+            components: [row],
           });
-          await this.awaitReactions(filter, message);
+          await this.awaitButtonRes(filter, message);
         }
-        if (reaction?.emoji.name === '⬅️') {
-          if (this.queuePage === 0) await this.awaitReactions(filter, message);
-          this.queuePage -= 10;
-          const backEmbed = await this.createQueueEmbed(message);
+        if (interaction.component.label === 'Previous Page') {
+          if (this.queuePage > 0) {
+            this.queuePage -= 10;
+          }
 
-          await this.queueMessage?.edit({
+          const backEmbed = await this.createQueueEmbed(message);
+          const previousButton = createQueueButton('Previous Page', this.queuePage === 0);
+          const nextButton = createQueueButton(
+            'Next Page',
+            this.queue.length < this.queuePage + 10
+          );
+
+          const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
+            previousButton,
+            nextButton,
+          ]);
+
+          await interaction.update({
             embeds: [backEmbed],
+            components: [row],
           });
-          await this.awaitReactions(filter, message);
+          await this.awaitButtonRes(filter, message);
         }
-        await this.awaitReactions(filter, message);
       })
       .catch(async () => {
         if (this.queueMessage) {
