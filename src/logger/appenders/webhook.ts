@@ -5,14 +5,19 @@ function stdoutAppender(layout: log4js.LayoutFunction, timezoneOffset: any) {
   return (loggingEvent: log4js.LoggingEvent) => {
     if (webhook) {
       // @ts-ignore
-      webhook.sendLog(`${layout(loggingEvent, timezoneOffset)}\n`);
+      webhook.addMessage(layout(loggingEvent, timezoneOffset));
     }
   };
 }
 
 // stdout configure doesn't need to use findAppender, or levels
 function configure(config: log4js.Config, layouts: log4js.LayoutsParam) {
-  const layout = layouts.patternLayout;
+  let layout = layouts.patternLayout;
+
+  if (config.layout) {
+    // load the layout
+    layout = layouts.layout(config.layout.type, config.layout);
+  }
 
   return stdoutAppender(layout, config.timezoneOffset);
 }

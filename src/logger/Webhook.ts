@@ -2,23 +2,33 @@
 import axios from 'axios';
 
 class Webhook {
-  webhookURI: string;
+  private webhookURI: string;
 
-  userID: string;
+  private userID: string;
+
+  private messages: string[];
 
   constructor() {
+    this.messages = [];
     this.webhookURI = process.env.DISCORD_WEBHOOK_URI as string;
     this.userID = process.env.DISCORD_WEBHOOK_USER_ID as string;
+    setInterval(this.sendLog, 500);
   }
 
-  sendLog = async (message: string) => {
+  sendLog = async () => {
     try {
-      await axios.post(this.webhookURI, {
-        message,
-      });
+      if (this.messages.length > 0) {
+        await axios.post(this.webhookURI, {
+          content: this.messages.shift(),
+        });
+      }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  addMessage = (message: string) => {
+    this.messages.push(message);
   };
 }
 
