@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CommandInteraction, Message, PermissionsBitField } from 'discord.js';
 import { getChannelAuths } from '../database/queries/channelAuth';
 import { getServer } from '../database/queries/server';
 import Logger from '../logger/Logger';
@@ -17,8 +17,11 @@ export class CommandHandler extends CommandPermissionsHandler {
     return [command, args];
   };
 
-  private readonly __checkChannel = async (message: Message, guildId: string) => {
-    if (!message.member?.permissions.has('ADMINISTRATOR')) {
+  private readonly __checkChannel = async (
+    message: Message | CommandInteraction,
+    guildId: string
+  ) => {
+    if (!(message.member?.permissions as PermissionsBitField).has('Administrator')) {
       const channels = await getChannelAuths(guildId);
 
       let authorized = false;
@@ -27,7 +30,7 @@ export class CommandHandler extends CommandPermissionsHandler {
         authorized = true;
       } else {
         channels.forEach((channel) => {
-          if (channel.id === message.channel.id && channel.type === 'permitted') {
+          if (channel.id === message.channel?.id && channel.type === 'permitted') {
             authorized = true;
           }
         });
@@ -39,13 +42,13 @@ export class CommandHandler extends CommandPermissionsHandler {
 
   private readonly __executeCommand = (message: Message, command: string, args: string[]) => {
     if (this.client.commandsMap.has(command)) {
-      Logger.log('INFO', `Executing ${command}.`, new Error());
+      Logger.info(`Executing ${command}.`);
       return this.checkHandlerPermissions(message, args, this.client.commandsMap.get(command)!);
     }
     return null;
   };
 
-  public readonly main = async (message: Message) => {
+  public readonly message = async (message: Message) => {
     if (message.author.bot) return null;
 
     const guildId = message.guildId as string;
@@ -61,5 +64,21 @@ export class CommandHandler extends CommandPermissionsHandler {
     if (!authorized) return null;
 
     return this.__executeCommand(message, command, args);
+  };
+
+  public readonly interaction = async (interaction: CommandInteraction) => {
+    if (!interaction.isChatInputCommand()) return;
+
+    const guildId = interaction.guildId as string;
+
+    const command = interaction.commandName;
+
+    const args = interaction.options.data.map((obj) => `${obj.value}`);
+
+    const authorized = await this.__checkChannel(interaction, guildId);
+
+    if (!authorized) return;
+
+    this.__executeCommand(interaction as unknown as any, command, args);
   };
 }

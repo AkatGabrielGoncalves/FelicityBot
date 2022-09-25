@@ -20,11 +20,11 @@ class HandleStop implements ICommand {
     this.type = 'Music';
     this.command = 'stop';
     this.alias = ['exit'];
-    this.description = `Esse comando para completamente o bot de música.`;
+    this.description = `para completamente o bot de música.`;
     this.usage = ['stop'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+      mustHave: ['SendMessages', 'Connect', 'Speak'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

@@ -1,4 +1,4 @@
-import { Client, Message, PermissionResolvable } from 'discord.js';
+import { ApplicationCommandOption, Client, Message, PermissionResolvable } from 'discord.js';
 import { Database } from '../database';
 
 export interface ICommand {
@@ -7,6 +7,7 @@ export interface ICommand {
   readonly alias: string[];
   readonly description: string;
   readonly usage: string[];
+  readonly options?: ApplicationCommandOption[];
   readonly botPermissions: IPermissions;
   readonly userPermissions: IPermissions;
   readonly execute: (

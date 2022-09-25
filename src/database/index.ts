@@ -61,9 +61,9 @@ export class Database extends Sequelize {
   private verifyConnection = async () => {
     try {
       await this.authenticate();
-      Logger.log('INFO', 'Connection to database has been established successfully.', new Error());
+      Logger.info('Connection to database has been established successfully.');
     } catch (err: any) {
-      Logger.log('ERROR', 'Database failed to establish a connection', err);
+      Logger.error('Database failed to establish a connection', err);
       process.exit(1);
     }
   };

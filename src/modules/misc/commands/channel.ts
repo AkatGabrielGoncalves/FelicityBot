@@ -1,3 +1,4 @@
+import { ApplicationCommandOption, ApplicationCommandOptionType } from 'discord.js';
 import { addChannelAuth, getChannelAuth } from '../../../database/queries/channelAuth';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import Logger from '../../../logger/Logger';
@@ -18,19 +19,33 @@ class HandleChannel implements ICommand {
 
   userPermissions: IPermissions;
 
+  options: ApplicationCommandOption[];
+
   constructor() {
     this.type = 'Misc';
     this.command = 'channel';
     this.alias = [];
-    this.description = `Esse comando prende o bot ao canal que foi usado o comando,
-ou seja, só responderá quando for chamado no canal especificado.
-Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
+    this.description = `Prende o bot ao canal que foi usado o comando`;
     this.usage = ['channel permitted', 'channel excluded', 'channel permitted {ChannelID}'];
+    this.options = [
+      {
+        name: 'option',
+        description: 'permitted ou excluded',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+      {
+        name: 'channelid',
+        description: 'ID do canal',
+        type: ApplicationCommandOptionType.String,
+        required: false,
+      },
+    ];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES'],
+      mustHave: ['SendMessages'],
     };
-    this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
+    this.userPermissions = { atLeastOne: ['Administrator'], mustHave: [] };
   }
 
   execute = async ({ client, message, args }: IExecuteParameters) => {
@@ -67,7 +82,7 @@ Realizar o comando 'channel default', retorna o bot ao comportamento padrão`;
 
       return await this.handler({ client, message, args }, channelId, guildId, firstArg);
     } catch (err: any) {
-      Logger.log('ERROR', `There was an error in channel command. arguments: ${args}`, err);
+      Logger.error(`There was an error in channel command. arguments: ${args}`, err);
       return basicReply(message, 'Não foi possivel executar esse comando no momento...', 'error');
     }
   };

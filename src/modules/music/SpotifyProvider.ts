@@ -58,7 +58,7 @@ class SpotifyProvider extends SpotifyAuth {
 
       return items.map((item) => `${item.artist} ${item.name}`);
     } catch (err: any) {
-      Logger.log('ERROR', 'Error while trying to fetch the playlist tracks', err);
+      Logger.error('Error while trying to fetch the playlist tracks', err);
       throw err;
     }
   };
@@ -70,7 +70,7 @@ class SpotifyProvider extends SpotifyAuth {
 
       return [`${artist} ${name}`];
     } catch (err: any) {
-      Logger.log('ERROR', 'Error while trying to fetch the spotify track', err);
+      Logger.error('Error while trying to fetch the spotify track', err);
       throw err;
     }
   };
@@ -82,7 +82,7 @@ class SpotifyProvider extends SpotifyAuth {
 
       return items.map((item) => `${item.artist} ${item.name}`);
     } catch (err: any) {
-      Logger.log('ERROR', 'Error while trying to fetch the spotify track', err);
+      Logger.error('Error while trying to fetch the spotify track', err);
       throw err;
     }
   };

@@ -1,3 +1,4 @@
+import { ApplicationCommandOption, ApplicationCommandOptionType } from 'discord.js';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { basicReply } from '../../../utils/basicReply';
 
@@ -17,18 +18,28 @@ class HandleUnban implements ICommand {
 
   userPermissions: IPermissions;
 
+  options: ApplicationCommandOption[];
+
   constructor() {
     this.type = 'Admin';
     this.command = 'unban';
     this.alias = [];
-    this.description = 'Esse comando retira o ban de um usuário ou todos os usuários';
+    this.description = 'retira o ban de um usuário ou todos os usuários';
     this.usage = ['unban @user', 'unban @everyone'];
+    this.options = [
+      {
+        name: 'user',
+        description: 'Usuario',
+        type: ApplicationCommandOptionType.Mentionable,
+        required: true,
+      },
+    ];
     this.botPermissions = {
-      atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
-      mustHave: ['SEND_MESSAGES'],
+      atLeastOne: ['Administrator', 'BanMembers'],
+      mustHave: ['SendMessages'],
     };
     this.userPermissions = {
-      atLeastOne: ['ADMINISTRATOR', 'BAN_MEMBERS'],
+      atLeastOne: ['Administrator', 'BanMembers'],
       mustHave: [],
     };
   }

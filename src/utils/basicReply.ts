@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder as MessageEmbed } from 'discord.js';
 import { embedColors } from './embedColors';
 
 export const basicReply = (

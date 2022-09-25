@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder as MessageEmbed } from 'discord.js';
 import { QueueItem } from '../interfaces/QueueItem';
 import { addTime } from './timeHelpers/addTime';
 import { formatTime } from './timeHelpers/formatTime';
@@ -25,6 +25,9 @@ export const createQueueEmbed = (
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
     .setURL(currentlyPlaying.url)
-    .setAuthor(`Tocando agora em: ${guild?.name}` || '', guild?.iconURL() || undefined)
+    .setAuthor({
+      name: `Tocando agora em: ${guild?.name}` || '',
+      iconURL: guild?.iconURL() || undefined,
+    })
     .setDescription(`${parsedSubArray}`);
 };

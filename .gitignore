@@ -4,3 +4,5 @@ dist
 db
 src/modules/serverInfo.json
 .idea
+
+.env.prod

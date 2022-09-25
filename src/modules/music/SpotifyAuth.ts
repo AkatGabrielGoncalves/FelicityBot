@@ -41,7 +41,7 @@ class SpotifyAuth {
       this.accessTokenExpiresIn = data.expires_in - 600 + Date.now() / 1000;
       return this.accessToken;
     } catch (err: any) {
-      Logger.log('ERROR', 'Error while trying to get the spotify token.', err);
+      Logger.error('Error while trying to get the spotify token.', err);
       throw err;
     }
   };

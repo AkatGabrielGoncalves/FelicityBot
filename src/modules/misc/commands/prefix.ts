@@ -1,3 +1,4 @@
+import { ApplicationCommandOption, ApplicationCommandOptionType } from 'discord.js';
 import { setServer } from '../../../database/queries/server';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { basicReply } from '../../../utils/basicReply';
@@ -17,17 +18,27 @@ class HandlePrefix implements ICommand {
 
   userPermissions: IPermissions;
 
+  options: ApplicationCommandOption[];
+
   constructor() {
     this.type = 'Misc';
     this.command = 'prefix';
     this.alias = [];
-    this.description = `Esse comando muda o prefixo para este servidor. Padrão '!'.`;
+    this.description = `muda o prefixo para este servidor. Padrão '!'.`;
     this.usage = ['prefix @', 'prefix !', 'prefix !t'];
+    this.options = [
+      {
+        name: 'prefix',
+        description: 'Novo prefixo',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES'],
+      mustHave: ['SendMessages'],
     };
-    this.userPermissions = { atLeastOne: ['ADMINISTRATOR'], mustHave: [] };
+    this.userPermissions = { atLeastOne: ['Administrator'], mustHave: [] };
   }
 
   execute = async ({ client, message, args }: IExecuteParameters) => {

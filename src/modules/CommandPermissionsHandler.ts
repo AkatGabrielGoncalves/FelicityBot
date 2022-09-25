@@ -113,11 +113,7 @@ export class CommandPermissionsHandler {
     args: string[],
     handler: ICommand
   ) => {
-    Logger.log(
-      'DEBUG',
-      `${message.guildId}-${message.member?.id}:Checking permissions.`,
-      new Error()
-    );
+    Logger.debug(`${message.guildId}-${message.member?.id}:Checking permissions.`);
 
     const [botMember, userMember] = this.__getMembers(message);
 
@@ -129,10 +125,8 @@ export class CommandPermissionsHandler {
 
     if (userNotAuthorized) return userNotAuthorized;
 
-    Logger.log(
-      'DEBUG',
-      `${message.guildId}-${message.member?.id}:User and Bot has necessary permissions.`,
-      new Error()
+    Logger.debug(
+      `${message.guildId}-${message.member?.id}:User and Bot has necessary permissions.`
     );
     return handler.execute({ client: this.client, message, args });
   };

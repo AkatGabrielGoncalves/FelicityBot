@@ -1,56 +1,19 @@
 /* eslint-disable no-console */
-import { performance } from 'perf_hooks';
-import webhook from './Webhook';
+import log4js from 'log4js';
 
-type LogType = 'ERROR' | 'WARN' | 'DEBUG' | 'INFO';
+import appe from './appenders/webhook';
 
-abstract class Logger {
-  private static logs: Map<string, number> = new Map();
+// @ts-ignore
+log4js.configure({
+  appenders: {
+    out: { type: 'console', layout: { type: 'pattern', pattern: '%d %p %c %m%n' } },
+    webhook: { type: appe, timezoneOffset: '-3' },
+  },
+  categories: {
+    default: { appenders: ['out', 'webhook'], level: 'debug', enableCallStack: true },
+  },
+});
 
-  private static logText = {
-    ERROR: (message: string, err: Error, extra: any) =>
-      `[\x1b[1m\x1b[31mERROR\x1b[0m]: ${message} Extra: ${JSON.stringify(extra)}; Stack: (${
-        err.stack
-      })`,
-    WARN: (message: string, err: Error, extra: any) =>
-      `[\x1b[33mWARN\x1b[0m]: ${message} Extra: ${JSON.stringify(extra)}; Stack: (${
-        /\/.+?:\d*:\d*/.exec(err.stack as string)![0]
-      })`,
-    DEBUG: (message: string, err: Error, extra: any) =>
-      `[\x1b[1m\x1b[35mDEBUG\x1b[0m]: ${message} Extra: ${JSON.stringify(extra)}; Stack: (${
-        /\/.+?:\d*:\d*/.exec(err.stack as string)![0]
-      })`,
-    INFO: (message: string, err: Error, extra: any) =>
-      `[\x1b[36mINFO\x1b[0m]: ${message} Extra: ${JSON.stringify(extra)}; Stack: (${
-        /\/.+?:\d*:\d*/.exec(err.stack as string)![0]
-      })`,
-  };
+const logger = log4js.getLogger();
 
-  static start = (name: string, type: LogType, message: string, err: Error, extra: any = '') => {
-    const log = this.logText[type](message, err, extra);
-    console.log(log);
-    this.logs.set(name, performance.now());
-  };
-
-  static finish = (name: string, type: LogType, message: string, err: Error, extra: any = '') => {
-    const log = this.logText[type](message, err, {
-      executionTime: performance.now() - (this.logs.get(name) as number),
-      ...extra,
-    });
-    console.log(log);
-    this.logs.delete(name);
-  };
-
-  static log = (type: LogType, message: string, err: Error, extra: any = {}) => {
-    if (type === 'DEBUG' && !(process.env.DEBUG_MODE === 'TRUE')) {
-      return;
-    }
-    if (webhook) {
-      webhook.sendLog(type, message, err, extra);
-    }
-    const log = this.logText[type](message, err, extra);
-    console.log(log);
-  };
-}
-
-export default Logger;
+export default logger;

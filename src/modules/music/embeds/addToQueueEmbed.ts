@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder as MessageEmbed } from 'discord.js';
 import { QueueItem } from '../interfaces/QueueItem';
 import { addTime, ITime } from './timeHelpers/addTime';
 import { formatTime } from './timeHelpers/formatTime';
@@ -41,7 +41,10 @@ export const addToQueueEmbed = (
   return new MessageEmbed()
     .setTitle(title)
     .setURL(url)
-    .setAuthor(`Adicionado a fila em: ${guild?.name}`, guild?.iconURL() || undefined)
+    .setAuthor({
+      name: `Adicionado a fila em: ${guild?.name}`,
+      iconURL: guild?.iconURL() || undefined,
+    })
     .setThumbnail(thumbnail)
     .addFields(
       { name: 'Duração', value: songAddedToPlaylistTime, inline: true },

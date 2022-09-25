@@ -62,12 +62,7 @@ export class PlayerQueue {
           },
         };
 
-        Logger.start(
-          `spotify${message.guildId}`,
-          'DEBUG',
-          `Adding spotify ${type} to queue`,
-          new Error()
-        );
+        Logger.debug(`Adding spotify ${type} to queue`);
 
         const { getItems, getTrack } = spotifyTypesFunctions[type];
 
@@ -76,11 +71,8 @@ export class PlayerQueue {
         const tracks = await Promise.all(items.map((item) => getTrack(item)));
         this.queue.push(...tracks);
 
-        Logger.finish(
-          `spotify${message.guildId}`,
-          'DEBUG',
-          `Finished adding spotify ${type} to queue. Spotify link: ${searchStringOrUrl}`,
-          new Error()
+        Logger.debug(
+          `Finished adding spotify ${type} to queue. Spotify link: ${searchStringOrUrl}`
         );
 
         return basicReply(message, `${type} do spotify adicionado(a)!`, 'success');
@@ -118,7 +110,7 @@ export class PlayerQueue {
 
       return { content: 'Song added to queue.' };
     } catch (err: any) {
-      Logger.log('ERROR', `There was an error trying to add this: ${searchStringOrUrl}.`, err);
+      Logger.error(`There was an error trying to add this: ${searchStringOrUrl}.`, err);
       return basicReply(
         message,
         `Ocorreu um erro ao tentarmos adicionar um/uma ${argsType}, é realmente válido/válida?`,
