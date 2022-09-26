@@ -143,7 +143,7 @@ export class MusicPlayer extends PlayerQueue {
               output: '-',
               format:
                 'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
-              limitRate: '100K',
+              limitRate: '1M',
               verbose: true,
             },
             { stdio: ['ignore', 'pipe', 'pipe'] }
@@ -179,7 +179,7 @@ export class MusicPlayer extends PlayerQueue {
 
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
-      console.error('There was an error while trying to play the song.', err);
+      Logger.error('There was an error while trying to play the song.', err);
       await this.playerDecisionMaker();
       return basicReply(this.message, `Ocorreu um erro ao tentar reproduzir o video!`, 'error');
     }

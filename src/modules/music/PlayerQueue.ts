@@ -231,10 +231,15 @@ export class PlayerQueue {
         }
       })
       .catch(async () => {
-        if (this.queueMessage) {
-          await this.queueMessage.delete();
-          this.queueMessage = null;
-          this.queuePage = 0;
+        if (this.queueMessage && this.queueMessage) {
+          try {
+            await this.queueMessage.delete();
+          } catch (err: any) {
+            if (err.status !== 404) Logger.error('Error when trying to delete message.', err);
+          } finally {
+            this.queueMessage = null;
+            this.queuePage = 0;
+          }
         }
       });
   };
