@@ -10,7 +10,7 @@ export const addServer = async (client: ICustomClient, guildId: string) => {
     });
     saveInCache(prefix);
   } catch (err: any) {
-    Logger.log('ERROR', `There was a error trying to add this guild: ${guildId}.`, err);
+    Logger.error(`There was a error trying to add this guild: ${guildId}.`, err);
     throw err;
   }
 };

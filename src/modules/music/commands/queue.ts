@@ -20,11 +20,11 @@ class HandleQueue implements ICommand {
     this.type = 'Music';
     this.command = 'queue';
     this.alias = [];
-    this.description = `Esse comando mostra a fila de músicas do Bot.`;
+    this.description = `mostra a fila de músicas do Bot.`;
     this.usage = ['queue'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'ADD_REACTIONS', 'EMBED_LINKS'],
+      mustHave: ['SendMessages', 'AddReactions', 'EmbedLinks'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

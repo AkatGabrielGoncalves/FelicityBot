@@ -1,3 +1,4 @@
+import { ApplicationCommandOption, ApplicationCommandOptionType } from 'discord.js';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { basicReply } from '../../../utils/basicReply';
 
@@ -16,17 +17,27 @@ class HandleSearch implements ICommand {
 
   userPermissions: IPermissions;
 
+  options: ApplicationCommandOption[];
+
   constructor() {
     this.type = 'Misc';
     this.command = 'search';
     this.alias = [];
-    this.description = `Esse comando pesquisa usando uma regex as últimas 100 mensagens e retorna o primeiro resultado.`;
+    this.description = `Pesquisa usando uma regex as últimas 100 mensagens e retorna o primeiro resultado.`;
     this.usage = ['search oi'];
+    this.options = [
+      {
+        name: 'text',
+        description: 'Texto para procurar',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+      mustHave: ['SendMessages', 'ReadMessageHistory'],
     };
-    this.userPermissions = { atLeastOne: [], mustHave: ['READ_MESSAGE_HISTORY'] };
+    this.userPermissions = { atLeastOne: [], mustHave: ['ReadMessageHistory'] };
   }
 
   execute = async ({ message, args }: IExecuteParameters) => {
@@ -38,6 +49,7 @@ class HandleSearch implements ICommand {
 
     const messages = await message.channel.messages.fetch({ limit: 100 });
 
+    // @ts-ignore
     const foundMessage = messages.find((msg) => {
       if (message.id === msg.id) {
         return false;

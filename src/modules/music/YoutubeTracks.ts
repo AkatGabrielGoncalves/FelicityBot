@@ -35,12 +35,13 @@ class YoutubeTracks {
     }),
   };
 
-  public readonly getTrackFromPlaylist = async (playlistURL: string): Promise<QueueItem[]> => {
-    const { items } = await ytpl(playlistURL, this.searchOptions);
-    return items.map((item) => this.songObject.ytPlaylist(item));
+  public readonly getTrackFromPlaylist = async (playlistURL: string) => {
+    const { items, title, url } = await ytpl(playlistURL, this.searchOptions);
+
+    return { tracks: items.map((item) => this.songObject.ytPlaylist(item)), title, url };
   };
 
-  public readonly getTrackFromURL = async (trackURL: string): Promise<QueueItem> => {
+  public readonly getTrackFromURL = async (trackURL: string) => {
     const youtubeUrl = 'https://www.youtube.com/watch?v=';
     const videoId = ytdl.getURLVideoID(trackURL);
     const track = await ytdl.getBasicInfo(youtubeUrl + videoId, {
@@ -50,13 +51,23 @@ class YoutubeTracks {
         },
       },
     });
-    return this.songObject.ytVideo(track);
+
+    return {
+      track: this.songObject.ytVideo(track),
+      url: track.videoDetails.video_url,
+      title: track.videoDetails.title,
+    };
   };
 
-  public readonly getTrackFromSearch = async (search: string): Promise<QueueItem> => {
+  public readonly getTrackFromSearch = async (search: string) => {
     const { items } = await ytsr(search, this.searchOptions);
     const track = items.find((item) => item.type === 'video') as YouTubeResultItem;
-    return this.songObject.ytSearch(track);
+
+    return {
+      track: this.songObject.ytSearch(track),
+      url: track.url,
+      title: track.title,
+    };
   };
 }
 

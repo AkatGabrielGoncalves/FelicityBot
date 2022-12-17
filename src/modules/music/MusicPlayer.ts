@@ -2,8 +2,10 @@ import { StageChannel, VoiceChannel, Message } from 'discord.js';
 import {
   AudioPlayer,
   AudioPlayerStatus,
+  AudioResource,
   createAudioPlayer,
   createAudioResource,
+  demuxProbe,
   entersState,
   joinVoiceChannel,
   NoSubscriberBehavior,
@@ -112,7 +114,7 @@ export class MusicPlayer extends PlayerQueue {
 
       throw new Error("playerDecisionMaker couldn't determine what to do.");
     } catch (err: any) {
-      Logger.log('ERROR', 'Error on player idle listener', err, {
+      Logger.error('Error on player idle listener', {
         connStatus: this.conn?.state.status,
         playerStatus: this.GetPlayerStatus(),
         queue: this.queue,
@@ -131,37 +133,53 @@ export class MusicPlayer extends PlayerQueue {
 
       const { url } = song;
 
-      Logger.log('INFO', `Trying to play ${url}`, new Error());
+      Logger.info(`Trying to play ${url}`);
 
-      const stream = ytdlexec(
-        url,
-        {
-          output: '-',
-          format:
-            'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
-          limitRate: '1M',
-          rmCacheDir: true,
-          verbose: true,
-        },
-        { stdio: ['ignore', 'pipe', 'pipe'] }
-      );
+      const audioResource = await ((): Promise<AudioResource<any>> =>
+        new Promise((resolve, reject) => {
+          const process = ytdlexec(
+            url,
+            {
+              output: '-',
+              format:
+                'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
+              limitRate: '1M',
+              verbose: true,
+            },
+            { stdio: ['ignore', 'pipe', 'pipe'] }
+          );
 
-      stream.on('error', (err) => {
-        stream.kill('SIGTERM');
-        Logger.log('ERROR', 'Spawn failed!', err);
-      });
+          if (!process.stdout) {
+            reject(new Error('No stdout'));
+            return;
+          }
 
-      stream.unref();
+          const stream = process.stdout!;
+          const onError = (error: Error) => {
+            if (!process.killed) process.kill();
+            stream.resume();
+            reject(error);
+          };
 
-      const audioResource = createAudioResource(stream.stdout!);
+          process
+            .once('spawn', () => {
+              demuxProbe(stream)
+                .then((probe: { stream: any; type: any }) =>
+                  resolve(createAudioResource(probe.stream, { inputType: probe.type }))
+                )
+                .catch(onError);
+            })
+            .catch(onError);
+        }))();
 
       this.player.play(audioResource);
+
       this.currentlyPlaying = song;
       const embed = playingEmbed(this.message, this.currentlyPlaying);
 
       return await this.message.channel.send({ embeds: [embed] });
     } catch (err: any) {
-      Logger.log('ERROR', 'There was an error while trying to play the song.', err);
+      Logger.error('There was an error while trying to play the song.', err);
       await this.playerDecisionMaker();
       return basicReply(this.message, `Ocorreu um erro ao tentar reproduzir o video!`, 'error');
     }
@@ -212,7 +230,7 @@ export class MusicPlayer extends PlayerQueue {
       }
       return await this.addToQueue(this.client, message, args);
     } catch (err: any) {
-      Logger.log('ERROR', 'Error at play.', err);
+      Logger.error('Error at play.', err);
       return await this.playerDecisionMaker();
     }
   };

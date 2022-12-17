@@ -20,11 +20,11 @@ class HandleNext implements ICommand {
     this.type = 'Music';
     this.command = 'next';
     this.alias = ['skip'];
-    this.description = `Esse comando toca a proxima música do Bot.`;
+    this.description = `toca a proxima música do Bot.`;
     this.usage = ['next'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+      mustHave: ['SendMessages', 'Connect', 'Speak'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

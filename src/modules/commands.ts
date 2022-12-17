@@ -14,7 +14,7 @@ const commandsHandlers: Record<string, ICommand[]> = {
 export const mapCommands = () => {
   const commandsCategoriesMap: Map<String, ICommand[]> = new Map();
   const commandsMap: Map<String, ICommand> = new Map();
-  Logger.start('mapcommands', 'DEBUG', 'Mapping all commands and aliases.', new Error());
+  Logger.debug('Mapping all commands and aliases.');
   Object.keys(commandsHandlers).forEach((category) => {
     commandsCategoriesMap.set(category, commandsHandlers[category]);
     commandsHandlers[category].forEach((handler) => {
@@ -35,7 +35,7 @@ export const mapCommands = () => {
       });
     });
   });
-  Logger.finish('mapcommands', 'DEBUG', 'Finished mapping all commands and aliases.', new Error());
+  Logger.debug('Finished mapping all commands and aliases.');
   return {
     commandsMap,
     commandsCategoriesMap,

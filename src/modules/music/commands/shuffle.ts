@@ -20,11 +20,11 @@ class HandleShuffle implements ICommand {
     this.type = 'Music';
     this.command = 'shuffle';
     this.alias = [];
-    this.description = `Esse comando embaralha a fila de músicas.`;
+    this.description = `embaralha a fila de músicas.`;
     this.usage = ['shuffle'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES'],
+      mustHave: ['SendMessages'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

@@ -20,11 +20,11 @@ class HandleLoop implements ICommand {
     this.type = 'Music';
     this.command = 'loop';
     this.alias = [];
-    this.description = `Esse comando ativa o loop do Bot.`;
+    this.description = `ativa o loop do Bot.`;
     this.usage = ['loop'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+      mustHave: ['SendMessages', 'Connect', 'Speak'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

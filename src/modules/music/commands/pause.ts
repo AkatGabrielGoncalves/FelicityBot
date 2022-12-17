@@ -20,11 +20,11 @@ class HandlePause implements ICommand {
     this.type = 'Music';
     this.command = 'pause';
     this.alias = [];
-    this.description = `Esse comando pausa o bot de música.`;
+    this.description = `pausa o bot de música.`;
     this.usage = ['pause'];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+      mustHave: ['SendMessages', 'Connect', 'Speak'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

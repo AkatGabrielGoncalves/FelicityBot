@@ -1,4 +1,5 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
+import { ApplicationCommandOption, ApplicationCommandOptionType } from 'discord.js';
 import { MusicPlayer, connections } from '../MusicPlayer';
 import { getUserAndAuthor } from '../../../utils/modules/commands/getUserAndAuthor';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
@@ -18,26 +19,37 @@ class HandlePlay implements ICommand {
 
   userPermissions: IPermissions;
 
+  options: ApplicationCommandOption[];
+
   constructor() {
     this.type = 'Music';
     this.command = 'play';
     this.alias = ['p'];
-    this.description = `Esse comando adiciona uma música para o bot tocar. Se a música estiver pausada, este comando também resume a música.`;
+    this.description = `Adiciona uma música para tocar. Se a música estiver pausada, este comando também resume a música.`;
     this.usage = [
       'play //somente p/ resumir',
       'play <YoutubeUrl>',
       'play <YoutubeSearch>',
       'p <YoutubeUrl>',
     ];
+    this.options = [
+      {
+        name: 'url',
+        description: 'YouTube URL ou Spotify URL',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+      mustHave: ['SendMessages', 'Connect', 'Speak'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }
 
   execute = async ({ client, message, args }: IExecuteParameters) => {
     const messages = await message.channel.messages.fetch();
+    // @ts-ignore
     const lastMessageTime = messages.first(2)[1].createdTimestamp;
     const currentMessageTime = message.createdTimestamp;
 

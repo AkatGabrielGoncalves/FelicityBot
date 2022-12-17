@@ -1,8 +1,9 @@
-import { EmbedFieldData, MessageEmbed } from 'discord.js';
+import { APIEmbedField } from 'discord-api-types';
+import { EmbedBuilder as MessageEmbed } from 'discord.js';
 import { ICommand, ICustomClient } from '../../../../interfaces/customInterfaces';
 
 export const defaultEmbed = (client: ICustomClient) => {
-  const embedFields: EmbedFieldData[] = [];
+  const embedFields: APIEmbedField[] = [];
 
   client.commandsCategoriesMap.forEach((handlers) => {
     const field = {
@@ -20,7 +21,7 @@ export const defaultEmbed = (client: ICustomClient) => {
 };
 
 export const specificEmbed = (client: ICustomClient, command: string) => {
-  const embedFields: EmbedFieldData[] = [];
+  const embedFields: APIEmbedField[] = [];
 
   const handler = client.commandsMap.get(command) as ICommand;
 

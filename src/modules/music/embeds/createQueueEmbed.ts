@@ -1,4 +1,5 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder as MessageEmbed, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { randomUUID } from 'crypto';
 import { QueueItem } from '../interfaces/QueueItem';
 import { addTime } from './timeHelpers/addTime';
 import { formatTime } from './timeHelpers/formatTime';
@@ -25,6 +26,16 @@ export const createQueueEmbed = (
   return new MessageEmbed()
     .setTitle(currentlyPlaying.title)
     .setURL(currentlyPlaying.url)
-    .setAuthor(`Tocando agora em: ${guild?.name}` || '', guild?.iconURL() || undefined)
-    .setDescription(`${parsedSubArray}`);
+    .setAuthor({
+      name: `Tocando agora em: ${guild?.name}` || '',
+      iconURL: guild?.iconURL() || undefined,
+    })
+    .setDescription(`${parsedSubArray}` || '       ');
 };
+
+export const createQueueButton = (label: string, disabled: boolean) =>
+  new ButtonBuilder()
+    .setCustomId(randomUUID())
+    .setLabel(label)
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(disabled);

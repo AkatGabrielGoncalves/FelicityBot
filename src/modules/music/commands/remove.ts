@@ -1,3 +1,4 @@
+import { ApplicationCommandOption, ApplicationCommandOptionType } from 'discord.js';
 import { IPermissions, ICommand, IExecuteParameters } from '../../../interfaces/customInterfaces';
 import { connections } from '../MusicPlayer';
 
@@ -16,15 +17,25 @@ class HandleRemove implements ICommand {
 
   userPermissions: IPermissions;
 
+  options: ApplicationCommandOption[];
+
   constructor() {
     this.type = 'Music';
     this.command = 'remove';
     this.alias = [];
-    this.description = `Esse comando remove uma música da fila do Bot.`;
+    this.description = `remove uma música da fila do Bot.`;
     this.usage = ['remove <NúmeroDaMúsicaNaFila>'];
+    this.options = [
+      {
+        name: 'position',
+        description: 'Posição da música na fila',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ];
     this.botPermissions = {
       atLeastOne: [],
-      mustHave: ['SEND_MESSAGES', 'CONNECT', 'SPEAK'],
+      mustHave: ['SendMessages', 'Connect', 'Speak'],
     };
     this.userPermissions = { atLeastOne: [], mustHave: [] };
   }

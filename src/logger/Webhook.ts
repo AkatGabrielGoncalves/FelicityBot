@@ -2,42 +2,33 @@
 import axios from 'axios';
 
 class Webhook {
-  webhookURI: string;
+  private webhookURI: string;
 
-  userID: string;
+  private userID: string;
+
+  private messages: string[];
 
   constructor() {
+    this.messages = [];
     this.webhookURI = process.env.DISCORD_WEBHOOK_URI as string;
     this.userID = process.env.DISCORD_WEBHOOK_USER_ID as string;
+    setInterval(this.sendLog, 500);
   }
 
-  sendLog = async (
-    type: 'ERROR' | 'WARN' | 'DEBUG' | 'INFO',
-    message: string,
-    err: Error,
-    extra: any
-  ) => {
+  sendLog = async () => {
     try {
-      if (type !== 'ERROR') {
-        const content = `type: ${type}\nmessage: ${message}\nerr: ${
-          /\/.+?:\d*:\d*/.exec(err.stack as string)![0]
-        }\ndate: ${new Date()}\nextra: ${JSON.stringify(extra)}`;
-
+      if (this.messages.length > 0) {
         await axios.post(this.webhookURI, {
-          content,
-        });
-      } else {
-        const content = `type: ${type}\nmessage: ${message}\nerr: ${
-          err.stack
-        }\ndate: ${new Date()}\nextra: ${JSON.stringify(extra)}\n<@${this.userID}>`;
-
-        await axios.post(this.webhookURI, {
-          content,
+          content: this.messages.shift(),
         });
       }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  addMessage = (message: string) => {
+    this.messages.push(message);
   };
 }
 

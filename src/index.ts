@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+import { ActivityType, REST, Routes } from 'discord.js';
 import Logger from './logger/Logger';
 import intents from './intents';
 import { CustomClient } from './CustomClient';
@@ -13,7 +14,11 @@ const client = new CustomClient({ intents });
 const commandHandler = new CommandHandler(client);
 
 client.on('messageCreate', (message) => {
-  commandHandler.main(message);
+  commandHandler.message(message);
+});
+
+client.on('interactionCreate', (interaction: any) => {
+  commandHandler.interaction(interaction!);
 });
 
 client.on('guildDelete', (guild) => {
@@ -44,8 +49,26 @@ client.on('ready', async () => {
     });
   }
 
+  const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN!);
+
+  Logger.info('Started refreshing application (/) commands.');
+
+  const commands = [...client.commandsMap.keys()].map((commandName) => ({
+    name: commandName,
+    description: client.commandsMap.get(commandName)?.description,
+    ...(client.commandsMap.get(commandName)?.options
+      ? { options: client.commandsMap.get(commandName)?.options }
+      : {}),
+  }));
+
+  await rest.put(Routes.applicationCommands(client.application?.id!), {
+    body: commands,
+  });
+
+  Logger.info('Successfully reloaded application (/) commands.');
+
   client.user?.setActivity({
-    type: 'LISTENING',
+    type: ActivityType.Listening,
     name: `${guilds.size} servers; !help`,
   });
 });
@@ -53,9 +76,9 @@ client.on('ready', async () => {
 client
   .login(process.env.BOT_TOKEN)
   .then(() => {
-    Logger.log('INFO', 'Bot is online.', new Error());
+    Logger.info('Bot is online.');
   })
   .catch((err) => {
-    Logger.log('ERROR', 'Bot failed to start.', err);
+    Logger.error('Bot failed to start.', err);
     process.exit(1);
   });
