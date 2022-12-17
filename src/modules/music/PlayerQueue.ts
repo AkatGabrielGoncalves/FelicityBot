@@ -231,7 +231,7 @@ export class PlayerQueue {
         }
       })
       .catch(async () => {
-        if (this.queueMessage && this.queueMessage) {
+        if (this.queueMessage) {
           try {
             await this.queueMessage.delete();
           } catch (err: any) {
