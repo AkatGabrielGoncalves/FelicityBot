@@ -13,7 +13,7 @@ import {
   VoiceConnection,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
-import { exec as ytdlexec } from 'youtube-dl-exec';
+import * as child from 'child_process';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
@@ -46,6 +46,8 @@ export class MusicPlayer extends PlayerQueue {
 
   private disconnected: boolean;
 
+  private child_process: child.ChildProcess | null;
+
   constructor(client: ICustomClient, message: Message) {
     super();
     this.client = client;
@@ -59,6 +61,7 @@ export class MusicPlayer extends PlayerQueue {
     });
     this.subscription = this.conn.subscribe(this.player);
     this.disconnected = false;
+    this.child_process = null;
 
     this.conn.on(VoiceConnectionStatus.Disconnected, async () => {
       // This is to check if the bot was really disconnected or changed channels / changed region
@@ -93,6 +96,12 @@ export class MusicPlayer extends PlayerQueue {
    * Stop or play the next song. */
   private playerDecisionMaker = async () => {
     try {
+      if (this.child_process) {
+        if (!this.child_process.killed) {
+          this.child_process.kill();
+        }
+      }
+
       if (this.conn && this.conn.state.status === 'destroyed')
         return await this.internalStop(this.message);
 
@@ -137,39 +146,54 @@ export class MusicPlayer extends PlayerQueue {
 
       const audioResource = await ((): Promise<AudioResource<any>> =>
         new Promise((resolve, reject) => {
-          const process = ytdlexec(
-            url,
-            {
-              output: '-',
-              format:
-                'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
-              limitRate: '1M',
-              verbose: true,
-            },
-            { stdio: ['ignore', 'pipe', 'pipe'] }
+          this.child_process = child.spawn(
+            'yt-dlp',
+            [
+              '--output',
+              '-',
+              '--quiet',
+              '--format',
+              'bestaudio',
+              '--no-check-certificates',
+              '--prefer-free-formats',
+              '--extractor-args',
+              'youtube:skip=dash',
+              '--rate-limit',
+              '100K',
+              '--no-cache-dir',
+              '--no-call-home',
+              '--downloader',
+              'ffmpeg',
+              '--external-downloader-args',
+              'ffmpeg_i:-reconnect 1',
+              '--',
+              url,
+            ],
+            { stdio: [0, 'pipe', 'pipe'] }
           );
 
-          if (!process.stdout) {
+          if (!this.child_process.stdout) {
             reject(new Error('No stdout'));
             return;
           }
 
-          const stream = process.stdout!;
+          const stream = this.child_process.stdout;
+
           const onError = (error: Error) => {
-            if (!process.killed) process.kill();
-            stream.resume();
-            reject(error);
+            if (this.child_process) {
+              if (!this.child_process.killed) this.child_process.kill();
+              stream.resume();
+              reject(error);
+            }
           };
 
-          process
-            .once('spawn', () => {
-              demuxProbe(stream)
-                .then((probe: { stream: any; type: any }) =>
-                  resolve(createAudioResource(probe.stream, { inputType: probe.type }))
-                )
-                .catch(onError);
-            })
-            .catch(onError);
+          this.child_process.once('spawn', () => {
+            demuxProbe(stream)
+              .then((probe: { stream: any; type: any }) =>
+                resolve(createAudioResource(probe.stream, { inputType: probe.type }))
+              )
+              .catch(onError);
+          });
         }))();
 
       this.player.play(audioResource);
