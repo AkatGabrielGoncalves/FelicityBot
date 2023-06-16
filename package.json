@@ -8,7 +8,7 @@
   },
   "scripts": {
     "local": "ts-node-dev -T src/index.ts ",
-    "build": "rm -r ./dist && tsc",
+    "build": "rm -rf ./dist && tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "prettier": "prettier --check .",
     "start": "node ./dist/index.js"
