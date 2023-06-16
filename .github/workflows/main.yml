@@ -1,6 +1,7 @@
 name: Deploy to server
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main  # Trigger this workflow on push to the main branch
