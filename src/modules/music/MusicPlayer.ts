@@ -147,7 +147,7 @@ export class MusicPlayer extends PlayerQueue {
       const audioResource = await ((): Promise<AudioResource<any>> =>
         new Promise((resolve, reject) => {
           this.child_process = child.spawn(
-            'yt-dlp',
+            'youtube-dl',
             [
               '--output',
               '-',
@@ -162,14 +162,10 @@ export class MusicPlayer extends PlayerQueue {
               '100K',
               '--no-cache-dir',
               '--no-call-home',
-              '--downloader',
-              'ffmpeg',
-              '--external-downloader-args',
-              'ffmpeg_i:-reconnect 1',
               '--',
               url,
             ],
-            { stdio: [0, 'pipe', 'pipe'] }
+            { stdio: [0, 'pipe', 0] }
           );
 
           if (!this.child_process.stdout) {
