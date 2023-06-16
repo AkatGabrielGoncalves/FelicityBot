@@ -1,0 +1,46 @@
+name: Deploy to server
+
+on:
+  push:
+    branches:
+      - main  # Trigger this workflow on push to the main branch
+
+env:
+  SERVER_HOST: ${{ secrets.ip_host }}
+  SERVER_USERNAME: ubuntu
+  SERVER_KEY: ${{ secrets.secret_key_name }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Build app
+      run: yarn build
+
+    - name: Copy dist directory to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ env.SERVER_HOST }}
+        username: ${{ env.SERVER_USERNAME }}
+        key: ${{ env.SERVER_KEY }}
+        source: "dist/*"
+        target: "~/FelicityBot-v2"
+
+    - name: Restart app
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.SERVER_HOST }}
+        username: ${{ env.SERVER_USERNAME }}
+        key: ${{ env.SERVER_KEY }}
+        script: sudo systemctl restart felicity
