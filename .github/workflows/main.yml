@@ -35,7 +35,7 @@ jobs:
         host: ${{ env.SERVER_HOST }}
         username: ${{ env.SERVER_USERNAME }}
         key: ${{ env.SERVER_KEY }}
-        source: "dist/*"
+        source: "*"
         target: "~/FelicityBot-v2"
 
     - name: Restart app
