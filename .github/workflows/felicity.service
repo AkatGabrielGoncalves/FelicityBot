@@ -1,0 +1,15 @@
+[Unit]
+Description=FelicityBot Service
+After=network.target
+
+[Service]
+ExecStart=/bin/bash /home/ubuntu/FelicityBot/start_v2.sh
+Restart=always
+User=ubuntu
+Group=ubuntu
+Environment=PATH=/home/ubuntu/.nvm/versions/node/v16.19.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/ubuntu/.local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/home/ubuntu/FelicityBot
+
+[Install]
+WantedBy=multi-user.target
