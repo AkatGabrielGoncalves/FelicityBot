@@ -156,10 +156,12 @@ export class MusicPlayer extends PlayerQueue {
           '--format',
           'bestaudio[ext=webm][acodec=opus][tbr>100][protocol^=http_dash_segments]/bestaudio[ext=webm][acodec=opus][protocol^=http_dash_segments]/bestaudio[protocol^=http_dash_segments]/best',
           '--no-call-home',
+          '--buffer-size',
+          '50M',
           '--external-downloader',
           'ffmpeg',
           '--external-downloader-args',
-          '-re -reconnect_streamed 1',
+          '-rtbufsize 50M -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 2',
           url,
         ],
         { stdio: [0, 'pipe', 'pipe'] }
