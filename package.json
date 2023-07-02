@@ -20,7 +20,6 @@
     "axios": "^0.21.4",
     "discord.js": "^14",
     "dotenv": "^10.0.0",
-    "ffmpeg-static": "^5",
     "libsodium-wrappers": "^0.7.9",
     "log4js": "^6.6.1",
     "mysql2": "^2.3.0",
