@@ -151,7 +151,7 @@ export class MusicPlayer extends PlayerQueue {
           '-',
           '--verbose',
           '--format',
-          'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
+          'bestaudio[ext=webm][acodec=opus][tbr>100][protocol^=http_dash_segments]/bestaudio[ext=webm][acodec=opus][protocol^=http_dash_segments]/bestaudio[protocol^=http_dash_segments]/best',
           '--prefer-free-formats',
           '--limit-rate',
           '100K',
