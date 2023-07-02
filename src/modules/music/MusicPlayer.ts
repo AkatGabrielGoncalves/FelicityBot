@@ -193,10 +193,7 @@ export class MusicPlayer extends PlayerQueue {
 
       const stream = this.child_process.stdout;
 
-      let audioResource = null;
-      this.child_process.once('spawn', () => {
-        audioResource = createAudioResource(stream);
-      });
+      const audioResource = createAudioResource(stream);
 
       if (!audioResource) {
         if (!this.child_process.killed) this.child_process.kill();
