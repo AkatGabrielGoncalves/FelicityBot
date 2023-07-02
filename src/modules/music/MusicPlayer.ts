@@ -158,9 +158,9 @@ export class MusicPlayer extends PlayerQueue {
           '--no-cache-dir',
           '--no-call-home',
           '--external-downloader',
+          'ffmpeg',
           '--external-downloader-args',
           '"-b:a 128k"',
-          'ffmpeg',
           url,
         ],
         { stdio: [0, 'pipe', 'pipe'] }
