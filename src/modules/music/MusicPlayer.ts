@@ -2,10 +2,8 @@ import { StageChannel, VoiceChannel, Message } from 'discord.js';
 import {
   AudioPlayer,
   AudioPlayerStatus,
-  AudioResource,
   createAudioPlayer,
   createAudioResource,
-  demuxProbe,
   entersState,
   joinVoiceChannel,
   NoSubscriberBehavior,
@@ -58,6 +56,11 @@ export class MusicPlayer extends PlayerQueue {
       behaviors: {
         noSubscriber: NoSubscriberBehavior.Stop,
       },
+      debug: true,
+    });
+
+    this.player.on('debug', (dbgMsg) => {
+      console.log(`Player debug: ${dbgMsg}`);
     });
     this.subscription = this.conn.subscribe(this.player);
     this.disconnected = false;
@@ -152,10 +155,6 @@ export class MusicPlayer extends PlayerQueue {
           '--verbose',
           '--format',
           'bestaudio[ext=webm][acodec=opus][tbr>100][protocol^=http_dash_segments]/bestaudio[ext=webm][acodec=opus][protocol^=http_dash_segments]/bestaudio[protocol^=http_dash_segments]/best',
-          '--prefer-free-formats',
-          '--limit-rate',
-          '100K',
-          '--no-cache-dir',
           '--no-call-home',
           '--external-downloader',
           'ffmpeg',
