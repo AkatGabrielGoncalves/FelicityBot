@@ -144,55 +144,64 @@ export class MusicPlayer extends PlayerQueue {
 
       Logger.info(`Trying to play ${url}`);
 
-      const audioResource = await ((): Promise<AudioResource<any>> =>
-        new Promise((resolve, reject) => {
-          this.child_process = child.spawn(
-            'youtube-dl',
-            [
-              '--output',
-              '-',
-              '--verbose',
-              '--format',
-              'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
-              '--prefer-free-formats',
-              '--limit-rate',
-              '100K',
-              '--no-cache-dir',
-              '--no-call-home',
-              '--external-downloader',
-              'ffmpeg',
-              url,
-            ],
-            { stdio: [0, 'pipe', 'pipe'] }
-          );
+      this.child_process = child.spawn(
+        'youtube-dl',
+        [
+          '--output',
+          '-',
+          '--verbose',
+          '--format',
+          'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
+          '--prefer-free-formats',
+          '--limit-rate',
+          '100K',
+          '--no-cache-dir',
+          '--no-call-home',
+          '--external-downloader',
+          '--external-downloader-args',
+          '-b:a 128k',
+          'ffmpeg',
+          url,
+        ],
+        { stdio: [0, 'pipe', 'pipe'] }
+      );
 
-          this.child_process.stderr!.on('data', (data) => {
-            Logger.debug(Buffer.from(data).toString());
-          });
+      this.child_process.stderr!.on('data', (data) => {
+        Logger.debug(Buffer.from(data).toString());
+      });
 
-          if (!this.child_process.stdout) {
-            reject(new Error('No stdout'));
-            return;
-          }
+      this.child_process.on('error', (error) => {
+        console.error('Error event:', error);
+      });
 
-          const stream = this.child_process.stdout;
+      this.child_process.on('exit', (code, signal) => {
+        console.log('Exit event:', code, signal);
+      });
 
-          const onError = (error: Error) => {
-            if (this.child_process) {
-              if (!this.child_process.killed) this.child_process.kill();
-              stream.resume();
-              reject(error);
-            }
-          };
+      this.child_process.on('close', (code, signal) => {
+        console.log('Close event:', code, signal);
+      });
 
-          this.child_process.once('spawn', () => {
-            demuxProbe(stream)
-              .then((probe: { stream: any; type: any }) =>
-                resolve(createAudioResource(probe.stream, { inputType: probe.type }))
-              )
-              .catch(onError);
-          });
-        }))();
+      this.child_process.on('disconnect', () => {
+        console.log('Disconnect event');
+      });
+
+      if (!this.child_process.stdout) {
+        if (!this.child_process.killed) this.child_process.kill();
+        throw new Error('No stdout.');
+      }
+
+      const stream = this.child_process.stdout;
+
+      let audioResource = null;
+      this.child_process.once('spawn', () => {
+        audioResource = createAudioResource(stream);
+      });
+
+      if (!audioResource) {
+        if (!this.child_process.killed) this.child_process.kill();
+        throw new Error('No audio resource.');
+      }
 
       this.player.play(audioResource);
 
