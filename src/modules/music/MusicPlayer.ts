@@ -167,25 +167,25 @@ export class MusicPlayer extends PlayerQueue {
         { stdio: [0, 'pipe', 'pipe'] }
       );
 
-      this.child_process.stderr!.on('data', (data) => {
-        Logger.debug(Buffer.from(data).toString());
-      });
+      // this.child_process.stderr!.on('data', (data) => {
+      //   Logger.debug(Buffer.from(data).toString());
+      // });
 
-      this.child_process.on('error', (error) => {
-        console.error('Error event:', error);
-      });
+      // this.child_process.on('error', (error) => {
+      //   console.error('Error event:', error);
+      // });
 
-      this.child_process.on('exit', (code, signal) => {
-        console.log('Exit event:', code, signal);
-      });
+      // this.child_process.on('exit', (code, signal) => {
+      //   console.log('Exit event:', code, signal);
+      // });
 
-      this.child_process.on('close', (code, signal) => {
-        console.log('Close event:', code, signal);
-      });
+      // this.child_process.on('close', (code, signal) => {
+      //   console.log('Close event:', code, signal);
+      // });
 
-      this.child_process.on('disconnect', () => {
-        console.log('Disconnect event');
-      });
+      // this.child_process.on('disconnect', () => {
+      //   console.log('Disconnect event');
+      // });
 
       if (!this.child_process.stdout) {
         if (!this.child_process.killed) this.child_process.kill();
