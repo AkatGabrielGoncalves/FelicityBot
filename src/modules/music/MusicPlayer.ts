@@ -154,7 +154,6 @@ export class MusicPlayer extends PlayerQueue {
               '--quiet',
               '--format',
               'bestaudio',
-              '--no-check-certificates',
               '--prefer-free-formats',
               '--extractor-args',
               'youtube:skip=dash',
