@@ -165,8 +165,12 @@ export class MusicPlayer extends PlayerQueue {
               '--',
               url,
             ],
-            { stdio: [0, 'pipe', 0] }
+            { stdio: [0, 'pipe', 'pipe'] }
           );
+
+          this.child_process.stderr!.on('data', (data) => {
+            Logger.debug(Buffer.from(data).toString());
+          });
 
           if (!this.child_process.stdout) {
             reject(new Error('No stdout'));
