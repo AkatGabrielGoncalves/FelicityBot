@@ -60,7 +60,7 @@ export class MusicPlayer extends PlayerQueue {
     });
 
     this.player.on('debug', (dbgMsg) => {
-      console.log(`Player debug: ${dbgMsg}`);
+      Logger.debug(`Player debug: ${dbgMsg}`);
     });
     this.subscription = this.conn.subscribe(this.player);
     this.disconnected = false;
@@ -161,31 +161,31 @@ export class MusicPlayer extends PlayerQueue {
           '--external-downloader',
           'ffmpeg',
           '--external-downloader-args',
-          '-rtbufsize 50M -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 2',
+          '-rtbufsize 50M -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 10',
           url,
         ],
         { stdio: [0, 'pipe', 'pipe'] }
       );
 
-      // this.child_process.stderr!.on('data', (data) => {
-      //   Logger.debug(Buffer.from(data).toString());
-      // });
+      this.child_process.stderr!.on('data', (data) => {
+        Logger.debug(Buffer.from(data).toString());
+      });
 
-      // this.child_process.on('error', (error) => {
-      //   console.error('Error event:', error);
-      // });
+      this.child_process.on('error', (error) => {
+        Logger.error('Error event:', error);
+      });
 
-      // this.child_process.on('exit', (code, signal) => {
-      //   console.log('Exit event:', code, signal);
-      // });
+      this.child_process.on('exit', (code, signal) => {
+        Logger.debug('Exit event:', code, signal);
+      });
 
-      // this.child_process.on('close', (code, signal) => {
-      //   console.log('Close event:', code, signal);
-      // });
+      this.child_process.on('close', (code, signal) => {
+        Logger.debug('Close event:', code, signal);
+      });
 
-      // this.child_process.on('disconnect', () => {
-      //   console.log('Disconnect event');
-      // });
+      this.child_process.on('disconnect', () => {
+        Logger.debug('Disconnect event');
+      });
 
       if (!this.child_process.stdout) {
         if (!this.child_process.killed) this.child_process.kill();

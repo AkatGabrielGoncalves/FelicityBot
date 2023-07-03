@@ -118,6 +118,13 @@ export class PlayerQueue {
       return basicReply(message, `O video foi adicionado!\n[${title}](${url})`, 'success');
     } catch (err: any) {
       Logger.error(`There was an error trying to add this: ${searchStringOrUrl}.`, err);
+
+      // Added because if the reply of the interaction is consumed, I get an error by replying to the same message
+      if (argsType === 'Spotify Playlist/Track') {
+        return message.channel.send(
+          `Ocorreu um erro ao tentarmos adicionar um/uma ${argsType}, é realmente válido/válida?`
+        );
+      }
       return basicReply(
         message,
         `Ocorreu um erro ao tentarmos adicionar um/uma ${argsType}, é realmente válido/válida?`,

@@ -23,5 +23,6 @@ log4js.configure({
 });
 
 const Logger = log4js.getLogger();
+Logger.level = process.env.DEBUG_MODE === 'TRUE' ? 'DEBUG' : 'INFO';
 
 export default Logger;

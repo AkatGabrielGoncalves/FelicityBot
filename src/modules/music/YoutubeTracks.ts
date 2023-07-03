@@ -3,6 +3,7 @@ import ytpl from 'ytpl';
 import ytsr from 'ytsr';
 import { QueueItem } from './interfaces/QueueItem';
 import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
+import Logger from '../../logger/Logger';
 
 class YoutubeTracks {
   private readonly searchOptions: { limit: number; maxRetries: number };
@@ -23,15 +24,15 @@ class YoutubeTracks {
     ytVideo: (song: ytdl.videoInfo): QueueItem => ({
       url: song.videoDetails.video_url,
       title: song.videoDetails.title,
-      duration: song.videoDetails.lengthSeconds as string,
-      thumbnail: song.videoDetails.thumbnails[0].url as string,
+      duration: song.videoDetails.lengthSeconds,
+      thumbnail: song.videoDetails.thumbnails[0].url,
     }),
     // ytsr format
     ytSearch: (song: YouTubeResultItem): QueueItem => ({
       url: song.url,
       title: song.title,
-      duration: song.duration as string,
-      thumbnail: song.bestThumbnail.url as string,
+      duration: song.duration,
+      thumbnail: song.bestThumbnail.url,
     }),
   };
 
@@ -60,14 +61,28 @@ class YoutubeTracks {
   };
 
   public readonly getTrackFromSearch = async (search: string) => {
-    const { items } = await ytsr(search, this.searchOptions);
-    const track = items.find((item) => item.type === 'video') as YouTubeResultItem;
+    let retryCount = 0;
+    const maxRetries = 5;
 
-    return {
-      track: this.songObject.ytSearch(track),
-      url: track.url,
-      title: track.title,
-    };
+    while (retryCount < maxRetries) {
+      try {
+        const { items } = await ytsr(search, this.searchOptions);
+        const track = items.find((item) => item.type === 'video') as YouTubeResultItem;
+
+        return {
+          track: this.songObject.ytSearch(track),
+          url: track.url,
+          title: track.title,
+        };
+      } catch (error) {
+        Logger.error(`Attempt ${retryCount + 1} failed. Retrying...`);
+        retryCount += 1;
+        if (retryCount === maxRetries) {
+          Logger.error('Max retries exceeded.');
+          throw error;
+        }
+      }
+    }
   };
 }
 
