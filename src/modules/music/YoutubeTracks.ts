@@ -83,6 +83,7 @@ class YoutubeTracks {
         }
       }
     }
+    throw new Error('Max retries exceeded.');
   };
 }
 
