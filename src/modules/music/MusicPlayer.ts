@@ -46,6 +46,8 @@ export class MusicPlayer extends PlayerQueue {
 
   private child_process: child.ChildProcess | null;
 
+  private timeout: NodeJS.Timeout | null;
+
   constructor(client: ICustomClient, message: Message) {
     super();
     this.client = client;
@@ -65,6 +67,7 @@ export class MusicPlayer extends PlayerQueue {
     this.subscription = this.conn.subscribe(this.player);
     this.disconnected = false;
     this.child_process = null;
+    this.timeout = null;
 
     this.conn.on(VoiceConnectionStatus.Disconnected, async () => {
       // This is to check if the bot was really disconnected or changed channels / changed region
@@ -77,7 +80,7 @@ export class MusicPlayer extends PlayerQueue {
           ]);
         }
       } catch (error) {
-        await this.internalStop(this.message);
+        await this.internalStop(this.message, true);
       }
     });
 
@@ -106,11 +109,11 @@ export class MusicPlayer extends PlayerQueue {
       }
 
       if (this.conn && this.conn.state.status === 'destroyed')
-        return await this.internalStop(this.message);
+        return await this.internalStop(this.message, true);
 
       const playerIsReady = () => this.conn?.state.status === 'ready';
 
-      if (this.channel.members.size === 1) return await this.internalStop(this.message);
+      if (this.channel.members.size === 1) return await this.internalStop(this.message, true);
 
       if (this.conn && this.conn.state.status !== 'ready') {
         await entersState(this.conn, VoiceConnectionStatus.Ready, 5_000);
@@ -132,7 +135,7 @@ export class MusicPlayer extends PlayerQueue {
         queue: this.queue,
         channelMembers: this.channel.members.size,
       });
-      return await this.internalStop(this.message);
+      return await this.internalStop(this.message, true);
     }
   };
 
@@ -154,14 +157,12 @@ export class MusicPlayer extends PlayerQueue {
           '-',
           '--verbose',
           '--format',
-          'bestaudio[ext=webm][acodec=opus][tbr>100][protocol^=http_dash_segments]/bestaudio[ext=webm][acodec=opus][protocol^=http_dash_segments]/bestaudio[protocol^=http_dash_segments]/best',
+          'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
           '--no-call-home',
-          '--buffer-size',
-          '50M',
           '--external-downloader',
           'ffmpeg',
           '--external-downloader-args',
-          '-rtbufsize 50M -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 10',
+          '-re -reconnect 1 -reconnect_streamed 1 -reconnect_at_eof 1 -reconnect_delay_max 10',
           url,
         ],
         { stdio: [0, 'pipe', 'pipe'] }
@@ -277,21 +278,39 @@ export class MusicPlayer extends PlayerQueue {
     return basicReply(message, `Tocando próxima música!`, 'success');
   };
 
-  private internalStop = async (message: Message) => {
-    if (!connections[`${message.guildId}`]) return { content: 'Player foi parado!' };
+  /**  */
+  private internalStop = async (message: Message, instant: boolean = false) => {
+    const stop = () => {
+      if (!connections[`${message.guildId}`]) return { content: 'Player foi parado!' };
 
-    this.queue = [];
-    this.conn?.removeAllListeners();
-    if (this.conn?.state.status !== VoiceConnectionStatus.Destroyed) {
-      this.conn?.destroy();
+      this.queue = [];
+      this.conn?.removeAllListeners();
+      if (this.conn?.state.status !== VoiceConnectionStatus.Destroyed) {
+        this.conn?.destroy();
+      }
+      this.player.removeAllListeners();
+      delete connections[`${message.guildId}`];
+    };
+
+    if (instant) {
+      stop();
+      return await message.reply(`Player foi parado!`);
     }
-    this.player.removeAllListeners();
-    delete connections[`${message.guildId}`];
 
-    // If the bot is kicked or banned there isn't a channel to send messages rs
-    if (!message.channel) return { content: 'Player foi parado!' };
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
 
-    return await message.channel.send(`Player foi parado!`);
+    this.timeout = setTimeout(() => {
+      if (this.isPlayerNotBusy() && this.queue.length === 0) {
+        stop();
+        // If the bot is kicked or banned there isn't a channel to send messages rs
+        if (!message.channel) return { content: 'Player foi parado!' };
+        message.channel.send(`Estou saindo por inatividade!`);
+      }
+    }, 300000);
+
+    return { content: 'Player está sendo parado' };
   };
 
   stop = async (message: Message) => {
@@ -303,7 +322,7 @@ export class MusicPlayer extends PlayerQueue {
       );
     }
 
-    return this.internalStop(message);
+    return this.internalStop(message, true);
   };
 
   pause = async (message: Message) => {

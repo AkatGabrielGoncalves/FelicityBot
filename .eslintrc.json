@@ -21,6 +21,7 @@
     "linebreak-style": ["error", "unix"],
     "no-underscore-dangle": "off",
     "class-methods-use-this": "off",
-    "@typescript-eslint/naming-convention": "off"
+    "@typescript-eslint/naming-convention": "off",
+    "consistent-return": "off"
   }
 }
