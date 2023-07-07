@@ -20,6 +20,7 @@
     "axios": "^0.21.4",
     "discord.js": "^14",
     "dotenv": "^10.0.0",
+    "jsdom": "^22.1.0",
     "libsodium-wrappers": "^0.7.9",
     "log4js": "^6.6.1",
     "mysql2": "^2.3.0",
@@ -31,6 +32,7 @@
     "ytsr": "3.8.2"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.1",
     "@types/source-map-support": "^0.5.6",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",

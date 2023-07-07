@@ -22,6 +22,7 @@
     "no-underscore-dangle": "off",
     "class-methods-use-this": "off",
     "@typescript-eslint/naming-convention": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "no-restricted-syntax": "off"
   }
 }

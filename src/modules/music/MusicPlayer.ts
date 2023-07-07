@@ -1,4 +1,4 @@
-import { StageChannel, VoiceChannel, Message } from 'discord.js';
+import { StageChannel, VoiceChannel, Message, EmbedBuilder as MessageEmbed } from 'discord.js';
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -18,6 +18,7 @@ import { QueueItem } from './interfaces/QueueItem';
 import Logger from '../../logger/Logger';
 import { ICustomClient } from '../../interfaces/customInterfaces';
 import { basicReply } from '../../utils/basicReply';
+import { extractLyrics } from '../../utils/modules/commands/extractLyrics';
 
 export const connections: Record<string, MusicPlayer> = {};
 
@@ -386,5 +387,26 @@ export class MusicPlayer extends PlayerQueue {
       return basicReply(message, `Loop foi ativado!`, 'success');
     }
     return basicReply(message, `Loop foi desativado!`, 'success');
+  };
+
+  lyrics = async (message: Message) => {
+    if (!this.currentlyPlaying)
+      return basicReply(message, 'Não há músicas tocando atualmente.', 'success');
+
+    if (message.member?.voice.channel !== this.channel) {
+      return basicReply(
+        message,
+        `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+        'info'
+      );
+    }
+
+    const lyrics = await extractLyrics(this.currentlyPlaying.title);
+
+    const lyricsEmbed = new MessageEmbed()
+      .setTitle(this.currentlyPlaying.title)
+      .setDescription(lyrics);
+
+    return this.message.reply({ embeds: [lyricsEmbed] });
   };
 }
