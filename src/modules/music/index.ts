@@ -6,7 +6,7 @@ import handleStop from './commands/stop';
 import handleRemove from './commands/remove';
 import handleLoop from './commands/loop';
 import handleShuffle from './commands/shuffle';
-import handleLyrics from './commands/lyrics';
+// import handleLyrics from './commands/lyrics';
 import { ICommand } from '../../interfaces/customInterfaces';
 
 export const musicCommandHandlers: ICommand[] = [
@@ -18,5 +18,5 @@ export const musicCommandHandlers: ICommand[] = [
   handleRemove,
   handleLoop,
   handleShuffle,
-  handleLyrics,
+  // handleLyrics,
 ];
