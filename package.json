@@ -29,7 +29,7 @@
     "source-map-support": "^0.5.21",
     "ytdl-core": "^4.9.1",
     "ytpl": "^2.2.3",
-    "ytsr": "3.8.2"
+    "ytsr": "TimeForANinja/node-ytsr#207/head"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.1",
