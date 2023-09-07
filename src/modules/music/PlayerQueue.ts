@@ -76,12 +76,24 @@ export class PlayerQueue {
           'success'
         );
 
-        const { getItems, getTrack } = spotifyTypesFunctions[type];
+        const { getItems } = spotifyTypesFunctions[type];
 
         const { items, title, url } = await getItems(id);
 
-        const tracksInfo = await Promise.all(items.map((item) => getTrack(item)));
-        this.queue.push(...tracksInfo.map((info) => info.track));
+        this.queue.push(
+          ...items.map(
+            (item) =>
+              ({
+                url: 'spotify',
+                title: item,
+                thumbnail: '',
+                duration: '00:00',
+              } as QueueItem)
+          )
+        );
+
+        // const tracksInfo = await Promise.all(items.map((item) => getTrack(item)));
+        // this.queue.push(...tracksInfo.map((info) => info.track));
 
         Logger.debug(
           `Finished adding spotify ${type} to queue. Spotify link: ${searchStringOrUrl}`
@@ -133,13 +145,28 @@ export class PlayerQueue {
     }
   };
 
-  protected readonly getNextSong = () => {
+  protected readonly getNextSong = async () => {
     if (this.loopState) {
       if (this.queuePosition <= this.queue.length) this.queuePosition += 1;
       if (this.queuePosition > this.queue.length) this.queuePosition = 1;
       return this.queue[this.queuePosition - 1];
     }
-    return this.queue.shift();
+
+    const song = this.queue.shift()!;
+
+    // Added so I dont need to load all spotify playlist at once
+    if (song?.url === 'spotify') {
+      const { track } = await yt.getTrackFromSearch(song?.title);
+
+      return {
+        url: track.url,
+        title: song.title,
+        thumbnail: track.thumbnail,
+        duration: track.duration,
+      } as QueueItem;
+    }
+
+    return song;
   };
 
   public readonly showQueue = async (client: Client, message: Message) => {

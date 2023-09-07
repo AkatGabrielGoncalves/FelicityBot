@@ -1,3 +1,4 @@
+import * as child from 'child_process';
 import { StageChannel, VoiceChannel, Message, EmbedBuilder as MessageEmbed } from 'discord.js';
 import {
   AudioPlayer,
@@ -11,7 +12,6 @@ import {
   VoiceConnection,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
-import * as child from 'child_process';
 import { playingEmbed } from './embeds/playingEmbed';
 import { PlayerQueue } from './PlayerQueue';
 import { QueueItem } from './interfaces/QueueItem';
@@ -145,7 +145,7 @@ export class MusicPlayer extends PlayerQueue {
    * Use playerDecisionMaker() to play the next song. */
   private playAudio = async () => {
     try {
-      const song = this.getNextSong() as QueueItem;
+      const song = (await this.getNextSong()) as QueueItem;
 
       const { url } = song;
 
@@ -409,4 +409,24 @@ export class MusicPlayer extends PlayerQueue {
 
     return this.message.reply({ embeds: [lyricsEmbed] });
   };
+
+  // clear = async (message: Message) => {
+  //   if (!this.queue) return basicReply(message, 'Não há músicas na fila', 'success');
+
+  //   if (message.member?.voice.channel !== this.channel) {
+  //     return basicReply(
+  //       message,
+  //       `Você precisa estar no mesmo canal que a pessoa que está ouvindo!`,
+  //       'info'
+  //     );
+  //   }
+
+  //   const lyrics = await extractLyrics(this.currentlyPlaying.title);
+
+  //   const lyricsEmbed = new MessageEmbed()
+  //     .setTitle(this.currentlyPlaying.title)
+  //     .setDescription(lyrics);
+
+  //   return this.message.reply({ embeds: [lyricsEmbed] });
+  // };
 }
