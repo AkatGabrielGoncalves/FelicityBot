@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, PermissionsBitField } from 'discord.js';
+import { ChannelType, CommandInteraction, Message, PermissionsBitField } from 'discord.js';
 import { getChannelAuths } from '../database/queries/channelAuth';
 import { getServer } from '../database/queries/server';
 import Logger from '../logger/Logger';
@@ -49,7 +49,7 @@ export class CommandHandler extends CommandPermissionsHandler {
   };
 
   public readonly message = async (message: Message) => {
-    if (message.author.bot) return null;
+    if (message.author.bot || message.channel.type === ChannelType.DM) return null;
 
     const guildId = message.guildId as string;
 
@@ -67,7 +67,7 @@ export class CommandHandler extends CommandPermissionsHandler {
   };
 
   public readonly interaction = async (interaction: CommandInteraction) => {
-    if (!interaction.isChatInputCommand()) return;
+    if (!interaction.isChatInputCommand() || !interaction.guild) return;
 
     const guildId = interaction.guildId as string;
 
