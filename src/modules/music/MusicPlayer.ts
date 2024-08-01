@@ -163,7 +163,7 @@ export class MusicPlayer extends PlayerQueue {
           '--downloader',
           'ffmpeg',
           '--downloader-args',
-          '"ffmpeg_i:-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 10"',
+          'ffmpeg_i:-reconnect 1',
           url,
         ],
         { stdio: [0, 'pipe', 'pipe'] }
