@@ -152,7 +152,7 @@ export class MusicPlayer extends PlayerQueue {
       Logger.info(`Trying to play ${url}`);
 
       this.child_process = child.spawn(
-        'youtube-dl',
+        'yt-dlp',
         [
           '--output',
           '-',
