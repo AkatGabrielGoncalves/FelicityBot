@@ -51,9 +51,9 @@ class YoutubeTracks {
       track: {
         url: youtubeUrl + videoId,
         title: youtubeUrl + videoId,
-        duration: 0,
+        duration: '00:00',
         thumbnail: '',
-      },
+      } as QueueItem,
       url: youtubeUrl + videoId,
       title: youtubeUrl + videoId,
     };
