@@ -1,4 +1,4 @@
-import { APIEmbedField } from 'discord-api-types';
+import { APIEmbedField } from 'discord-api-types/v10';
 import { EmbedBuilder as MessageEmbed } from 'discord.js';
 import { ICommand, ICustomClient } from '../../../../interfaces/customInterfaces';
 
