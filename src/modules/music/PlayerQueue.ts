@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonComponent,
   ButtonInteraction,
   Client,
   ComponentType,
@@ -217,7 +218,7 @@ export class PlayerQueue {
         time: 30000,
       })
       .then(async (interaction: ButtonInteraction) => {
-        if (interaction.component.label === 'Next Page') {
+        if ((interaction.component as ButtonComponent).label === 'Next Page') {
           if (this.queue.length > this.queuePage + 10) {
             this.queuePage += 10;
           }
@@ -240,7 +241,7 @@ export class PlayerQueue {
           });
           await this.awaitButtonRes(filter, message);
         }
-        if (interaction.component.label === 'Previous Page') {
+        if ((interaction.component as ButtonComponent).label === 'Previous Page') {
           if (this.queuePage > 0) {
             this.queuePage -= 10;
           }
