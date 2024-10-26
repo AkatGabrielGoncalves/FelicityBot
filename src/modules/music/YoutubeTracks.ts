@@ -1,8 +1,7 @@
-import ytdl from 'ytdl-core';
+import ytdl from '@distube/ytdl-core';
 import ytpl from 'ytpl';
-import ytsr from 'ytsr';
+import ytsr from '@distube/ytsr';
 import { QueueItem } from './interfaces/QueueItem';
-import { YouTubeResultItem } from './interfaces/YoutubeResultItem';
 import Logger from '../../logger/Logger';
 
 class YoutubeTracks {
@@ -28,11 +27,11 @@ class YoutubeTracks {
       thumbnail: song.videoDetails.thumbnails[0].url,
     }),
     // ytsr format
-    ytSearch: (song: YouTubeResultItem): QueueItem => ({
+    ytSearch: (song: ytsr.Video): QueueItem => ({
       url: song.url,
-      title: song.title,
+      title: song.name,
       duration: song.duration,
-      thumbnail: song.bestThumbnail.url,
+      thumbnail: song.thumbnails[0].url!,
     }),
   };
 
@@ -66,13 +65,14 @@ class YoutubeTracks {
 
     while (retryCount < maxRetries) {
       try {
+        // eslint-disable-next-line no-await-in-loop
         const { items } = await ytsr(search, this.searchOptions);
-        const track = items.find((item) => item.type === 'video') as YouTubeResultItem;
+        const track = items.find((item) => item.type === 'video')!;
 
         return {
           track: this.songObject.ytSearch(track),
           url: track.url,
-          title: track.title,
+          title: track.name,
         };
       } catch (error) {
         Logger.error(`Attempt ${retryCount + 1} failed. Retrying...`);
