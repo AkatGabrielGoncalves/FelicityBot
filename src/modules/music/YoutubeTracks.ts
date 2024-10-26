@@ -44,12 +44,18 @@ class YoutubeTracks {
   public readonly getTrackFromURL = async (trackURL: string) => {
     const youtubeUrl = 'https://www.youtube.com/watch?v=';
     const videoId = ytdl.getURLVideoID(trackURL);
-    const track = await ytdl.getBasicInfo(youtubeUrl + videoId);
+    // const track = await ytdl.getBasicInfo(youtubeUrl + videoId);
 
+    // temp
     return {
-      track: this.songObject.ytVideo(track),
-      url: track.videoDetails.video_url,
-      title: track.videoDetails.title,
+      track: {
+        url: youtubeUrl + videoId,
+        title: youtubeUrl + videoId,
+        duration: 0,
+        thumbnail: '',
+      },
+      url: youtubeUrl + videoId,
+      title: youtubeUrl + videoId,
     };
   };
 
