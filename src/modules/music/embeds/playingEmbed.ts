@@ -11,17 +11,22 @@ export const playingEmbed = (message: Message, currentlyPlaying: QueueItem) => {
 
   const { title, thumbnail, url } = currentlyPlaying;
 
-  return new MessageEmbed()
+  let embed = new MessageEmbed()
     .setTitle(title)
     .setURL(url)
     .setAuthor({
       name: `Tocando agora em: ${guild?.name}` || '',
       iconURL: guild?.iconURL() || undefined,
     })
-    .setThumbnail(thumbnail)
     .addFields({
       name: 'Duração',
       value: currentlyPlayingTime,
       inline: true,
     });
+
+  if (thumbnail !== '') {
+    embed = embed.setThumbnail(thumbnail);
+  }
+
+  return embed;
 };
