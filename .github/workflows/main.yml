@@ -22,7 +22,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '18'
 
     - name: Install dependencies
       run: yarn install
@@ -39,8 +39,8 @@ jobs:
         source: "*"
         target: "~/${{ env.FOLDER_NAME }}"
         rm: true
-        
-# It needs to use root to copy this file        
+
+# It needs to use root to copy this file
 #     - name: Copy service config file to systemd
 #       uses: appleboy/scp-action@master
 #       with:
@@ -50,7 +50,7 @@ jobs:
 #         source: "felicity.service"
 #         target: "/etc/systemd/system/"
 #         overwrite: true
-        
+
     - name: Copy .env to app folder
       uses: appleboy/ssh-action@master
       with:
@@ -58,7 +58,7 @@ jobs:
         username: ${{ env.SERVER_USERNAME }}
         key: ${{ env.SERVER_KEY }}
         script: cp ~/.env ~/${{ env.FOLDER_NAME }}/.env
-        
+
     - name: Reload systemd files
       uses: appleboy/ssh-action@master
       with:
@@ -66,7 +66,7 @@ jobs:
         username: ${{ env.SERVER_USERNAME }}
         key: ${{ env.SERVER_KEY }}
         script: sudo systemctl daemon-reload
-        
+
     - name: Restart app
       uses: appleboy/ssh-action@master
       with:
