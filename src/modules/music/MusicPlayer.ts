@@ -157,6 +157,8 @@ export class MusicPlayer extends PlayerQueue {
           '--output',
           '-',
           '--verbose',
+          '--cookies',
+          '/home/ubuntu/cookies.txt',
           '--format',
           'bestaudio[ext=webm][acodec=opus][tbr>100]/bestaudio[ext=webm][acodec=opus]/bestaudio/best',
           '--no-call-home',
